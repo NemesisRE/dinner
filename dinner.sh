@@ -256,7 +256,36 @@ function _get_changelog () {
 
 	echo -e "Changes since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
 	echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
-	repo forall -c git --no-pager log  --date-order --since="${LASTBUILD}" --format=email >> ${DINNER_TEMP_DIR}/changes.txt
+
+
+	find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
+	do
+		cd $line
+		log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
+		project=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+		if [ ! -z "$log" ]; then
+			origin=`grep "$project" $rdir/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
+
+        		if [ "$origin" = "bam" ]; then
+            			proj_credit=JELLYBAM
+        		elif [ "$origin" = "aosp" ]; then
+            			proj_credit=AOSP
+        		elif [ "$origin" = "cm" ]; then
+            			proj_credit=CyanogenMod
+        		else
+            			proj_credit="OmniROM"
+        		fi
+
+			echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes.txt
+
+        		echo "$log" | while read line
+        		do
+             			echo "  .$line" >> ${DINNER_TEMP_DIR}/changes.txt
+        		done
+
+        		echo "" >> ${DINNER_TEMP_DIR}/changes.txt
+		fi
+	done
 }
 
 
