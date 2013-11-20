@@ -27,4 +27,5 @@ Features / ToDo:
 - Cleaning out old builds
 - Mail Notifications
 - Post-build commands
+- parameter for 'no sync'
 

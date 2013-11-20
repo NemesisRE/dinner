@@ -70,7 +70,7 @@ function _e_notice () {
 }
 
 function _e_warning () {
-	echo -e "WARNING:\tSomething went wrong ${1} (Exit Code ${2})"
+	echo -e "WARNING:\t${1} (Exit Code ${2})"
 }
 
 function _e_error () {
@@ -137,30 +137,32 @@ function _check_prerequisites () {
 		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 	fi
 
-	if [ "${LOG_DIR}" ]; then
-		LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
-		if [ ! -d "${LOG_DIR}" ]; then
-			mkdir -p "${LOG_DIR}"
-			if [ ${?} != 0 ]; then
-				_e_fatal "Could not create Log directory (${LOG_DIR})!"
-			fi
+	if [ ! "${LOG_DIR}" ]; then
+		_e_warning "LOG_DIR is not set, will set it to $(pwd)/logs"
+		LOG_DIR="$(pwd)/logs"
+	fi
+
+	LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
+	if [ ! -d "${LOG_DIR}" ]; then
+		mkdir -p "${LOG_DIR}"
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not create Log directory (${LOG_DIR})!"
 		fi
-	else
-		_e_fatal "LOG_DIR is not set!"
 	fi
 
 	if [ "${DINNER_TEMP_DIR}" ]; then
-		DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
-		if [ ! -d "${DINNER_TEMP_DIR}" ]; then
-			mkdir -p "${DINNER_TEMP_DIR}"
-			if [ ${?} != 0 ]; then
-				_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
-			fi
-		elif [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
-			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
+		_e_warning "DINNER_TEMP_DIR is not set, will set it to $(pwd)/tmp"
+		DINNER_TEMP_DIR="$(pwd)/tmp"
+	fi
+
+	DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
+	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
+		mkdir -p "${DINNER_TEMP_DIR}"
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
 		fi
-	else
-		_e_fatal "DINNER_TEMP_DIR is not set!"
+	elif [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
+		rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
 	fi
 }
 
@@ -169,7 +171,7 @@ function _sync_repo () {
 	eval "repo sync ${SHOW_VERBOSE}"
 	SYNC_REPO_EXIT_CODE=$?
 	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
-		_e_warning "while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
+		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
 	fi
 }
 
@@ -180,7 +182,7 @@ function _get_breakfast_variables () {
 	if [ ${PLATFORM_VERSION} ]; then
 		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=0
 	else
-		_e_warning "while getting breakfast variables" "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}"
+		_e_warning "Something went wrong while getting breakfast variables" "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}"
 	fi
 }
 
@@ -200,7 +202,7 @@ function _move_build () {
 		mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/
 		CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		if [ "${CURRENT_MOVE_BUILD_EXIT_CODE}" != 0 ]; then
-			_e_warning "while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
+			_e_warning "Something went wrong while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
 		fi
 	else
 		_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
@@ -212,7 +214,7 @@ function _run_command () {
 	eval ${CURRENT_RUN_COMMAND} ${SHOW_VERBOSE}
 	CURR]NT_RUN_COMMAND_EXIT_CODE=$?
 	if [ "${CURRENT_RUN_COMMAND_EXIT_CODE}" != 0 ]; then
-		_e_warning "while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
+		_e_warning "Something went wrong while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
 	fi
 }
 
@@ -230,7 +232,7 @@ function _clean_old_builds () {
 		_e_notice "${CURRENT_CLEANED_FILES}"
 	fi
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-		_e_warning "while cleaning builds for ${DEVICE}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
+		_e_warning "Something went wrong while cleaning builds for ${DEVICE}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 	fi
 }
 
@@ -268,7 +270,7 @@ function _send_mail () {
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
-		_e_warning "while sending E-Mail" "${CURRENT_SEND_MAIL_EXIT_CODE}"
+		_e_warning "Something went wrong while sending E-Mail" "${CURRENT_SEND_MAIL_EXIT_CODE}"
 	fi
 }
 
@@ -392,9 +394,9 @@ function _main() {
 
 		CURRENT_DEVICE_EXIT_CODE=$((${SYNC_REPO_EXIT_CODE}+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}+${CURRENT_BRUNCH_DEVICE_EXIT_CODE}+${CURRENT_MOVE_BUILD_EXIT_CODE}+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}+${CURRENT_SEND_MAIL_EXIT_CODE}))
 		if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-			_e_warning "buildcheck for ${DEVICE} has failed" "${CURRENT_DEVICE_EXIT_CODE}"
+			_e_error "Buildcheck for ${DEVICE} has failed" "${CURRENT_DEVICE_EXIT_CODE}"
 		elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-			_e_warning "buildcheck for ${DEVICE} was successful but something else went wrong" "${CURRENT_DEVICE_EXIT_CODE}"
+			_e_warning "Buildcheck for ${DEVICE} was successful but something else went wrong" "${CURRENT_DEVICE_EXIT_CODE}"
 		else
 			_e_notice "All jobs for ${DEVICE} finished successfully."
 			_set_lastbuild
