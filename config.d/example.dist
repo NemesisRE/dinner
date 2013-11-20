@@ -8,7 +8,7 @@
 #BUILD_FOR_DEVICE="i9300 mako"							# set this if you want always build for the given device/s (space separated)
 
 # Variables that are not necessary.
-LOG_DIR=""												# if empty "./logs/" will be used
+DINNER_LOG_DIR=""										# if empty "./logs/" will be used
 DINNER_TEMP_DIR=""										# if empty "./tmp/" will be used
 MAIL=''													# set this if you want always an email
 ADMIN_MAIL='smith+${DEVICE}@gmail.com'					# set this if you want always an email (with logs)

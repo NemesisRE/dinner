@@ -87,11 +87,11 @@ function _e_fatal () {
 }
 
 function _generate_user_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt"
 }
 
 function _generate_admin_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/admin_message_${DEVICE}.txt"
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
 }
 
 function _check_prerequisites () {
@@ -135,26 +135,24 @@ function _check_prerequisites () {
 		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 	fi
 
-	if [ ! "${LOG_DIR}" ]; then
-		_e_warning "LOG_DIR is not set, will set it to $(pwd)/logs"
-		LOG_DIR="$(echo $(pwd)/logs)"
+	if [ ! "${DINNER_LOG_DIR}" ]; then
+		DINNER_LOG_DIR="$(echo $(pwd)/logs)"
 	fi
 
-	LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
-	if [ ! -d "${LOG_DIR}" ]; then
-		mkdir -p "${LOG_DIR}"
+	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
+	if [ ! -d "${DINNER_LOG_DIR}" ]; then
+		mkdir -p "${DINNER_LOG_DIR}"
 		if [ ${?} != 0 ]; then
-			_e_fatal "Could not create Log directory (${LOG_DIR})!"
+			_e_fatal "Could not create Log directory (${DINNER_LOG_DIR})!"
 		fi
 	else
-		echo "test" > ${LOG_DIR}/permissions_test
+		echo "test" > ${DINNER_LOG_DIR}/permissions_test
 		if [ ${?} != 0 ]; then
-			_e_fatal "Could not write into ${LOG_DIR}"
+			_e_fatal "Could not write into ${DINNER_LOG_DIR}"
 		fi
 	fi
 
 	if [ ! "${DINNER_TEMP_DIR}" ]; then
-		_e_warning "DINNER_TEMP_DIR is not set, will set it to $(pwd)/tmp"
 		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
 
@@ -198,16 +196,16 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for ${DEVICE} with version ${PLATFORM_VERSION}..."
-	eval "brunch ${DEVICE} 2>&1 | tee ${LOG_DIR}/brunch_${DEVICE}.log ${SHOW_VERBOSE}"
+	eval "brunch ${DEVICE} 2>&1 | tee ${DINNER_LOG_DIR}/brunch_${DEVICE}.log ${SHOW_VERBOSE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${LOG_DIR}/brunch_${DEVICE}.log | grep "real" | awk '{print $2}')
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/brunch_${DEVICE}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		_e_error "while brunch the ${DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	fi
 }
 
 function _move_build () {
-	if [ -d ${CURRENT_TARGET_DIR}/ ]; then
+	if [ -d "${CURRENT_TARGET_DIR}/" ]; then
 		_e_notice "Moving files to target directory..."
 		mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/
 		CURRENT_MOVE_BUILD_EXIT_CODE=$?
@@ -222,7 +220,7 @@ function _move_build () {
 function _run_command () {
 	_e_notice "Run command..."
 	eval ${CURRENT_RUN_COMMAND} ${SHOW_VERBOSE}
-	CURR]NT_RUN_COMMAND_EXIT_CODE=$?
+	CURRENT_RUN_COMMAND_EXIT_CODE=$?
 	if [ "${CURRENT_RUN_COMMAND_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
 	fi
@@ -230,7 +228,7 @@ function _run_command () {
 
 function _clean_old_builds () {
 	_e_notice "Running cleanup of old builds..."
-	if [ "${CURRENT_TARGET_DIR}" ]; then
+	if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
 		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
 	else
 		CURRENT_CLEANED_FILES=$(find `dirname ${OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
@@ -261,7 +259,7 @@ function _send_mail () {
 	else
 		_generate_user_message "Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 		_generate_admin_message "Logfile:"
-		_generate_admin_message "$($(which cat) ${LOG_DIR}/brunch_${DEVICE}.log)"
+		_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/brunch_${DEVICE}.log)"
 	fi
 	_generate_user_message "\e[21m"
 	if [ "${CURRENT_MAIL}" ]; then
@@ -273,9 +271,9 @@ function _send_mail () {
 	fi
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
 		if [ ${CONVERT_TO_HTML} ]; then
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		else
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		fi
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?

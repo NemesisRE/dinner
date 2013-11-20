@@ -4,7 +4,7 @@
 # !!!This config will be overwritten on each update please copy example.dist and create your own config!!!
 
 # Variables that are not necessary.
-LOG_DIR="$(pwd)/logs"			# if empty "./logs/" will be used
+DINNER_LOG_DIR="$(pwd)/logs"	# if empty "./logs/" will be used
 DINNER_TEMP_DIR="$(pwd)/tmp"	# if empty "./tmp/" will be used
 MAIL=''							# set this if you want always an email
 ADMIN_MAIL=''					# set this if you want always an email (with logs)
