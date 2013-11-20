@@ -70,7 +70,11 @@ function _e_notice () {
 }
 
 function _e_warning () {
-	echo -e "WARNING:\t${1} (Exit Code ${2})"
+	if [ ${2} ]; then
+		echo -e "WARNING:\t${1} (Exit Code ${2})"
+	else
+		echo -e "WARNING:\t${1}"
+	fi
 }
 
 function _e_error () {
@@ -83,16 +87,10 @@ function _e_fatal () {
 }
 
 function _generate_user_message () {
-	if [ ! -f "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
-	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
 }
 
 function _generate_admin_message () {
-	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
-	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/admin_message_${DEVICE}.txt"
 }
 
@@ -148,6 +146,11 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not create Log directory (${LOG_DIR})!"
 		fi
+	else
+		echo "test" > ${LOG_DIR}/permissions_test
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not write into ${LOG_DIR}"
+		fi
 	fi
 
 	if [ ! "${DINNER_TEMP_DIR}" ]; then
@@ -161,7 +164,14 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
 		fi
-	elif [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
+	else
+		echo "test" > ${DINNER_TEMP_DIR}/permissions_test
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
+		fi
+	fi
+
+	if [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
 		rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
 	fi
 }
