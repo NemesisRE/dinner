@@ -1,0 +1,14 @@
+# You can have a set of different configs and can even overwrite the dinner.conf variables here,
+# this is for the case you want to build different roms like omni and cyanogenmod with different repos
+#
+# !!!This config will be overwritten on each update please copy example.dist and create your own config!!!
+
+# Variables that are not necessary.
+LOG_DIR="./logs"			# if empty "./logs/" will be used
+DINNER_TEMP_DIR="./tmp"		# if empty "./tmp/" will be used
+MAIL=''						# set this if you want always an email
+ADMIN_MAIL=''				# set this if you want always an email (with logs)
+TARGET_DIR=''				# set this if you want always move your build to the given directorie
+CLEANUP_OLDER_THEN=''		# set this if you want always automatic cleanup
+DOWNLOAD_LINK=''			# set this if you want always a download link
+RUN_COMMAND=''				# set this if you want always run a command after a build was successful

@@ -5,11 +5,12 @@
 #
 # Copyright 2013, Steven Koeberich (nemesissre@gmail.com)
 #
-# Title:		dinner.sh
-# Author:		Steven "NemesisRE" Koeberich
-# Date: 		20131117
-# Version:		1.1
-# Description:	Builds Roms automatically
+# Title:			dinner.sh
+# Author:			Steven "NemesisRE" Koeberich
+# Contributors:		ToeiRei
+# Creation Date:	20131117
+# Version:			1.1
+# Description:		Builds Roms automatically
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,47 +64,47 @@ EOF
 }
 
 function _e_notice () {
-	echo -e "NOTICE: ${1}"
+	echo -e "NOTICE:\t\t${1}"
 }
 
 function _e_warning () {
-	echo -e "WARNING:Something went wrong ${1} (Exit Code ${2})"
+	echo -e "WARNING:\tSomething went wrong ${1} (Exit Code ${2})"
 }
 
 function _e_error () {
-	echo -e "ERROR: ${1}"
+	echo -e "ERROR:\t\t${1}"
 }
 
 function _e_fatal () {
-	echo -e "FATAL: ${1}"
+	echo -e "FATAL:\t\t${1}\n\t\tStopping..."
 	exit 1
 }
 
 function _check_prerequisites () {
 	if [ -f "dinner.conf" ]; then
 		. dinner.conf
+		if [ ${USE_CONFIG} ]; then
+			. ./config.d/${USE_CONFIG}
+		else
+			. ./config.d/default
+		fi
+		# Check essentials
+		if [ ! "${REPO_DIR}" ]; then
+			_e_fatal "REPO_DIR is not set!"
+		elif [ ! ${BUILD_FOR_DEVICE} ] || [ ${PROMT_BUILD_FOR_DEVICE} ]; then
+			_e_fatal "No Device given! Stopping..."
+		fi
 	else
-		cat<<- EOF > dinner.conf
-		REPO_DIR=""
-		LOG_DIR=""
-		MAIL=''				# set this if you want always an email
-		ADMIN_MAIL=''			# set this if you want always an email (with logs)
-		TARGET_DIR=''			# set this if you want always move your build to the given directorie
-		CLEANUP_OLDER_THEN=''		# set this if you want always automatic cleanup
-		DOWNLOAD_LINK=''		# set this if you want always a download link
-		RUN_COMMAND=''			# set this if you want always run a command after a build was successful
-		BUILD_FOR_DEVICE=""		# set this if you want always build for the given device/s
-		DINNER_TEMP_DIR=""		# this is the place to store temp. files of this script
-		EOF
-		_e_fatal "No dinner config found, created it."
+		_e_fatal "No dinner config found, created it. Please copy dinner.conf.dist\n\t\tto dinner.conf and change the Variables to your needs."
 	fi
 
-	if [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
+	if [ ! -d "${REPO_DIR}/.repo" ]; then
+		_e_fatal "${REPO_DIR} is not a Repo!"
+	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
 		. ${REPO_DIR}/build/envsetup.sh
 	else
-		_e_fatal "envsetup could not be found."
+		_e_fatal "${REPO_DIR}/build/envsetup.sh could not be found."
 	fi
-
 
 	if [ "${TARGET_DIR}" ]; then
 		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
@@ -111,20 +112,27 @@ function _check_prerequisites () {
 
 	if [ "${LOG_DIR}" ]; then
 		LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
+		if [ ! -d "${LOG_DIR}" ]; then
+			mkdir -p "${LOG_DIR}"
+			if [ ${?} != 0 ]; then
+				_e_fatal "Could not create Log directory (${LOG_DIR})!"
+			fi
+		fi
+	else
+		_e_fatal "LOG_DIR is not set!"
 	fi
 
-	if [ -z "${BUILD_FOR_DEVICE}" ]; then
-		_e_fatal "No Device given! Stopping..."
+	if [ "${DINNER_TEMP_DIR}" ]; then
+		DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
+		if [ ! -d "${DINNER_TEMP_DIR}" ]; then
+			mkdir -p "${DINNER_TEMP_DIR}"
+			if [ ${?} != 0 ]; then
+				_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
+			fi
+		fi
+	else
+		_e_fatal "DINNER_TEMP_DIR is not set!"
 	fi
-
-	if [ ! -d "${LOG_DIR}" ]; then
-		mkdir -p "${LOG_DIR}"
-	fi
-
-	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
-		mkdir -p "${DINNER_TEMP_DIR}"
-	fi
-
 }
 
 function _sync_repo () {
@@ -260,8 +268,6 @@ function _get_changelog () {
 }
 
 
-
-
 ######################
 #
 #	function _main
@@ -271,7 +277,7 @@ function _main() {
 	#Set initial exitcodes
 	OVERALL_EXIT_CODE=0
 	SYNC_REPO_EXIT_CODE=1
-	
+
 	_check_prerequisites
 
 	cd "${REPO_DIR}"
@@ -341,19 +347,19 @@ function _main() {
 while getopts ":n:t:l:c:vh" opt; do
 	case ${opt} in
 		"n")
-			MAIL='${OPTARG}'
+			PROMT_MAIL='${OPTARG}'
 		;;
 		"t")
-			TARGET_DIR='${OPTARG}'
+			PROMT_TARGET_DIR='${OPTARG}'
 		;;
 		"r")
-			RUN_COMMAND='${OPTARG}'
+			PROMT_RUN_COMMAND='${OPTARG}'
 		;;
 		"l")
-			DOWNLOAD_LINK='${OPTARG}'
+			PROMT_DOWNLOAD_LINK='${OPTARG}'
 		;;
 		"c")
-			CLEANUP_OLDER_THEN="${OPTARG}"
+			PROMT_CLEANUP_OLDER_THEN="${OPTARG}"
 		;;
 		"v")
 			SHOW_VERBOSE=""
@@ -377,7 +383,7 @@ done
 shift $((${OPTIND}-1))
 
 if [ "${@}" ]; then
-	BUILD_FOR_DEVICE="${@}"
+	PROMT_BUILD_FOR_DEVICE="${@}"
 fi
 
 _main
