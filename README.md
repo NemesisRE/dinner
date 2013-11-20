@@ -14,7 +14,6 @@ Requirements:
 =============
 For building ROMs using Android Dinner, you need:
 - A working Android Build environment
-- ansi2html (optional, on ubuntu install kbtin)
 - cron (optional)
 
 

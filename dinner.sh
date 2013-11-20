@@ -87,16 +87,10 @@ function _e_fatal () {
 }
 
 function _generate_user_message () {
-	if [ ! -f "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
-	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt"
 }
 
 function _generate_admin_message () {
-	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
-	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
 }
 
@@ -252,6 +246,12 @@ function _clean_old_builds () {
 
 function _send_mail () {
 	_e_notice "Sending status mail..."
+	if [ ! -f "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt"
+	fi
+	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
+	fi
 	_generate_user_message "\e[1mBuild Status:\n\n"
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
@@ -332,8 +332,6 @@ function _get_changelog () {
 				done
 
 				echo "" >> ${DINNER_TEMP_DIR}/changes.txt
-			else
-				echo "No changes.\n" >> ${DINNER_TEMP_DIR}/changes.txt
 			fi
 		done
 	fi
