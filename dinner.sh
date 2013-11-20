@@ -264,16 +264,16 @@ function _send_mail () {
 	_generate_user_message "\e[21m"
 	if [ "${CURRENT_MAIL}" ]; then
 		if [ ${CONVERT_TO_HTML} ]; then
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
 		else
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
 		fi
 	fi
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
 		if [ ${CONVERT_TO_HTML} ]; then
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		else
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		fi
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
@@ -297,13 +297,11 @@ function _set_lastbuild () {
 
 function _get_changelog () {
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
-	_e_notice "Gathering Changes since last build..."
-	LASTBUILD=`$(which cat) ${DINNER_TEMP_DIR}/lastbuild.txt`
+		_e_notice "Gathering Changes since last build..."
+		LASTBUILD=`$(which cat) ${DINNER_TEMP_DIR}/lastbuild.txt`
 
-	echo -e "Changes since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
-	echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
-
-
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
+		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line; do
 			cd $line
 			log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
@@ -328,6 +326,8 @@ function _get_changelog () {
 				done
 
 				echo "" >> ${DINNER_TEMP_DIR}/changes.txt
+			else
+				echo "No changes.\n" >> ${DINNER_TEMP_DIR}/changes.txt
 			fi
 		done
 	fi
