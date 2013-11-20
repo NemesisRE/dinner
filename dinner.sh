@@ -40,6 +40,7 @@ export USE_CCACHE=1
 MAIL_BIN=$(which mail)
 CONVERT_TO_HTML=$(which ansi2html)							# install package kbtin to use this feature
 SHOW_VERBOSE="> /dev/null 2>&1"
+SKIP_SYNC=false
 
 ######################
 #
@@ -314,7 +315,7 @@ function _main() {
 
 	cd "${REPO_DIR}"
 
-	if  ! ${SKIP_SYNC}; then
+	if ! ${SKIP_SYNC}; then
 		_sync_repo
 	fi
 
