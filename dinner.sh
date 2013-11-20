@@ -246,6 +246,19 @@ function _check_build () {
 	fi
 }
 
+function _set_lastbuild () {
+	echo `date` > ${DINNER_TEMP_DIR}/lastbuild.txt
+}
+
+function _get_changelog () {
+	_e_notice "Gathering Changes since last build..."
+	LASTBUILD=`cat ${DINNER_TEMP_DIR}/lastbuild.txt`
+	repo forall -c git --no-pager log  --date-order --since="${LASTBUILD}" > ${DINNER_TEMP_DIR}/changes.txt
+}
+
+
+
+
 ######################
 #
 #	function _main
