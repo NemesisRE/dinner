@@ -265,7 +265,7 @@ function _get_changelog () {
 		log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
 		project=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 		if [ ! -z "$log" ]; then
-			origin=`grep "$project" $rdir/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
+			origin=`grep "$project" ${REPO_DIR}/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
 
         		if [ "$origin" = "bam" ]; then
             			proj_credit=JELLYBAM
