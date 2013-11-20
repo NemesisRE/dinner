@@ -326,6 +326,7 @@ function _main() {
 			_e_warning "buildcheck for ${DEVICE} was successful but something else went wrong" "${CURRENT_DEVICE_EXIT_CODE}"
 		else
 			_e_notice "All jobs for ${DEVICE} finished successfully."
+			_set_lastbuild
 		fi
 		OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_DEVICE_EXIT_CODE}))
 	done
