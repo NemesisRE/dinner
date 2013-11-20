@@ -275,6 +275,8 @@ function _main() {
 
 	_sync_repo
 
+	_get_changelog
+
 	for DEVICE in ${BUILD_FOR_DEVICE}; do
 		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
 		_get_breakfast_variables
