@@ -251,6 +251,7 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
+    if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
 	_e_notice "Gathering Changes since last build..."
 	LASTBUILD=`cat ${DINNER_TEMP_DIR}/lastbuild.txt`
 
@@ -286,6 +287,7 @@ function _get_changelog () {
         		echo "" >> ${DINNER_TEMP_DIR}/changes.txt
 		fi
 	done
+    fi
 }
 
 
