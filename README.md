@@ -1,7 +1,16 @@
 dinner
 ======
 
-Android Dinner, if you have no time to breakfast, brunch or lunch.
+"Android Dinner, if you have no time to breakfast, brunch or lunch."
+
+Android Dinner is a build script for automated building of Android Roms.
+
+Requirements:
+=============
+For building ROMs using Android Dinner, you need:
+- A working Android Build environment
+- ansi2html
+- cron (optional)
 
 
 Features / ToDo:
