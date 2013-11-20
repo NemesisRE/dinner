@@ -253,7 +253,10 @@ function _set_lastbuild () {
 function _get_changelog () {
 	_e_notice "Gathering Changes since last build..."
 	LASTBUILD=`cat ${DINNER_TEMP_DIR}/lastbuild.txt`
-	repo forall -c git --no-pager log  --date-order --since="${LASTBUILD}" > ${DINNER_TEMP_DIR}/changes.txt
+
+	echo -e "Changes since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
+	echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
+	repo forall -c git --no-pager log  --date-order --since="${LASTBUILD}" --format=email >> ${DINNER_TEMP_DIR}/changes.txt
 }
 
 
