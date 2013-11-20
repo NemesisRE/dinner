@@ -150,7 +150,7 @@ function _check_prerequisites () {
 		fi
 	fi
 
-	if [ "${DINNER_TEMP_DIR}" ]; then
+	if [ ! "${DINNER_TEMP_DIR}" ]; then
 		_e_warning "DINNER_TEMP_DIR is not set, will set it to $(pwd)/tmp"
 		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
