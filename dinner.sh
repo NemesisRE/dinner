@@ -38,7 +38,7 @@ export USE_CCACHE=1
 
 # Define global variables
 MAIL_BIN=$(which mail)
-CONVERT_TO_HTML=$(which ansi2html)			# install package kbtin to use this feature
+CONVERT_TO_HTML=$(echo "$(pwd)/ansi2html.sh")
 SHOW_VERBOSE="> /dev/null 2>&1"
 SKIP_SYNC=false
 
