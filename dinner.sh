@@ -53,7 +53,7 @@ cat<<EOF
 
 Options:
 	-n		Send notification to given Mail-Adress
-	-t		Move files into given Directorie
+	-t		Move files into given Directory
 	-r		Run command on successful build
 	-l		If you choose a target dir you may want put
 			a download link into the mail message
