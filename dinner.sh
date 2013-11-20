@@ -87,10 +87,16 @@ function _e_fatal () {
 }
 
 function _generate_user_message () {
+	if [ ! -f "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
+	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt"
 }
 
 function _generate_admin_message () {
+	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
+	fi
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
 }
 
@@ -231,7 +237,7 @@ function _clean_old_builds () {
 	if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
 		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
 	else
-		CURRENT_CLEANED_FILES=$(find `dirname ${OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
+		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
 	fi
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
