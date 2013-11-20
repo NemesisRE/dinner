@@ -86,13 +86,14 @@ function _check_prerequisites () {
 		cat<<- EOF > dinner.conf
 		REPO_DIR=""
 		LOG_DIR=""
-		MAIL=''					# set this if you want always an email
+		MAIL=''				# set this if you want always an email
 		ADMIN_MAIL=''			# set this if you want always an email (with logs)
 		TARGET_DIR=''			# set this if you want always move your build to the given directorie
-		CLEANUP_OLDER_THEN=''	# set this if you want always automatic cleanup
+		CLEANUP_OLDER_THEN=''		# set this if you want always automatic cleanup
 		DOWNLOAD_LINK=''		# set this if you want always a download link
 		RUN_COMMAND=''			# set this if you want always run a command after a build was successful
 		BUILD_FOR_DEVICE=""		# set this if you want always build for the given device/s
+		DINNER_TEMP_DIR=""		# this is the place to store temp. files of this script
 		EOF
 		_e_fatal "No dinner config found, created it."
 	fi
@@ -119,6 +120,11 @@ function _check_prerequisites () {
 	if [ ! -d "${LOG_DIR}" ]; then
 		mkdir -p "${LOG_DIR}"
 	fi
+
+	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
+		mkdir -p "${DINNER_TEMP_DIR}"
+	fi
+
 }
 
 function _sync_repo () {
