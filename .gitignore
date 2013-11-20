@@ -1,2 +1,4 @@
-./dinner.conf
-./logs/*
+/tmp/*
+/logs/*
+/config.d/*
+/dinner.conf
