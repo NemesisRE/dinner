@@ -175,7 +175,7 @@ function _move_build () {
 			_e_warning "while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
 		fi
 	else
-		e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
+		_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
 	fi
 }
 
