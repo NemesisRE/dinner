@@ -139,7 +139,7 @@ function _check_prerequisites () {
 
 	if [ ! "${LOG_DIR}" ]; then
 		_e_warning "LOG_DIR is not set, will set it to $(pwd)/logs"
-		LOG_DIR="$(pwd)/logs"
+		LOG_DIR="$(echo $(pwd)/logs)"
 	fi
 
 	LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
@@ -152,7 +152,7 @@ function _check_prerequisites () {
 
 	if [ "${DINNER_TEMP_DIR}" ]; then
 		_e_warning "DINNER_TEMP_DIR is not set, will set it to $(pwd)/tmp"
-		DINNER_TEMP_DIR="$(pwd)/tmp"
+		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
 
 	DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
