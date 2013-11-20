@@ -1,0 +1,10 @@
+REPO_DIR="${HOME}/android/[ROM_NAME]"
+LOG_DIR="./logs"
+MAIL=''							# set this if you want always an email
+ADMIN_MAIL='smith+${DEVICE}@gmail.com'			# set this if you want always an email (with logs)
+TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'		# set this if you want always move your build to the given directorie
+CLEANUP_OLDER_THEN='7'					# set this if you want always automatic cleanup
+DOWNLOAD_LINK='http://example.com/download/${DEVICE}'	# set this if you want always a download link
+RUN_COMMAND=''						# set this if you want always run a command after a build was successful
+BUILD_FOR_DEVICE="i9300"				# set this if you want always build for the given device/s
+
