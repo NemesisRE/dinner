@@ -38,7 +38,7 @@ export USE_CCACHE=1
 
 # Define global variables
 MAIL_BIN=$(which mail)
-CONVERT_TO_HTML=$(which ansi2html)							# install package kbtin to use this feature
+CONVERT_TO_HTML=$(which ansi2html)			# install package kbtin to use this feature
 SHOW_VERBOSE="> /dev/null 2>&1"
 SKIP_SYNC=false
 
@@ -86,15 +86,26 @@ function _check_prerequisites () {
 	if [ -f "dinner.conf" ]; then
 		. dinner.conf
 		if [ ${USE_CONFIG} ]; then
-			. ./config.d/${USE_CONFIG}
-		else
+			if [ -f "./config.d/${USE_CONFIG}" ]; then
+				. ./config.d/${USE_CONFIG}
+			else
+				_e_fatal "./config.d/${USE_CONFIG} not found!"
+			fi
+		elif [ -f "./config.d/default" ]; then
 			. ./config.d/default
+		else
+			_e_fatal "default config not found!"
 		fi
+
 		# Check essentials
 		if [ ! "${REPO_DIR}" ]; then
 			_e_fatal "REPO_DIR is not set!"
 		elif [ ! ${BUILD_FOR_DEVICE} ] || [ ${PROMT_BUILD_FOR_DEVICE} ]; then
 			_e_fatal "No Device given! Stopping..."
+		fi
+
+		if [ ${PROMT_BUILD_FOR_DEVICE} ];then
+			BUILD_FOR_DEVICE=${PROMT_BUILD_FOR_DEVICE}
 		fi
 	else
 		_e_fatal "No dinner config found, created it. Please copy dinner.conf.dist\n\t\tto dinner.conf and change the Variables to your needs."
@@ -261,7 +272,7 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
-    if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
+	if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
 	_e_notice "Gathering Changes since last build..."
 	LASTBUILD=`cat ${DINNER_TEMP_DIR}/lastbuild.txt`
 
@@ -269,35 +280,33 @@ function _get_changelog () {
 	echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
 
 
-	find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
-	do
-		cd $line
-		log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
-		project=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
-		if [ ! -z "$log" ]; then
-			origin=`grep "$project" ${REPO_DIR}/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
+		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line; do
+			cd $line
+			log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
+			project=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+			if [ ! -z "$log" ]; then
+				origin=`grep "$project" ${REPO_DIR}/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
 
-        		if [ "$origin" = "bam" ]; then
-            			proj_credit=JELLYBAM
-        		elif [ "$origin" = "aosp" ]; then
-            			proj_credit=AOSP
-        		elif [ "$origin" = "cm" ]; then
-            			proj_credit=CyanogenMod
-        		else
-            			proj_credit="OmniROM"
-        		fi
+				if [ "$origin" = "bam" ]; then
+						proj_credit=JELLYBAM
+				elif [ "$origin" = "aosp" ]; then
+						proj_credit=AOSP
+				elif [ "$origin" = "cm" ]; then
+						proj_credit=CyanogenMod
+				else
+						proj_credit="OmniROM"
+				fi
 
-			echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes.txt
+				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes.txt
 
-        		echo "$log" | while read line
-        		do
-             			echo "  .$line" >> ${DINNER_TEMP_DIR}/changes.txt
-        		done
+				echo "$log" | while read line; do
+					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes.txt
+				done
 
-        		echo "" >> ${DINNER_TEMP_DIR}/changes.txt
-		fi
-	done
-    fi
+				echo "" >> ${DINNER_TEMP_DIR}/changes.txt
+			fi
+		done
+	fi
 }
 
 
