@@ -1,6 +1,6 @@
 Android Dinner
 ==============
-Android Dinner is a build script for comfortable and automated building 
+Android Dinner is a build script for comfortable and automated building
 of Android Roms.
 
 
@@ -14,7 +14,7 @@ Requirements:
 =============
 For building ROMs using Android Dinner, you need:
 - A working Android Build environment
-- ansi2html
+- ansi2html (optional, on ubuntu install kbtin)
 - cron (optional)
 
 
@@ -27,4 +27,4 @@ Features / ToDo:
 - Cleaning out old builds
 - Mail Notifications
 - Post-build commands
- 
+

@@ -57,6 +57,7 @@ Options:
 	-l		If you choose a target dir you may want put
 			a download link into the mail message
 	-c		Cleanup builds older then N days
+	-s		Skip Sync
 	-v		Verbose Output
 	-h		See this Message
 
@@ -313,7 +314,9 @@ function _main() {
 
 	cd "${REPO_DIR}"
 
-	_sync_repo
+	if  ! ${SKIP_SYNC}; then
+		_sync_repo
+	fi
 
 	_get_changelog
 
@@ -375,7 +378,7 @@ function _main() {
 }
 
 ## Parameter handling
-while getopts ":n:t:l:c:vh" opt; do
+while getopts ":n:t:l:c:vhs" opt; do
 	case ${opt} in
 		"n")
 			PROMT_MAIL='${OPTARG}'
@@ -391,6 +394,9 @@ while getopts ":n:t:l:c:vh" opt; do
 		;;
 		"c")
 			PROMT_CLEANUP_OLDER_THEN="${OPTARG}"
+		;;
+		"s")
+			SKIP_SYNC=true
 		;;
 		"v")
 			SHOW_VERBOSE=""
