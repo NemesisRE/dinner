@@ -247,7 +247,7 @@ function _check_build () {
 }
 
 function _set_lastbuild () {
-	echo `date` > ${DINNER_TEMP_DIR}/lastbuild.txt
+	echo `date +"%m_%d_%Y"` > ${DINNER_TEMP_DIR}/lastbuild.txt
 }
 
 function _get_changelog () {
