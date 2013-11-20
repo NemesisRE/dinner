@@ -48,8 +48,8 @@ SKIP_SYNC=false
 #
 #
 function _usage() {
-echo $"Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- i9300 mako ]"
-cat<<EOF
+echo "Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- i9300 mako ]"
+$(which cat)<<EOF
 
 Options:
 	-n		Send notification to given Mail-Adress
@@ -80,6 +80,20 @@ function _e_error () {
 function _e_fatal () {
 	echo -e "FATAL:\t\t${1}\n\t\tStopping..."
 	exit 1
+}
+
+function _generate_user_message () {
+	if [ ! -f "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
+	fi
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/user_message_${DEVICE}.txt"
+}
+
+function _generate_admin_message () {
+	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
+		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
+	fi
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/admin_message_${DEVICE}.txt"
 }
 
 function _check_prerequisites () {
@@ -142,6 +156,8 @@ function _check_prerequisites () {
 			if [ ${?} != 0 ]; then
 				_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
 			fi
+		elif [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
+			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
 		fi
 	else
 		_e_fatal "DINNER_TEMP_DIR is not set!"
@@ -174,7 +190,7 @@ function _brunch_device () {
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${LOG_DIR}/brunch_${DEVICE}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
-		_e_warning "while brunch the ${DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+		_e_error "while brunch the ${DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	fi
 }
 
@@ -220,36 +236,34 @@ function _clean_old_builds () {
 
 function _send_mail () {
 	_e_notice "Sending status mail..."
-	MAIL_MESSAGE="\e[1mBuild Status:\n\n"
-	ADMIN_MAIL_MESSAGE=""
+	_generate_user_message "\e[1mBuild Status:\n\n"
 	if ${CURRENT_BUILD_STATUS}; then
-		MAIL_MESSAGE+="Build for ${DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_user_message "Build for ${DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-			MAIL_MESSAGE+="You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
+			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
-			ADMIN_MAIL_MESSAGE+="Removed the following files:\n"
-			ADMIN_MAIL_MESSAGE+=${CURRENT_CLEANED_FILES}
+			_generate_admin_message "Removed the following files:\n"
+			_generate_admin_message "${CURRENT_CLEANED_FILES}"
 		fi
 	else
-		MAIL_MESSAGE+="Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
-		ADMIN_MAIL_MESSAGE+="Logfile:"
-		ADMIN_MAIL_MESSAGE+=$(cat ${LOG_DIR}/brunch_${DEVICE}.log)
+		_generate_user_message "Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
+		_generate_admin_message "Logfile:"
+		_generate_admin_message "$($(which cat) ${LOG_DIR}/brunch_${DEVICE}.log)"
 	fi
-	MAIL_MESSAGE+="\e[21m"
+	_generate_user_message "\e[21m"
 	if [ "${CURRENT_MAIL}" ]; then
 		if [ ${CONVERT_TO_HTML} ]; then
-			echo -e "${MAIL_MESSAGE}" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
 		else
-			echo -e "${MAIL_MESSAGE}" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
 		fi
 	fi
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		FULL_ADMIN_MESSAGE=$(echo -e "${MAIL_MESSAGE}${ADMIN_MAIL_MESSAGE}")
 		if [ ${CONVERT_TO_HTML} ]; then
-			echo -e "${FULL_ADMIN_MESSAGE}" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		else
-			echo -e "${FULL_ADMIN_MESSAGE}" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
+			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
 		fi
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
@@ -274,7 +288,7 @@ function _set_lastbuild () {
 function _get_changelog () {
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
 	_e_notice "Gathering Changes since last build..."
-	LASTBUILD=`cat ${DINNER_TEMP_DIR}/lastbuild.txt`
+	LASTBUILD=`$(which cat) ${DINNER_TEMP_DIR}/lastbuild.txt`
 
 	echo -e "Changes since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
 	echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
@@ -337,7 +351,9 @@ function _main() {
 		eval CURRENT_MAIL="${MAIL}"
 		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 		eval CURRENT_OUTPUT_FILE="${OUT_DIR}/target/product/${DEVICE}/omni-${PLATFORM_VERSION}-$(date +%Y%m%d)-${DEVICE}-HOMEMADE.zip"
-		eval CURRENT_BUILD_STATUS=false
+		eval CURRENT_DOWNLOAD_LINK=${DOWNLOAD_LINK}
+
+		CURRENT_BUILD_STATUS=false
 		CURRENT_DEVICE_EXIT_CODE=1
 		CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
 		CURRENT_MOVE_BUILD_EXIT_CODE=1
