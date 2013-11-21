@@ -205,7 +205,7 @@ function _check_variables () {
 		RUN_COMMAND=${PROMPT_RUN_COMMAND}
 	fi
 
-	if[ ${PROMPT_DOWNLOAD_LINK} ]; then
+	if [ ${PROMPT_DOWNLOAD_LINK} ]; then
 		DOWNLOAD_LINK=${PROMPT_DOWNLOAD_LINK}
 	fi
 
