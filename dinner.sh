@@ -150,12 +150,11 @@ function _check_prerequisites () {
 			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
 		fi
 		if [ -f "${DINNER_TEMP_DIR}/lastsync.txt" ]; then
-		if [ (($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -gt ${SKIP_SYNC_TIME} ]; then
-			SKIP_SYNC=true
+			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -gt ${SKIP_SYNC_TIME} ]; then
+				SKIP_SYNC=true
+			fi
 		fi
 	fi
-
-
 }
 
 function _source_sources () {
