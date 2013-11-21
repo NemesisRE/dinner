@@ -233,7 +233,7 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_notice "Running repo sync..."
-	_exec_command "repo sync"
+	_exec_command "repo sync 2>&1"
 	SYNC_REPO_EXIT_CODE=$?
 	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
