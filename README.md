@@ -17,7 +17,7 @@ For building ROMs using Android Dinner, you need:
 - cron (optional)
 
 
-Features / ToDo:
+Features:
 ================
 - Sync of the repositories
 - Build-Environment settings (ccache)
@@ -27,4 +27,5 @@ Features / ToDo:
 - Mail Notifications
 - Post-build commands
 - parameter for 'no sync'
+- Changes since last build (via mail)
 
