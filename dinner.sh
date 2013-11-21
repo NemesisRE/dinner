@@ -39,7 +39,7 @@ export USE_CCACHE=1
 # Define global variables
 MAIL_BIN=$(which mail)
 DINNER_DIR=$( cd "$( dirname "${0}" )" && pwd )
-DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' )"
+DINNER_CONFIGS="$(basename $(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' ))"
 CONVERT_TO_HTML="${DINNER_DIR}/helper/ansi2html.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
