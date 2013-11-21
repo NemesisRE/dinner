@@ -7,6 +7,8 @@ TODO:
  - Pre-build commands
  - APK injection into ROMs
  - Injection of ZIP files into the ROM
+ - check java version
+ - give the user the choice to let dinner configure the build environment automatically
 
 IDEAS:
 ======
