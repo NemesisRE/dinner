@@ -39,7 +39,7 @@ export USE_CCACHE=1
 # Define global variables
 MAIL_BIN=$(which mail)
 CONVERT_TO_HTML=$(echo "$(pwd)/ansi2html.sh")
-SHOW_VERBOSE="> /dev/null 2>&1"
+SHOW_VERBOSE=false
 SKIP_SYNC=false
 
 ######################
@@ -84,6 +84,16 @@ function _e_error () {
 function _e_fatal () {
 	echo -e "FATAL:\t\t${1}\n\t\tStopping..."
 	exit 1
+}
+
+function _exec_command () {
+	if ${SHOW_VERBOSE}; then
+		# log STDOUT and STDERR, send both to STDOUT
+		eval "(${1} 2>&1) | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+	else
+		# log STDOUT and STDERR but send only STDERR to STDOUT
+		eval "(${1} 1>>${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log) 2>&1 | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+	fi
 }
 
 function _generate_user_message () {
@@ -365,7 +375,8 @@ function _main() {
 		eval CURRENT_MAIL="${MAIL}"
 		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 		eval CURRENT_OUTPUT_FILE="${OUT_DIR}/target/product/${DEVICE}/omni-${PLATFORM_VERSION}-$(date +%Y%m%d)-${DEVICE}-HOMEMADE.zip"
-		eval CURRENT_DOWNLOAD_LINK=${DOWNLOAD_LINK}
+		eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
+		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 
 		CURRENT_BUILD_STATUS=false
 		CURRENT_DEVICE_EXIT_CODE=1
@@ -439,7 +450,7 @@ while getopts ":n:t:l:c:vhs" opt; do
 			SKIP_SYNC=true
 		;;
 		"v")
-			SHOW_VERBOSE=""
+			SHOW_VERBOSE=true
 		;;
 		"h")
 			_usage
