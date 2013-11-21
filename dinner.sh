@@ -161,10 +161,11 @@ function _source_sources () {
 	if [ -f "dinner.conf" ]; then
 		. dinner.conf
 		if [ ${DINNER_CONFIGS} ]; then
-			for CONFIG in ${DINNER_CONFIGS}
-			if [ ! -f "./config.d/${CONFIG}" ]; then
-				_e_fatal "./config.d/${CONFIG} not found!"
-			fi
+			for CONFIG in ${DINNER_CONFIGS}; do
+				if [ ! -f "./config.d/${CONFIG}" ]; then
+					_e_fatal "./config.d/${CONFIG} not found!"
+				fi
+			done
 		fi
 
 		# Check essentials
