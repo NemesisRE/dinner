@@ -1,18 +1,19 @@
 # You can have a set of different configs and can even overwrite the dinner.conf variables here,
-# this is for the case you want to build different roms like omni and cyanogenmod with different repos
+# this is for the case you want to build for a different device/rom or even if you want to make
+# an other build with cherrypicks or so
 #
-# !!!This an example file and will be overwritten on each update please copy it and c!!!
+# !!!This is an example file and will be overwritten on each update please just copy it!!!
 
-# Override for essential variables
-#REPO_DIR="${HOME}/android/[ROM_NAME]"					# can not be empty, in the target directory must .repo exist!
-#BUILD_FOR_DEVICE="i9300 mako"							# set this if you want always build for the given device/s (space separated)
+# Override REPO DIR if you want to build from an other Repository
+#REPO_DIR="${HOME}/android/[ROM_NAME]"
+
+# Set the Device you want to build for
+#BUILD_FOR_DEVICE="i9300"
 
 # Variables that are not necessary.
-DINNER_LOG_DIR=""										# if empty "./logs/" will be used
-DINNER_TEMP_DIR=""										# if empty "./tmp/" will be used
-MAIL=''													# set this if you want always an email
-ADMIN_MAIL='smith+${DEVICE}@gmail.com'					# set this if you want always an email (with logs)
-TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'				# set this if you want always move your build to the given directorie
-CLEANUP_OLDER_THEN='7'									# set this if you want always automatic cleanup
-DOWNLOAD_LINK='http://example.com/download/${DEVICE}'	# set this if you want always a download link
-RUN_COMMAND=''											# set this if you want always run a command after a build was successful
+#MAIL='john+i9300@gmail.com'												# set this if you want always an email
+#ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with logs)
+#TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'				# set this if you want always move your build to the given directorie
+#CLEANUP_OLDER_THEN='7'									# set this if you want always automatic cleanup
+#DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want always a download link
+#RUN_COMMAND='echo "now flash it!"'						# set this if you want always run a command after a build was successful

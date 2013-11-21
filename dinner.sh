@@ -38,7 +38,9 @@ export USE_CCACHE=1
 
 # Define global variables
 MAIL_BIN=$(which mail)
-CONVERT_TO_HTML=$(echo "$(pwd)/ansi2html.sh")
+DINNER_DIR=$( cd "$( dirname "${0}" )" && pwd )
+DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' )"
+CONVERT_TO_HTML="${DINNER_DIR}/helper/ansi2html.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
 
@@ -48,19 +50,22 @@ SKIP_SYNC=false
 #
 #
 function _usage() {
-echo "Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- i9300 mako ]"
+echo "Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- config_name1 config_name2 ]"
 $(which cat)<<EOF
 
+You can overwrite the Variables from the config/s with the the options below
+NOTE: This overwrites are for every choosen config
+
 Options:
-	-n		Send notification to given Mail-Adress
-	-t		Move files into given Directory
-	-r		Run command on successful build
-	-l		If you choose a target dir you may want put
-			a download link into the mail message
-	-c		Cleanup builds older then N days
-	-s		Skip Sync
-	-v		Verbose Output
-	-h		See this Message
+	-n	[	NOTIFICATION	]	Send notification to given Mail-Adress
+	-t	[	TARGET DIRECTORY]	Move files into given Directory
+	-r	[	SHELL COMMAND	]	Run command on successful build
+	-l	[	DOWNLOAD LINK	]	If you choose a target dir you may want put
+								a download link into the mail message
+	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
+	-s	[	SKIP SYNC		]	Skips the repo sync
+	-v	[	VERBOSE OUTPUT	]	Verbose Output
+	-h	[	DINNER HELP		]	See this Message
 
 EOF
 }
@@ -105,49 +110,13 @@ function _generate_admin_message () {
 }
 
 function _check_prerequisites () {
-	if [ -f "dinner.conf" ]; then
-		. dinner.conf
-		if [ ${USE_CONFIG} ]; then
-			if [ -f "./config.d/${USE_CONFIG}" ]; then
-				. ./config.d/${USE_CONFIG}
-			else
-				_e_fatal "./config.d/${USE_CONFIG} not found!"
-			fi
-		elif [ -f "./config.d/default" ]; then
-			. ./config.d/default
-		else
-			_e_fatal "default config not found!"
-		fi
-
-		# Check essentials
-		if [ ! "${REPO_DIR}" ]; then
-			_e_fatal "REPO_DIR is not set!"
-		elif [ ! ${BUILD_FOR_DEVICE} ] || [ ${PROMT_BUILD_FOR_DEVICE} ]; then
-			_e_fatal "No Device given! Stopping..."
-		fi
-
-		if [ ${PROMT_BUILD_FOR_DEVICE} ];then
-			BUILD_FOR_DEVICE=${PROMT_BUILD_FOR_DEVICE}
-		fi
-	else
-		_e_fatal "No dinner config found, created it. Please copy dinner.conf.dist\n\t\tto dinner.conf and change the Variables to your needs."
+	if [ ${PROMPT_CONFIGS} ]; then
+		DINNER_CONFIGS="${PROMPT_CONFIGS}"
 	fi
 
-	if [ ! -d "${REPO_DIR}/.repo" ]; then
-		_e_fatal "${REPO_DIR} is not a Repo!"
-	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
-		. ${REPO_DIR}/build/envsetup.sh
-	else
-		_e_fatal "${REPO_DIR}/build/envsetup.sh could not be found."
-	fi
+	_source_sources
 
-	if [ "${TARGET_DIR}" ]; then
-		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
-	fi
-
-	if [ ! "${DINNER_LOG_DIR}" ]; then
-		DINNER_LOG_DIR="$(echo $(pwd)/logs)"
-	fi
+	_check_variables
 
 	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
 	if [ ! -d "${DINNER_LOG_DIR}" ]; then
@@ -177,19 +146,99 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
 		fi
+		if [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
+			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
+		fi
+		if [ -f "${DINNER_TEMP_DIR}/lastsync.txt" ]; then
+		if [ (($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -gt ${SKIP_SYNC_TIME} ]; then
+			SKIP_SYNC=true
+		fi
 	fi
 
-	if [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
-		rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
+
+}
+
+function _source_sources () {
+	if [ -f "dinner.conf" ]; then
+		. dinner.conf
+		if [ ${DINNER_CONFIGS} ]; then
+			for CONFIG in ${DINNER_CONFIGS}
+			if [ ! -f "./config.d/${CONFIG}" ]; then
+				_e_fatal "./config.d/${CONFIG} not found!"
+			fi
+		fi
+
+		# Check essentials
+		if [ ! "${REPO_DIR}" ]; then
+			_e_fatal "REPO_DIR is not set!"
+		elif [ ! ${BUILD_FOR_DEVICE} ]; then
+			_e_fatal "No Device given! Stopping..."
+		fi
+	else
+		_e_fatal "No dinner config found, created it. Please copy dinner.conf.dist\n\t\tto dinner.conf and change the Variables to your needs."
+	fi
+
+	if [ ! -d "${REPO_DIR}/.repo" ]; then
+		_e_fatal "${REPO_DIR} is not a Repo!"
+	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
+		. ${REPO_DIR}/build/envsetup.sh
+	else
+		_e_fatal "${REPO_DIR}/build/envsetup.sh could not be found."
+	fi
+}
+
+function _check_variables () {
+	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
+		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
+		SKIP_SYNC_TIME="600"
+	fi
+
+	if [ ${PROMT_MAIL} ]; then
+		MAIL= ${PROMT_MAIL}
+	fi
+
+	if [ ${PROMPT_TARGET_DIR} ]; then
+		TARGET_DIR=${PROMPT_TARGET_DIR}
+	fi
+
+	if [ ${PROMPT_RUN_COMMAND} ]; then
+		RUN_COMMAND=${PROMPT_RUN_COMMAND}
+	fi
+
+	if[ ${PROMPT_DOWNLOAD_LINK} ]; then
+		DOWNLOAD_LINK=${PROMPT_DOWNLOAD_LINK}
+	fi
+
+	if [ ${PROMPT_CLEANUP_OLDER_THEN} ]; then
+		CLEANUP_OLDER_THEN=${PROMPT_CLEANUP_OLDER_THEN}
+	fi
+
+	if [ ${CLEANUP_OLDER_THEN} ] && ! [[ ${CLEANUP_OLDER_THEN} =~ "^[0-9]+$" ]]; then
+		_e_error "CLEANUP_OLDER_THEN has no valid number set, won't use it!"
+		CLEANUP_OLDER_THEN=""
+	fi
+
+	if [ "${TARGET_DIR}" ]; then
+		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
+	fi
+
+	if [ ! "${DINNER_LOG_DIR}" ]; then
+		DINNER_LOG_DIR="$(echo $(pwd)/logs)"
+	fi
+
+	if [ ! "${DINNER_TEMP_DIR}" ]; then
+		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
 }
 
 function _sync_repo () {
 	_e_notice "Running repo sync..."
-	eval "repo sync ${SHOW_VERBOSE}"
+	_exec_command "repo sync"
 	SYNC_REPO_EXIT_CODE=$?
 	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
+	else
+		echo $(date +%s) > ${DINNER_TEMP_DIR}/lastsync.txt
 	fi
 }
 
@@ -206,7 +255,7 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for ${DEVICE} with version ${PLATFORM_VERSION}..."
-	eval "brunch ${DEVICE} 2>&1 | tee ${DINNER_LOG_DIR}/brunch_${DEVICE}.log ${SHOW_VERBOSE}"
+	_exec_command "brunch ${DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/brunch_${DEVICE}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
@@ -217,7 +266,7 @@ function _brunch_device () {
 function _move_build () {
 	if [ -d "${CURRENT_TARGET_DIR}/" ]; then
 		_e_notice "Moving files to target directory..."
-		mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/
+		_exec_command "mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/"
 		CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		if [ "${CURRENT_MOVE_BUILD_EXIT_CODE}" != 0 ]; then
 			_e_warning "Something went wrong while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
@@ -229,7 +278,7 @@ function _move_build () {
 
 function _run_command () {
 	_e_notice "Run command..."
-	eval ${CURRENT_RUN_COMMAND} ${SHOW_VERBOSE}
+	_exec_command "${CURRENT_RUN_COMMAND}"
 	CURRENT_RUN_COMMAND_EXIT_CODE=$?
 	if [ "${CURRENT_RUN_COMMAND_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
@@ -259,10 +308,13 @@ function _send_mail () {
 	if [ ! -f "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" ]; then
 		touch "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt"
 	fi
+
 	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" ]; then
 		touch "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt"
 	fi
+
 	_generate_user_message "\e[1mBuild Status:\n\n"
+
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
@@ -277,20 +329,15 @@ function _send_mail () {
 		_generate_admin_message "Logfile:"
 		_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/brunch_${DEVICE}.log)"
 	fi
+
 	_generate_user_message "\e[21m"
+
 	if [ "${CURRENT_MAIL}" ]; then
-		if [ ${CONVERT_TO_HTML} ]; then
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
-		else
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
-		fi
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_MAIL}\""
 	fi
+
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		if [ ${CONVERT_TO_HTML} ]; then
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
-		else
-			$(which cat) "${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt" "${DINNER_TEMP_DIR}/changes.txt" "${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
-		fi
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
@@ -308,7 +355,7 @@ function _check_build () {
 }
 
 function _set_lastbuild () {
-	echo `date +"%m/%d/%Y"` > ${DINNER_TEMP_DIR}/lastbuild.txt
+	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild.txt
 }
 
 function _get_changelog () {
@@ -354,30 +401,12 @@ function _get_changelog () {
 #
 #
 function _main() {
-	#Set initial exitcodes
 	OVERALL_EXIT_CODE=0
-	SYNC_REPO_EXIT_CODE=1
-
 	_check_prerequisites
-
 	cd "${REPO_DIR}"
 
-	if ! ${SKIP_SYNC}; then
-		_sync_repo
-	fi
-
-	_get_changelog
-
-	for DEVICE in ${BUILD_FOR_DEVICE}; do
-		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
-		_get_breakfast_variables
-		eval CURRENT_TARGET_DIR="${TARGET_DIR}"
-		eval CURRENT_MAIL="${MAIL}"
-		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
-		eval CURRENT_OUTPUT_FILE="${OUT_DIR}/target/product/${DEVICE}/omni-${PLATFORM_VERSION}-$(date +%Y%m%d)-${DEVICE}-HOMEMADE.zip"
-		eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
-		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
-
+	for CONFIG in ${DINNER_CONFIGS}; do
+		#Set initial exitcodes
 		CURRENT_BUILD_STATUS=false
 		CURRENT_DEVICE_EXIT_CODE=1
 		CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
@@ -385,6 +414,28 @@ function _main() {
 		CURRENT_RUN_COMMAND_EXIT_CODE=0
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=1
 		CURRENT_SEND_MAIL_EXIT_CODE=1
+		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
+
+		#Set current config Variables
+		eval CURRENT_TARGET_DIR="${TARGET_DIR}"
+		eval CURRENT_MAIL="${MAIL}"
+		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
+		eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
+		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
+
+
+		if ! ${SKIP_SYNC}; then
+			SYNC_REPO_EXIT_CODE=1
+			_sync_repo
+		else
+			SYNC_REPO_EXIT_CODE=0
+		fi
+
+		_get_changelog
+
+		_get_breakfast_variables
+
+		eval CURRENT_OUTPUT_FILE="${OUT_DIR}/target/product/${DEVICE}/omni-${PLATFORM_VERSION}-$(date +%Y%m%d)-${DEVICE}-HOMEMADE.zip"
 
 		_brunch_device
 
@@ -435,16 +486,16 @@ while getopts ":n:t:l:c:vhs" opt; do
 			PROMT_MAIL='${OPTARG}'
 		;;
 		"t")
-			PROMT_TARGET_DIR='${OPTARG}'
+			PROMPT_TARGET_DIR='${OPTARG}'
 		;;
 		"r")
-			PROMT_RUN_COMMAND='${OPTARG}'
+			PROMPT_RUN_COMMAND='${OPTARG}'
 		;;
 		"l")
-			PROMT_DOWNLOAD_LINK='${OPTARG}'
+			PROMPT_DOWNLOAD_LINK='${OPTARG}'
 		;;
 		"c")
-			PROMT_CLEANUP_OLDER_THEN="${OPTARG}"
+			PROMPT_CLEANUP_OLDER_THEN='${OPTARG}'
 		;;
 		"s")
 			SKIP_SYNC=true
@@ -471,7 +522,7 @@ done
 shift $((${OPTIND}-1))
 
 if [ "${@}" ]; then
-	PROMT_BUILD_FOR_DEVICE="${@}"
+	PROMPT_CONFIGS="${@}"
 fi
 
 _main

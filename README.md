@@ -1,24 +1,18 @@
-Android Dinner
-==============
+![logo](https://nrecom.net/templates/corporate_response/images/s5_logo.png)
+#Android Dinner
+*...if you have no time to breakfast, brunch or lunch.*
+
+
 Android Dinner is a build script for comfortable and automated building
 of Android Roms.
 
-
-ATTENTION: Development branch.
-------------------------------
-Things can be broken!
-
-
-
-Requirements:
-=============
+##Requirements:
 For building ROMs using Android Dinner, you need:
 - A working Android Build environment
 - cron (optional)
 
 
-Features:
-================
+##Features:
 - Sync of the repositories
 - Build-Environment settings (ccache)
 - Building
@@ -29,3 +23,4 @@ Features:
 - parameter for 'no sync'
 - Changes since last build (via mail)
 
+Take a look to our [TODO´s](https://github.com/NemesisRE/dinner/blob/master/doc/TODO.md) and our feature [Idea's](https://github.com/NemesisRE/dinner/blob/master/doc/IDEAS.md)
