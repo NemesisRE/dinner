@@ -43,6 +43,7 @@ DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -
 CONVERT_TO_HTML="${DINNER_DIR}/helper/ansi2html.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
+GET_CHANGELOG_ONLY=false
 
 ######################
 #
@@ -57,16 +58,17 @@ You can overwrite the Variables from the config/s with the the options below
 NOTE: This overwrites are for every choosen config
 
 Options:
-	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
-	-g	[	GET CHANGELOG	]	Show changes since last successful build
-	-h	[	DINNER HELP	]	See this Message
-	-l	[	DOWNLOAD LINK	]	If you choose a target dir you may want put
-						a download link into the mail message
-	-n	[	NOTIFICATION	]	Send notification to given Mail-Adress
-	-r	[	SHELL COMMAND	]	Run command on successful build
-	-s	[	SKIP SYNC	]	Skips the repo sync
-	-t	[	TARGET DIRECTORY]	Move files into given Directory
-	-v	[	VERBOSE OUTPUT	]	Verbose Output
+	-c	[CLEANUP BUILD		]	Cleanup builds older then N days
+	-g	[GET CHANGELOG		]	Show changes since last successful build for
+								the first given config and exit
+	-h	[DINNER HELP		]	See this Message
+	-l	[DOWNLOAD LINK		]	If you choose a target dir you may want put
+								a download link into the mail message
+	-n	[NOTIFICATION		]	Send notification to given Mail-Adress
+	-r	[SHELL COMMAND		]	Run command on successful build
+	-s	[SKIP SYNC			]	Skips the repo sync
+	-t	[TARGET DIRECTORY	]	Move files into given Directory
+	-v	[VERBOSE OUTPUT		]	Verbose Output
 
 EOF
 }
@@ -111,10 +113,6 @@ function _generate_admin_message () {
 }
 
 function _check_prerequisites () {
-	if [ ${PROMPT_CONFIGS} ]; then
-		DINNER_CONFIGS="${PROMPT_CONFIGS}"
-	fi
-
 	_check_variables
 
 	_source_envsetup
@@ -459,6 +457,12 @@ function _run_config () {
 		SYNC_REPO_EXIT_CODE=0
 	fi
 
+	if ${GET_CHANGELOG_ONLY}; then
+		_get_changelog
+		cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		exit 0
+	fi
+
 	_get_changelog
 
 	_get_breakfast_variables
@@ -520,6 +524,10 @@ function _run_config () {
 #
 #
 function _main() {
+	if [ ${PROMPT_CONFIGS} ]; then
+		DINNER_CONFIGS="${PROMPT_CONFIGS}"
+	fi
+
 	if [ "${DINNER_CONFIGS}" ]; then
 		for CURRENT_CONFIG in ${DINNER_CONFIGS}; do
 			_run_config
@@ -559,10 +567,7 @@ while getopts ":n:t:l:c:vhsg" opt; do
 			exit 0
 		;;
 		"g")
-			_source_sources
-			_get_changelog
-			cat ${DINNER_TEMP_DIR}/changes.txt
-			exit 0
+			GET_CHANGELOG_ONLY=true
 		;;
 		\?)
 			echo "Invalid option: -${OPTARG}"
