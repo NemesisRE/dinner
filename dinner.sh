@@ -137,7 +137,7 @@ function _check_prerequisites () {
 	fi
 
 	DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
-	if [ ! -d "${DINNER_TEMP_DIR}" ]; thenPATH
+	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
 		mkdir -p "${DINNER_TEMP_DIR}"
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
