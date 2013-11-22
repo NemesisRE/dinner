@@ -95,10 +95,10 @@ function _e_fatal () {
 function _exec_command () {
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
-		eval "${1} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log)"
+		eval "${1} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
-		eval "${1} &>> ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+		eval "${1} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 }
 
@@ -115,9 +115,9 @@ function _check_prerequisites () {
 		DINNER_CONFIGS="${PROMPT_CONFIGS}"
 	fi
 
-	_source_sources
-
 	_check_variables
+
+	_source_envsetup
 
 	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
 	if [ ! -d "${DINNER_LOG_DIR}" ]; then
@@ -155,27 +155,7 @@ function _check_prerequisites () {
 	fi
 }
 
-function _source_sources () {
-	if [ -f "dinner.conf" ]; then
-		. dinner.conf
-		if [ ${DINNER_CONFIGS} ]; then
-			for CONFIG in ${DINNER_CONFIGS}; do
-				if [ ! -f "./config.d/${CONFIG}" ]; then
-					_e_fatal "./config.d/${CONFIG} not found!"
-				fi
-			done
-		fi
-
-		# Check essentials
-		if [ ! "${REPO_DIR}" ]; then
-			_e_fatal "REPO_DIR is not set!"
-		elif [ ! ${BUILD_FOR_DEVICE} ]; then
-			_e_fatal "No Device given! Stopping..."
-		fi
-	else
-		_e_fatal "No dinner config found, created it. Please copy dinner.conf.dist\n\t\tto dinner.conf and change the Variables to your needs."
-	fi
-
+function _source_envsetup () {
 	if [ ! -d "${REPO_DIR}/.repo" ]; then
 		_e_fatal "${REPO_DIR} is not a Repo!"
 	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
@@ -186,6 +166,13 @@ function _source_sources () {
 }
 
 function _check_variables () {
+	# Check essentials
+	if [ ! "${REPO_DIR}" ]; then
+		_e_fatal "REPO_DIR is not set!"
+	elif [ ! ${BUILD_FOR_DEVICE} ]; then
+		_e_fatal "No Device given! Stopping..."
+	fi
+
 	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
 		SKIP_SYNC_TIME="600"
@@ -413,7 +400,21 @@ function _get_changelog () {
 }
 
 function _run_config () {
+		if [ ${CURRENT_CONFIG} ] && [ ${CURRENT_CONFIG} == "dinner" ]; then
+			. ${DINNER_DIR}/dinner.conf
+		elif [ -f ${DINNER_DIR}/dinner.conf ] && [ -f ${DINNER_DIR}/config.d/${CURRENT_CONFIG} ]; then
+			. ${DINNER_DIR}/dinner.conf
+			. ${DINNER_DIR}/config.d/${CURRENT_CONFIG}
+		else
+			_e_fatal "Config (${CURRENT_CONFIG}) not found!"
+		fi
+
+		_check_prerequisites
+
+		cd "${REPO_DIR}"
+
 		#Set initial exitcodes
+		OVERALL_EXIT_CODE=0
 		CURRENT_BUILD_STATUS=false
 		CURRENT_DEVICE_EXIT_CODE=1
 		CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
@@ -504,17 +505,12 @@ function _run_config () {
 #
 #
 function _main() {
-	OVERALL_EXIT_CODE=0
-	_check_prerequisites
-	cd "${REPO_DIR}"
-
 	if [ ${DINNER_CONFIGS} ]; then
-		for CONFIG in ${DINNER_CONFIGS}; do
-			. ${DINNER_DIR}/config.d/${CONFIG}
+		for CURRENT_CONFIG in ${DINNER_CONFIGS}; do
 			_run_config
 		done
 	else
-		CONFIG="dinner"
+		CURRENT_CONFIG="dinner"
 		_run_config
 	fi
 }
