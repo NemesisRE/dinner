@@ -23,4 +23,4 @@ For building ROMs using Android Dinner, you need:
 - parameter for 'no sync'
 - Changes since last build (via mail)
 
-Take a look to our [TODO´s](https://github.com/NemesisRE/dinner/blob/dev/doc/TODO.md) and our feature [Idea's](https://github.com/NemesisRE/dinner/blob/dev/doc/IDEAS.md)
+Take a look to our [TODO´s](/doc/TODO.md) and our feature [Idea's](/doc/IDEAS.md)
