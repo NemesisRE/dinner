@@ -321,8 +321,6 @@ function _send_mail () {
 	:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt"
 	:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt"
 
-	_generate_user_message "\e[1mBuild Status:\n\n"
-
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
@@ -342,11 +340,11 @@ function _send_mail () {
 	_generate_user_message "\e[21m"
 
 	if [ "${CURRENT_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS}\" \"${CURRENT_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\""
 	fi
 
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS}\" \"${CURRENT_ADMIN_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
