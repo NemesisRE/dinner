@@ -243,7 +243,7 @@ function _sync_repo () {
 }
 
 function _get_breakfast_variables () {
-	for VARIABLE in `breakfast ${DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/ d'`; do
+	for VARIABLE in $(breakfast ${DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d'); do
 		eval "${VARIABLE}"
 	done
 	if [ ${PLATFORM_VERSION} ]; then
