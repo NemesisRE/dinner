@@ -84,11 +84,11 @@ function _e_warning () {
 }
 
 function _e_error () {
-	echo -e "ERROR:\t\t${1}"
+	echo -e "ERROR:\t\t${1}" >2
 }
 
 function _e_fatal () {
-	echo -e "FATAL:\t\t${1}\n\t\tStopping..."
+	echo -e "FATAL:\t\t${1}\n\t\tStopping..." >2
 	exit 1
 }
 
@@ -137,7 +137,7 @@ function _check_prerequisites () {
 	fi
 
 	DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
-	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
+	if [ ! -d "${DINNER_TEMP_DIR}" ]; thenPATH
 		mkdir -p "${DINNER_TEMP_DIR}"
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
@@ -189,6 +189,21 @@ function _check_variables () {
 	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
 		SKIP_SYNC_TIME="600"
+	fi
+
+	if [ ${DINNER_USE_CCACHE} ] && [[ ${DINNER_USE_CCACHE} =~ "^{0,1}$"]]; then
+		export USE_CCACHE=${DINNER_USE_CCACHE}
+	fi
+
+	if [ ${DINNER_CCACHE_DIR} ]; then
+		export CCACHE_DIR=${DINNER_CCACHE_PATH}
+	fi
+
+	if [ ${DINNER_CCACHE_SIZE} ]; then
+		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}"
+		if [ ${?} != 0 ]; then
+			_e_error "There was an error while setting ccache size, take a look into the logs."
+		fi
 	fi
 
 	if [ ${PROMT_MAIL} ]; then

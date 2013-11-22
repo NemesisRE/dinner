@@ -12,12 +12,15 @@ BUILD_FOR_DEVICE="i9300"
 # LOG and TMP dir can be set to other values, but default is dinner dir
 #DINNER_LOG_DIR="${DINNER_DIR}/logs"	# if empty "${DINNER_DIR}/logs/" will be used
 #DINNER_TEMP_DIR="${DINNER_DIR}/tmp"	# if empty "${DINNER_DIR}/tmp/" will be used
-#SKIP_SYNC_TIME="600"					# if synced in the last given seconds set skip sync true (if empty or not a number "600" is used)
+#SKIP_SYNC_TIME="600"			# if synced in the last given seconds set skip sync true (if empty or not a number "600" is used)
+#DINNER_USE_CCACHE="1"			# Use ccache or not (Default: 1)
+#DINNER_CCACHE_DIR=""			# Change ccache directory (Default: No default)
+#DINNER_CCACHE_SIZE=""			# Change ccache max cache size in gigabytes (Default: No default)
 
 # Variables that are not necessary.
-#MAIL=''								# set this if you want always an email
-#ADMIN_MAIL=''							# set this if you want always an email (with build logs)
-#TARGET_DIR=''							# set this if you want always move your build to the given directory
-#CLEANUP_OLDER_THAN=''					# set this if you want always automatic cleanup
-#DOWNLOAD_LINK=''						# set this if you want always a download link
-#RUN_COMMAND=''							# set this if you want always run a command after a build was successful
+#MAIL=''				# set this if you want always an email
+#ADMIN_MAIL=''				# set this if you want always an email (with build logs)
+#TARGET_DIR=''				# set this if you want always move your build to the given directory
+#CLEANUP_OLDER_THAN=''			# set this if you want always automatic cleanup
+#DOWNLOAD_LINK=''			# set this if you want always a download link
+#RUN_COMMAND=''				# set this if you want always run a command after a build was successful
