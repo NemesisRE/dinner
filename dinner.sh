@@ -254,14 +254,15 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_notice "Running brunch for ${CURRENT_CONFIG} (${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
+	_e_notice "Running brunch for ${CURRENT_CONFIG} (${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
-		_e_error "while brunch the ${CURRENT_DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_error "Config ${CURRENT_CONFIG} failed, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	else
-		echo -e "\t\tFinished brunch for ${CURRENT_CONFIG} (${CURRENT_DEVICE}) after ${CURRENT_BRUNCH_RUN_TIME}"
+		echo -e "finished after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
