@@ -11,9 +11,10 @@
 #BUILD_FOR_DEVICE="i9300"
 
 # Variables that are not necessary.
-#MAIL='john+i9300@gmail.com'												# set this if you want always an email
+#MAIL='john+i9300@gmail.com'							# set this if you want always an email
 #ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with logs)
 #TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'				# set this if you want always move your build to the given directorie
 #CLEANUP_OLDER_THAN='7'									# set this if you want always automatic cleanup
 #DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want always a download link
-#RUN_COMMAND='echo "now flash it!"'						# set this if you want always run a command after a build was successful
+#PRE_BUILD_COMMAND=''									# set this if you want always run a command before a build is started
+#POST_BUILD_COMMAND=''									# set this if you want always run a command after a build was successful

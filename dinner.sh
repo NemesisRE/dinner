@@ -214,8 +214,8 @@ function _check_variables () {
 		TARGET_DIR=${PROMPT_TARGET_DIR}
 	fi
 
-	if [ ${PROMPT_RUN_COMMAND} ]; then
-		RUN_COMMAND=${PROMPT_RUN_COMMAND}
+	if [ ${PROMPT_POST_BUILD_COMMAND} ]; then
+		POST_BUILD_COMMAND=${PROMPT_POST_BUILD_COMMAND}
 	fi
 
 	if [ ${PROMPT_DOWNLOAD_LINK} ]; then
@@ -289,12 +289,21 @@ function _move_build () {
 	fi
 }
 
-function _run_command () {
-	_e_notice "Run command..."
-	_exec_command "${CURRENT_RUN_COMMAND}"
-	CURRENT_RUN_COMMAND_EXIT_CODE=$?
-	if [ "${CURRENT_RUN_COMMAND_EXIT_CODE}" != 0 ]; then
-		_e_warning "Something went wrong while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
+function _pre_build_command () {
+	_e_notice "Running pre build command..."
+	_exec_command "${CURRENT_PRE_BUILD_COMMAND}"
+	CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=$?
+	if [ "${CURRENT_PRE_BUILD_COMMAND_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong while running your pre build command" "${CURRENT_PRE_BUILD_COMMAND_EXIT_CODE}"
+	fi
+}
+
+function _post_build_command () {
+	_e_notice "Running post build command..."
+	_exec_command "${CURRENT_POST_BUILD_COMMAND}"
+	CURRENT_POST_BUILD_COMMAND_EXIT_CODE=$?
+	if [ "${CURRENT_POST_BUILD_COMMAND_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong while running your post build command" "${CURRENT_POST_BUILD_COMMAND_EXIT_CODE}"
 	fi
 }
 
@@ -409,13 +418,16 @@ function _run_config () {
 		CURRENT_DEVICE_EXIT_CODE=1
 		CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
 		CURRENT_MOVE_BUILD_EXIT_CODE=1
-		CURRENT_RUN_COMMAND_EXIT_CODE=0
+		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
+		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=1
 		CURRENT_SEND_MAIL_EXIT_CODE=1
 		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
 
 		#Set current config Variables
 		eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
+		eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
+		eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 		eval CURRENT_TARGET_DIR="${TARGET_DIR}"
 		eval CURRENT_MAIL="${MAIL}"
 		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
@@ -467,7 +479,14 @@ function _run_config () {
 			CURRENT_SEND_MAIL_EXIT_CODE=0
 		fi
 
-		CURRENT_DEVICE_EXIT_CODE=$((${SYNC_REPO_EXIT_CODE}+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}+${CURRENT_BRUNCH_DEVICE_EXIT_CODE}+${CURRENT_MOVE_BUILD_EXIT_CODE}+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}+${CURRENT_SEND_MAIL_EXIT_CODE}))
+		CURRENT_DEVICE_EXIT_CODE=$(( \
+			${SYNC_REPO_EXIT_CODE} \
+			+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE} \
+			+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
+			+${CURRENT_MOVE_BUILD_EXIT_CODE} \
+			+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
+			+${CURRENT_SEND_MAIL_EXIT_CODE} \
+		))
 		if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
 			_e_error "Buildcheck for ${CURRENT_DEVICE} has failed" "${CURRENT_DEVICE_EXIT_CODE}"
 		elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
@@ -510,7 +529,7 @@ while getopts ":n:t:l:c:vhsg" opt; do
 			PROMPT_TARGET_DIR='${OPTARG}'
 		;;
 		"r")
-			PROMPT_RUN_COMMAND='${OPTARG}'
+			PROMPT_POST_BUILD_COMMAND='${OPTARG}'
 		;;
 		"l")
 			PROMPT_DOWNLOAD_LINK='${OPTARG}'

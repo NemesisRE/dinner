@@ -19,7 +19,8 @@ For building ROMs using Android Dinner, you need:
 - Moving the flashable ZIP to a safe place
 - Cleaning out old builds
 - Mail Notifications
-- Post-build commands
+- Pre-build commands (not fully implemented)
+- Post-build commands (not fully implemented)
 - parameter for 'no sync'
 - Changes since last build (via mail)
 
