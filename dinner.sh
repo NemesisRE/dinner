@@ -39,6 +39,7 @@ DINNER_DIR=$( cd "$( dirname "${0}" )" && pwd )
 DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -exec basename {} \; )"
 DINNER_USE_CCACHE="1"
 CONVERT_TO_HTML="${DINNER_DIR}/helper/ansi2html.sh"
+SPINNER="${DINNER_DIR}/helper/spinner.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
 SKIP_SYNC_TIME="1800"
@@ -96,10 +97,14 @@ function _e_fatal () {
 function _exec_command () {
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
+		_start_spinner
 		eval "${1} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+		_stop_spinner $?
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
+		_start_spinner
 		eval "${1} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
+		_stop_spinner $?
 	fi
 }
 
@@ -112,6 +117,10 @@ function _generate_admin_message () {
 }
 
 function _check_prerequisites () {
+	if [ ${SPINNER} ] && [ -x ${SPINNER} ]; then
+		. ${SPINNER}
+	fi
+
 	_check_variables
 
 	_source_envsetup
@@ -421,7 +430,6 @@ function _run_config () {
 		_e_fatal "Config (${CURRENT_CONFIG}) not found!"
 	fi
 
-	echo -e ""
 	_e_notice "Starting work on config ${CURRENT_CONFIG}..."
 
 	_check_prerequisites
@@ -516,6 +524,7 @@ function _run_config () {
 		_e_notice "All jobs for ${CURRENT_CONFIG} finished successfully."
 		_set_lastbuild
 	fi
+	echo -e ""
 	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
 
