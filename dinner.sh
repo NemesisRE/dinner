@@ -33,16 +33,15 @@ export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
 export TZ="/usr/share/zoneinfo/UTC"
 
-#Make us of CCACHE
-export USE_CCACHE=1
-
 # Define global variables
 MAIL_BIN=$(which mail)
 DINNER_DIR=$( cd "$( dirname "${0}" )" && pwd )
 DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -exec basename {} \; )"
+DINNER_USE_CCACHE="1"
 CONVERT_TO_HTML="${DINNER_DIR}/helper/ansi2html.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
+SKIP_SYNC_TIME="1800"
 GET_CHANGELOG_ONLY=false
 
 ######################
@@ -176,7 +175,7 @@ function _check_variables () {
 
 	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
-		SKIP_SYNC_TIME="600"
+		SKIP_SYNC_TIME="1800"
 	fi
 
 	if [ ${DINNER_USE_CCACHE} ] && [[ "${DINNER_USE_CCACHE}" =~ "^{0,1}$" ]]; then
