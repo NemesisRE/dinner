@@ -519,7 +519,7 @@ function _run_config () {
 #
 function _main() {
 	if [ "${DINNER_CONFIGS}" ]; then
-		for CURRENT_CONFIG in "${DINNER_CONFIGS}"; do
+		for CURRENT_CONFIG in ${DINNER_CONFIGS}; do
 			_run_config
 		done
 	else
