@@ -438,7 +438,8 @@ function _run_config () {
 		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 		eval CURRENT_STATUS="failed"
 
-		_e_notice "\nStarting work on config ${CURRENT_CONFIG}..."
+		echo -e "\n"
+		_e_notice "Starting work on config ${CURRENT_CONFIG}..."
 
 		if ! ${SKIP_SYNC}; then
 			SYNC_REPO_EXIT_CODE=1
