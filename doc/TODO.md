@@ -1,6 +1,5 @@
 ###TODO´s:
 
-- CCACHE_DIR as Config-Option
 - Cherrypicking patches
 - Pre-build commands
 - APK injection into ROMs
