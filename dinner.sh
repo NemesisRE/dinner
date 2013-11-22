@@ -95,10 +95,10 @@ function _e_fatal () {
 function _exec_command () {
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
-		eval "(${1} 2>&1) | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+		eval "${1} &>> | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
-		eval "${1} 2>&1 >> ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+		eval "${1} &>> ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 }
 
