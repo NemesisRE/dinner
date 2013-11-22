@@ -318,10 +318,10 @@ function _send_mail () {
 
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${CURRENT_DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
-		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes.txt)"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
+		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes.txt)"
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
 			_generate_admin_message "Removed the following files:\n"
 			_generate_admin_message "${CURRENT_CLEANED_FILES}"
