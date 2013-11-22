@@ -191,7 +191,7 @@ function _check_variables () {
 		SKIP_SYNC_TIME="600"
 	fi
 
-	if [ ${DINNER_USE_CCACHE} ] && [[ ${DINNER_USE_CCACHE} =~ "^{0,1}$"]]; then
+	if [ ${DINNER_USE_CCACHE} ] && [[ "${DINNER_USE_CCACHE}" =~ "^{0,1}$" ]]; then
 		export USE_CCACHE=${DINNER_USE_CCACHE}
 	fi
 
