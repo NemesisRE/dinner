@@ -255,7 +255,7 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for ${CURRENT_DEVICE} with version ${PLATFORM_VERSION}..."
-	_exec_command "brunch ${CURRENT_DEVICE}"
+	_exec_command "brunch ${CURRENT_DEVICE} 2>&1"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
