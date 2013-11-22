@@ -482,7 +482,7 @@ function _main() {
 
 	if [ ${DINNER_CONFIGS} ]; then
 		for CONFIG in ${DINNER_CONFIGS}; do
-			. config.d/${CONFIG}
+			. ${DINNER_DIR}/config.d/${CONFIG}
 			_run_configs
 		done
 	else
