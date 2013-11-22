@@ -326,7 +326,7 @@ function _send_mail () {
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
-		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes.txt)"
+		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt)"
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
 			_generate_admin_message "Removed the following files:\n"
 			_generate_admin_message "${CURRENT_CLEANED_FILES}"
@@ -362,16 +362,16 @@ function _check_build () {
 }
 
 function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild.txt
+	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt
 }
 
 function _get_changelog () {
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
 		_e_notice "Gathering Changes since last build..."
-		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild.txt)
+		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt)
 
-		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes.txt
-		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes.txt
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
+		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
 			cd $line
@@ -390,14 +390,14 @@ function _get_changelog () {
 						proj_credit="OmniROM"
 				fi
 
-				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes.txt
+				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
 
 				echo "$log" | while read line
 				do
-					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes.txt
+					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
 				done
 
-				echo "" >> ${DINNER_TEMP_DIR}/changes.txt
+				echo "" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
 			fi
 		done
 	fi
