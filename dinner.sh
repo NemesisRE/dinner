@@ -416,7 +416,7 @@ function _run_config () {
 		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 		eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
-		ecal CURRENT_STATUS="failed"
+		eval CURRENT_STATUS="failed"
 
 
 		if ! ${SKIP_SYNC}; then
