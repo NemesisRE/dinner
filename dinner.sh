@@ -210,13 +210,13 @@ function _check_variables () {
 		DOWNLOAD_LINK=${PROMPT_DOWNLOAD_LINK}
 	fi
 
-	if [ ${PROMPT_CLEANUP_OLDER_THEN} ]; then
-		CLEANUP_OLDER_THEN=${PROMPT_CLEANUP_OLDER_THEN}
+	if [ ${PROMPT_CLEANUP_OLDER_THAN} ]; then
+		CLEANUP_OLDER_THAN=${PROMPT_CLEANUP_OLDER_THAN}
 	fi
 
-	if [ ${CLEANUP_OLDER_THEN} ] && ! [[ ${CLEANUP_OLDER_THEN} =~ "^[0-9]+$" ]]; then
-		_e_error "CLEANUP_OLDER_THEN has no valid number set, won't use it!"
-		CLEANUP_OLDER_THEN=""
+	if [ ${CLEANUP_OLDER_THAN} ] && ! [[ ${CLEANUP_OLDER_THAN} =~ "^[0-9]+$" ]]; then
+		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
+		CLEANUP_OLDER_THAN=""
 	fi
 
 	if [ "${TARGET_DIR}" ]; then
@@ -289,9 +289,9 @@ function _run_command () {
 function _clean_old_builds () {
 	_e_notice "Running cleanup of old builds..."
 	if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
+		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	else
-		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
+		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	fi
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
@@ -444,7 +444,7 @@ function _run_config () {
 					CURRENT_MOVE_BUILD_EXIT_CODE=0
 				fi
 
-				if [ "${CLEANUP_OLDER_THEN}" ]; then
+				if [ "${CLEANUP_OLDER_THAN}" ]; then
 					_clean_old_builds
 				else
 					CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
@@ -511,7 +511,7 @@ while getopts ":n:t:l:c:vhsg" opt; do
 			PROMPT_DOWNLOAD_LINK='${OPTARG}'
 		;;
 		"c")
-			PROMPT_CLEANUP_OLDER_THEN='${OPTARG}'
+			PROMPT_CLEANUP_OLDER_THAN='${OPTARG}'
 		;;
 		"s")
 			SKIP_SYNC=true

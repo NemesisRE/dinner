@@ -18,6 +18,6 @@ BUILD_FOR_DEVICE="i9300"
 #MAIL=''								# set this if you want always an email
 #ADMIN_MAIL=''							# set this if you want always an email (with build logs)
 #TARGET_DIR=''							# set this if you want always move your build to the given directory
-#CLEANUP_OLDER_THEN=''					# set this if you want always automatic cleanup
+#CLEANUP_OLDER_THAN=''					# set this if you want always automatic cleanup
 #DOWNLOAD_LINK=''						# set this if you want always a download link
 #RUN_COMMAND=''							# set this if you want always run a command after a build was successful
