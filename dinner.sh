@@ -438,7 +438,7 @@ function _run_config () {
 		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 		eval CURRENT_STATUS="failed"
 
-		echo -e "\n"
+		echo -e "" >1
 		_e_notice "Starting work on config ${CURRENT_CONFIG}..."
 
 		if ! ${SKIP_SYNC}; then
