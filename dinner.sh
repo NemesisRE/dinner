@@ -60,10 +60,10 @@ NOTE: This overwrites are for every choosen config
 Options:
 	-c	CLEANUP BUILD   	Cleanup builds older then N days
 	-g	GET CHANGELOG   	Show hanges since last successful build for
-							the first given config and exit
+					the first given config and exit
 	-h	DINNER HELP 		See this Message
 	-l	DOWNLOAD LINK   	If you choose a target dir you may want put
-							a download link into the mail message
+					a download link into the mail message
 	-n	NOTIFICATION		Send notification to given Mail-Adress
 	-r	SHELL COMMAND   	Run command on successful build
 	-s	SKIP SYNC   		Skips the repo sync
