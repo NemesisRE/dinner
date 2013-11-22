@@ -254,14 +254,14 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_notice "Running brunch for ${CURRENT_DEVICE} with version ${PLATFORM_VERSION}..."
+	_e_notice "Running brunch for ${CURRENT_CONFIG} (${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		_e_error "while brunch the ${CURRENT_DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	else
-		echo -e "\t\tFinished brunch for ${CURRENT_DEVICE} after ${CURRENT_BRUNCH_RUN_TIME}"
+		echo -e "\t\tFinished brunch for ${CURRENT_CONFIG} (${CURRENT_DEVICE}) after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
@@ -321,6 +321,7 @@ function _send_mail () {
 
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_admin_message "Used config ${CURRENT_CONFIG}\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
@@ -429,7 +430,7 @@ function _run_config () {
 	#Set initial exitcodes
 	OVERALL_EXIT_CODE=0
 	CURRENT_BUILD_STATUS=false
-	CURRENT_DEVICE_EXIT_CODE=1
+	CURRENT_CONFIG_EXIT_CODE=1
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
 	CURRENT_MOVE_BUILD_EXIT_CODE=1
 	CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
@@ -498,7 +499,7 @@ function _run_config () {
 		CURRENT_SEND_MAIL_EXIT_CODE=0
 	fi
 
-	CURRENT_DEVICE_EXIT_CODE=$(( \
+	CURRENT_CONFIG_EXIT_CODE=$(( \
 		${SYNC_REPO_EXIT_CODE} \
 		+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE} \
 		+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
@@ -506,15 +507,15 @@ function _run_config () {
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
 		+${CURRENT_SEND_MAIL_EXIT_CODE} \
 	))
-	if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-		_e_error "Buildcheck for ${CURRENT_DEVICE} has failed" "${CURRENT_DEVICE_EXIT_CODE}"
-	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-		_e_warning "Buildcheck for ${CURRENT_DEVICE} was successful but something else went wrong" "${CURRENT_DEVICE_EXIT_CODE}"
+	if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+		_e_error "Buildcheck for ${CURRENT_CONFIG} has failed" "${CURRENT_CONFIG_EXIT_CODE}"
+	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+		_e_warning "Buildcheck for ${CURRENT_CONFIG} was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
 	else
-		_e_notice "All jobs for ${CURRENT_DEVICE} finished successfully."
+		_e_notice "All jobs for ${CURRENT_CONFIG} finished successfully."
 		_set_lastbuild
 	fi
-	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_DEVICE_EXIT_CODE}))
+	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
 
 ######################
