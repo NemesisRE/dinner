@@ -411,9 +411,9 @@ function _get_changelog () {
 }
 
 function _run_config () {
-	if [ ${CURRENT_CONFIG} ] && [ ${CURRENT_CONFIG} == "dinner" ]; then
+	if [ "${CURRENT_CONFIG}" ] && [ "${CURRENT_CONFIG}" == "dinner" ]; then
 		. ${DINNER_DIR}/dinner.conf
-	elif [ -f ${DINNER_DIR}/dinner.conf ] && [ -f ${DINNER_DIR}/config.d/${CURRENT_CONFIG} ]; then
+	elif [ -f "${DINNER_DIR}/dinner.conf" ] && [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
 		. ${DINNER_DIR}/dinner.conf
 		. ${DINNER_DIR}/config.d/${CURRENT_CONFIG}
 	else
