@@ -147,9 +147,6 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
 		fi
-		if [ -f "${DINNER_TEMP_DIR}/mail_*_message_*.txt" ]; then
-			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
-		fi
 		if [ -f "${DINNER_TEMP_DIR}/lastsync.txt" ]; then
 			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 				SKIP_SYNC=true
@@ -306,13 +303,8 @@ function _clean_old_builds () {
 
 function _send_mail () {
 	_e_notice "Sending status mail..."
-	if [ ! -f "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt"
-	fi
-
-	if [ ! -f "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt" ]; then
-		touch "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt"
-	fi
+	:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt"
+	:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt"
 
 	_generate_user_message "\e[1mBuild Status:\n\n"
 
