@@ -98,7 +98,7 @@ function _exec_command () {
 		eval "(${1} 2>&1) | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
-		eval "(${1} 1>>${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log) 2>&1 | tee -a ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log"
+		eval "(${1} 2>&1 >> ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log)"
 	fi
 }
 
@@ -234,7 +234,7 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_notice "Running repo sync..."
-	_exec_command "repo sync 2>&1"
+	_exec_command "repo sync"
 	SYNC_REPO_EXIT_CODE=$?
 	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
@@ -256,7 +256,7 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for ${CURRENT_DEVICE} with version ${PLATFORM_VERSION}..."
-	_exec_command "brunch ${CURRENT_DEVICE} 2>&1"
+	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
@@ -318,6 +318,7 @@ function _send_mail () {
 
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_user_message "Build for ${CURRENT_DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes.txt)"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
@@ -334,11 +335,11 @@ function _send_mail () {
 	_generate_user_message "\e[21m"
 
 	if [ "${CURRENT_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS}\" \"${CURRENT_MAIL}\""
 	fi
 
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNEDINNER_DIRR_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_ADMIN_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS}\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
@@ -415,6 +416,7 @@ function _run_config () {
 		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 		eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
+		ecal CURRENT_STATUS="failed"
 
 
 		if ! ${SKIP_SYNC}; then
@@ -435,6 +437,7 @@ function _run_config () {
 		if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 			_check_build
 			if ${CURRENT_BUILD_STATUS}; then
+				CURRENT_STATUS="finished successfull"
 				if [ "${CURRENT_TARGET_DIR}" ]; then
 					_move_build
 				else
