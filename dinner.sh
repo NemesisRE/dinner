@@ -150,7 +150,7 @@ function _check_prerequisites () {
 			rm "${DINNER_TEMP_DIR}/mail_*_message_*.txt"
 		fi
 		if [ -f "${DINNER_TEMP_DIR}/lastsync.txt" ]; then
-			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -gt ${SKIP_SYNC_TIME} ]; then
+			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 				SKIP_SYNC=true
 			fi
 		fi
@@ -337,7 +337,7 @@ function _send_mail () {
 	fi
 
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_ADMIN_MAIL}\""
+		_exec_command "$(which cat) \"${DINNEDINNER_DIRR_TEMP_DIR}/mail_user_message_${CURRENT_DEVICE}.txt\" \"${DINNER_TEMP_DIR}/changes.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_DEVICE}.txt\" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"Finished dinner.\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
