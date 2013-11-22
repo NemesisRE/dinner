@@ -496,7 +496,7 @@ function _main() {
 }
 
 ## Parameter handling
-while getopts ":n:t:l:c:vhs" opt; do
+while getopts ":n:t:l:c:vhsg" opt; do
 	case ${opt} in
 		"n")
 			PROMT_MAIL='${OPTARG}'
@@ -524,6 +524,7 @@ while getopts ":n:t:l:c:vhs" opt; do
 			exit 0
 		;;
 		"g")
+			_source_sources
 			_get_changelog
 			cat ${DINNER_TEMP_DIR}/changes.txt
 			exit 0
