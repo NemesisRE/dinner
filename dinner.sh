@@ -61,7 +61,7 @@ Options:
 	-t	[	TARGET DIRECTORY]	Move files into given Directory
 	-r	[	SHELL COMMAND	]	Run command on successful build
 	-l	[	DOWNLOAD LINK	]	If you choose a target dir you may want put
-								a download link into the mail message
+						a download link into the mail message
 	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
 	-s	[	SKIP SYNC		]	Skips the repo sync
 	-v	[	VERBOSE OUTPUT	]	Verbose Output
