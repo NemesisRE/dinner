@@ -366,7 +366,7 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
-	if [ -f "${DINNER_TEMP_DIR}/lastbuild.txt" ]; then
+	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt" ]; then
 		_e_notice "Gathering Changes since last build..."
 		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt)
 
