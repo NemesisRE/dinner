@@ -147,8 +147,8 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
 		fi
-		if [ -f "${DINNER_TEMP_DIR}/lastsync.txt" ]; then
-			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync.txt"))) -lt ${SKIP_SYNC_TIME} ]; then
+		if [ -f "${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt" ]; then
+			if [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 				SKIP_SYNC=true
 			fi
 		fi
@@ -172,6 +172,8 @@ function _check_variables () {
 	elif [ ! ${BUILD_FOR_DEVICE} ]; then
 		_e_fatal "No Device given! Stopping..."
 	fi
+
+	REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
 
 	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
@@ -238,7 +240,7 @@ function _sync_repo () {
 	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
 	else
-		echo $(date +%s) > ${DINNER_TEMP_DIR}/lastsync.txt
+		echo $(date +%s) > ${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt
 	fi
 }
 
@@ -257,7 +259,7 @@ function _brunch_device () {
 	_e_notice "Running brunch for ${CURRENT_DEVICE} with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		_e_error "while brunch the ${CURRENT_DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	fi
@@ -322,7 +324,7 @@ function _send_mail () {
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
-		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt)"
+		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt)"
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
 			_generate_admin_message "Removed the following files:\n"
 			_generate_admin_message "${CURRENT_CLEANED_FILES}"
@@ -330,7 +332,7 @@ function _send_mail () {
 	else
 		_generate_user_message "Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 		_generate_admin_message "Logfile:"
-		_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/dinner_${CONFIG}_${CURRENT_LOG_TIME}.log)"
+		_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
 	fi
 
 	_generate_user_message "\e[21m"
@@ -358,16 +360,16 @@ function _check_build () {
 }
 
 function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt
+	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
 }
 
 function _get_changelog () {
-	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt" ]; then
+	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
 		_e_notice "Gathering Changes since last build..."
-		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CONFIG}.txt)
+		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
 
-		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
-		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
 			cd $line
@@ -386,14 +388,14 @@ function _get_changelog () {
 						proj_credit="OmniROM"
 				fi
 
-				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
+				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 
 				echo "$log" | while read line
 				do
-					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
+					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 				done
 
-				echo "" >> ${DINNER_TEMP_DIR}/changes_${CONFIG}.txt
+				echo "" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 			fi
 		done
 	fi
@@ -436,6 +438,7 @@ function _run_config () {
 		eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 		eval CURRENT_STATUS="failed"
 
+		_e_notice "\nStarting work on config ${CURRENT_CONFIG}..."
 
 		if ! ${SKIP_SYNC}; then
 			SYNC_REPO_EXIT_CODE=1
