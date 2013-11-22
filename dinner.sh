@@ -262,7 +262,7 @@ function _brunch_device () {
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		_e_error "while brunch the ${CURRENT_DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	else
-		echo -e "\t\t\tFinished brunch for ${CURRENT_DEVICE} after ${CURRENT_BRUNCH_RUN_TIME}"
+		echo -e "\t\tFinished brunch for ${CURRENT_DEVICE} after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
