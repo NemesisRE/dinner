@@ -58,6 +58,7 @@ NOTE: This overwrites are for every choosen config
 
 Options:
 	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
+	-g	[	GET CHANGELOG	]	Show changes since last successful build
 	-h	[	DINNER HELP	]	See this Message
 	-l	[	DOWNLOAD LINK	]	If you choose a target dir you may want put
 						a download link into the mail message
@@ -66,7 +67,6 @@ Options:
 	-s	[	SKIP SYNC	]	Skips the repo sync
 	-t	[	TARGET DIRECTORY]	Move files into given Directory
 	-v	[	VERBOSE OUTPUT	]	Verbose Output
-
 
 EOF
 }
@@ -521,6 +521,11 @@ while getopts ":n:t:l:c:vhs" opt; do
 		;;
 		"h")
 			_usage
+			exit 0
+		;;
+		"g")
+			_get_changelog
+			cat ${DINNER_TEMP_DIR}/changes.txt
 			exit 0
 		;;
 		\?)
