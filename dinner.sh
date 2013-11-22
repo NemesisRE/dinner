@@ -263,6 +263,8 @@ function _brunch_device () {
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		_e_error "while brunch the ${CURRENT_DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+	else
+		echo -e "\t\t\tFinished brunch for ${CURRENT_DEVICE} after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
