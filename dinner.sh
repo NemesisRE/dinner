@@ -317,7 +317,7 @@ function _send_mail () {
 	_generate_user_message "\e[1mBuild Status:\n\n"
 
 	if ${CURRENT_BUILD_STATUS}; then
-		_generate_user_message "Build for ${CURRENT_DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 		_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes.txt)"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
@@ -437,7 +437,7 @@ function _run_config () {
 		if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 			_check_build
 			if ${CURRENT_BUILD_STATUS}; then
-				CURRENT_STATUS="finished successfull"
+				CURRENT_STATUS="finished successfully"
 				if [ "${CURRENT_TARGET_DIR}" ]; then
 					_move_build
 				else
