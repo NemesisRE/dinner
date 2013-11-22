@@ -57,15 +57,16 @@ You can overwrite the Variables from the config/s with the the options below
 NOTE: This overwrites are for every choosen config
 
 Options:
-	-n	[	NOTIFICATION	]	Send notification to given Mail-Adress
-	-t	[	TARGET DIRECTORY]	Move files into given Directory
-	-r	[	SHELL COMMAND	]	Run command on successful build
+	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
+	-h	[	DINNER HELP	]	See this Message
 	-l	[	DOWNLOAD LINK	]	If you choose a target dir you may want put
 						a download link into the mail message
-	-c	[	CLEANUP BUILD	]	Cleanup builds older then N days
-	-s	[	SKIP SYNC		]	Skips the repo sync
+	-n	[	NOTIFICATION	]	Send notification to given Mail-Adress
+	-r	[	SHELL COMMAND	]	Run command on successful build
+	-s	[	SKIP SYNC	]	Skips the repo sync
+	-t	[	TARGET DIRECTORY]	Move files into given Directory
 	-v	[	VERBOSE OUTPUT	]	Verbose Output
-	-h	[	DINNER HELP		]	See this Message
+
 
 EOF
 }
