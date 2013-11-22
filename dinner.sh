@@ -58,17 +58,17 @@ You can overwrite the Variables from the config/s with the the options below
 NOTE: This overwrites are for every choosen config
 
 Options:
-	-c	[CLEANUP BUILD		]	Cleanup builds older then N days
-	-g	[GET CHANGELOG		]	Show changes since last successful build for
-								the first given config and exit
-	-h	[DINNER HELP		]	See this Message
-	-l	[DOWNLOAD LINK		]	If you choose a target dir you may want put
-								a download link into the mail message
-	-n	[NOTIFICATION		]	Send notification to given Mail-Adress
-	-r	[SHELL COMMAND		]	Run command on successful build
-	-s	[SKIP SYNC			]	Skips the repo sync
-	-t	[TARGET DIRECTORY	]	Move files into given Directory
-	-v	[VERBOSE OUTPUT		]	Verbose Output
+	-c	CLEANUP BUILD   	Cleanup builds older then N days
+	-g	GET CHANGELOG   	Show hanges since last successful build for
+							the first given config and exit
+	-h	DINNER HELP 		See this Message
+	-l	DOWNLOAD LINK   	If you choose a target dir you may want put
+							a download link into the mail message
+	-n	NOTIFICATION		Send notification to given Mail-Adress
+	-r	SHELL COMMAND   	Run command on successful build
+	-s	SKIP SYNC   		Skips the repo sync
+	-t	TARGET DIRECTORY	Move files into given Directory
+	-v	VERBOSE OUTPUT  	Verbose Output
 
 EOF
 }
@@ -158,7 +158,7 @@ function _source_envsetup () {
 	if [ ! -d "${REPO_DIR}/.repo" ]; then
 		_e_fatal "${REPO_DIR} is not a Repo!"
 	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
-		. ${REPO_DIR}/build/envsetup.sh
+		_exec_command ". ${REPO_DIR}/build/envsetup.sh"
 	else
 		_e_fatal "${REPO_DIR}/build/envsetup.sh could not be found."
 	fi
