@@ -619,7 +619,7 @@ function _main() {
 }
 
 ## Parameter handling
-while getopts ":n:t:l:c:vhsg" opt; do
+while getopts ":n:t:l:c:o:vhsg" opt; do
 	case ${opt} in
 		"n")
 			PROMT_MAIL='${OPTARG}'
