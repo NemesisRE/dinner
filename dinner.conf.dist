@@ -1,27 +1,31 @@
 # If you want only build for one Device dinner.conf is just what you need
 # In case you want to build different devices, roms or clean and cheerypicked
-# you can use config.d/ just copy example.dist
+# you can use config.d/ just make a copy of config.d/example.dist
+#
+# This is the Global config file all Variables which are defind here will be
+# used in all other configs to (if there is no override)
+#
+# !!!This is an example file and will be overwritten on each update please just copy it!!!
 
 # REPO_DIR is an essential variables that has to be set! In the target directory must .repo/ exist!
 REPO_DIR="${HOME}/android/[ROM_NAME]"
 
-# Set the Device you want to build for if you want to build for different
-# use config.d/
+# Set the Device you want to build for if you want to build for different use config.d/
 BUILD_FOR_DEVICE="i9300"
 
 # LOG and TMP dir can be set to other values, but default is dinner dir
-#DINNER_LOG_DIR="${DINNER_DIR}/logs"	# if empty "${DINNER_DIR}/logs/" will be used
-#DINNER_TEMP_DIR="${DINNER_DIR}/tmp"	# if empty "${DINNER_DIR}/tmp/" will be used
-#SKIP_SYNC_TIME="1800"					# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
-#DINNER_USE_CCACHE="1"					# Use ccache or not (Default: 1)
-#DINNER_CCACHE_DIR=""					# Change ccache directory (Default: No default)
-#DINNER_CCACHE_SIZE=""					# Change ccache max cache size in gigabytes (Default: No default)
+#DINNER_LOG_DIR=""										# if empty "${DINNER_DIR}/logs/" will be used
+#DINNER_TEMP_DIR=""										# if empty "${DINNER_DIR}/tmp/" will be used
+#SKIP_SYNC_TIME=""										# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
+#DINNER_USE_CCACHE=""									# Use ccache or not 1/0 (Default: 1)
+#DINNER_CCACHE_DIR=""									# Change ccache directory (Default: No default)
+#DINNER_CCACHE_SIZE=""									# Change ccache max cache size in gigabytes (Default: No default)
 
 # Variables that are not necessary.
-#MAIL=''					# set this if you want always an email
-#ADMIN_MAIL=''				# set this if you want always an email (with build logs)
-#TARGET_DIR=''				# set this if you want always move your build to the given directory
-#CLEANUP_OLDER_THAN=''		# set this if you want always automatic cleanup
-#DOWNLOAD_LINK=''			# set this if you want always a download link
-#PRE_BUILD_COMMAND=''		# set this if you want always run a command before a build is started
-#POST_BUILD_COMMAND=''		# set this if you want always run a command after a build was successful
+#MAIL=''												# set this if you want always an email
+#ADMIN_MAIL=''											# set this if you want always an email (with build logs)
+#TARGET_DIR=''											# set this if you want always move your build to the given directory
+#CLEANUP_OLDER_THAN=''									# set this if you want always automatic cleanup
+#DOWNLOAD_LINK=''										# set this if you want always a download link
+#PRE_BUILD_COMMAND=''									# set this if you want always run a command before a build is started
+#POST_BUILD_COMMAND=''									# set this if you want always run a command after a build was successful
