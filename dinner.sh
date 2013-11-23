@@ -89,8 +89,13 @@ function _e_error () {
 }
 
 function _e_fatal () {
-	echo -e "FATAL:\t\t${1}\n\t\tStopping..." >2
-	exit 1
+	if [ ${2} ]; then
+		echo -e "FATAL:\t\t${1} (Exit Code ${2})\n\t\tStopping..." >2
+		exit ${2}
+	else
+		echo -e "FATAL:\t\t${1}\n\t\tStopping..." >2
+		exit 1
+	fi
 }
 
 function _exec_command () {
@@ -515,10 +520,13 @@ function _run_config () {
 	))
 	if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
+		FAILED_CONFIGS="${FAILED_CONFIGS} ${CURRENT_CONFIG}"
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
+		WARNING_CONFIGS="${WARNING_CONFIGS} ${CURRENT_CONFIG}"
 	else
 		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
+		SUCCESS_CONFIGS="${SUCCESS_CONFIGS} ${CURRENT_CONFIG}"
 		_set_lastbuild
 	fi
 	echo -e ""
@@ -539,6 +547,24 @@ function _main() {
 		for CURRENT_CONFIG in ${DINNER_CONFIGS}; do
 			_run_config
 		done
+
+		if [ ${OVERALL_EXIT_CODE} == 0 ]; then
+			_e_notice "=== YEAH all configs finished sucessfull! ==="
+			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+			exit 0
+		else
+			_e_error "=== DAMN something went wrong ==="
+			if [ ${FAILED_CONFIGS} ]; then
+				_e_error "These configs failed: ${FAILED_CONFIGS}"
+			fi
+			if [ ${WARNING_CONFIGS} ]; then
+				_e_error "These configs had warnings: "${WARNING_CONFIGS}"
+			fi
+			if [ ${SUCCESS_CONFIGS} ]; then
+				_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+			fi
+			_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
+		fi
 	else
 		CURRENT_CONFIG="dinner_default"
 		_run_config
@@ -596,5 +622,5 @@ fi
 
 _main
 
-exit 0
+exit 1
 
