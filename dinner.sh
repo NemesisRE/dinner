@@ -189,7 +189,7 @@ function _check_variables () {
 	fi
 
 	for DINNER_OPTION in ${DINNER_OPTIONS}; do
-		case ${DINNER_OPTION} in
+		case "${DINNER_OPTION}" in
 			"cron")
 				DINNER_CRON=true
 			;;
@@ -525,28 +525,29 @@ function _run_config () {
 	_brunch_device
 
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
-	_check_build
-	if ${CURRENT_BUILD_STATUS}; then
-		CURRENT_STATUS="finished successfully"
-		if [ ${CURRENT_POST_BUILD_COMMAND} ]; then
-			_post_build_command
+		_check_build
+		if ${CURRENT_BUILD_STATUS}; then
+			CURRENT_STATUS="finished successfully"
+			if [ ${CURRENT_POST_BUILD_COMMAND} ]; then
+				_post_build_command
+			else
+				CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
+			fi
+			if [ "${CURRENT_TARGET_DIR}" ]; then
+				_move_build
+			else
+				CURRENT_MOVE_BUILD_EXIT_CODE=0
+			fi
+			if [ "${CLEANUP_OLDER_THAN}" ]; then
+				_clean_old_builds
+			else
+				CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
+			fi
 		else
 			CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
-		fi
-		if [ "${CURRENT_TARGET_DIR}" ]; then
-			_move_build
-		else
 			CURRENT_MOVE_BUILD_EXIT_CODE=0
-		fi
-		if [ "${CLEANUP_OLDER_THAN}" ]; then
-			_clean_old_builds
-		else
 			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 		fi
-	else
-		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
-		CURRENT_MOVE_BUILD_EXIT_CODE=0
-		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 	fi
 
 
