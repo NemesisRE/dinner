@@ -173,6 +173,12 @@ function _check_variables () {
 
 	REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
 
+	if [ ${PROMPT_SKIP_SYNC} ]; then
+		SKIP_SYNC=true
+	else
+		SKIP_SYNC=false
+	fi
+
 	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
 		SKIP_SYNC_TIME="1800"
@@ -558,7 +564,7 @@ while getopts ":n:t:l:c:vhsg" opt; do
 			PROMPT_CLEANUP_OLDER_THAN='${OPTARG}'
 		;;
 		"s")
-			SKIP_SYNC=true
+			PROMPT_SKIP_SYNC=true
 		;;
 		"v")
 			SHOW_VERBOSE=true
