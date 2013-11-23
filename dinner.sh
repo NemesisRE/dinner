@@ -558,7 +558,7 @@ function _main() {
 				_e_error "These configs failed: ${FAILED_CONFIGS}"
 			fi
 			if [ ${WARNING_CONFIGS} ]; then
-				_e_error "These configs had warnings: "${WARNING_CONFIGS}"
+				_e_error "These configs had warnings: ${WARNING_CONFIGS}"
 			fi
 			if [ ${SUCCESS_CONFIGS} ]; then
 				_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
