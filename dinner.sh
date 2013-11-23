@@ -34,10 +34,10 @@ export LANG="en_US.UTF-8"
 export TZ="/usr/share/zoneinfo/UTC"
 
 # Define global variables
-MAIL_BIN=$(which mail)
-REPO_BIN=$(which repo)
+MAIL_BIN="$(which mail)"
+REPO_BIN="$(which repo)"
 ANSI2HTML_BIN="${DINNER_DIR}/helper/ansi2html.sh"
-DINNER_DIR=$( cd "$( dirname "${0}" )" && pwd )
+DINNER_DIR="$( cd \"$( dirname \"${0}\" )\" && pwd )"
 DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -exec basename {} \; )"
 DINNER_USE_CCACHE="1"
 DINNER_CRON=false
@@ -52,7 +52,7 @@ GET_CHANGELOG_ONLY=false
 #
 #
 function _usage() {
-echo "Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- config_name1 config_name2 ]"
+echo "Usage: ${0} [-n \"smith@exampldinne.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- config_name1 config_name2 ]"
 $(which cat)<<EOF
 
 You can overwrite the Variables from the config/s with the the options below
@@ -277,9 +277,9 @@ function _check_variables () {
 function _sync_repo () {
 	_e_notice "Running repo sync..."
 	_exec_command "${REPO_BIN} sync"
-	SYNC_REPO_EXIT_CODE=$?
-	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
-		_e_warning "Something went wrong  while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
+	CURRENT_SYNC_REPO_EXIT_CODE=$?
+	if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong  while doing repo sync" "${CURRENT_SYNC_REPO_EXIT_CODE}"
 	else
 		echo $(date +%s) > ${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt
 	fi
@@ -477,6 +477,7 @@ function _run_config () {
 
 	#Set initial exitcodes
 	OVERALL_EXIT_CODE=0
+	CURRENT_SYNC_REPO_EXIT_CODE=1
 	CURRENT_BUILD_STATUS=false
 	CURRENT_CONFIG_EXIT_CODE=1
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
@@ -500,10 +501,9 @@ function _run_config () {
 	eval CURRENT_STATUS="failed"
 
 	if ! ${SKIP_SYNC}; then
-		SYNC_REPO_EXIT_CODE=1
 		_sync_repo
 	else
-		SYNC_REPO_EXIT_CODE=0
+		CURRENT_SYNC_REPO_EXIT_CODE=0
 	fi
 
 	if ${GET_CHANGELOG_ONLY}; then
