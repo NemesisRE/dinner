@@ -67,9 +67,9 @@ Options:
 					a download link into the mail message
 	-n	NOTIFICATION		Send notification to given Mail-Adress
 	-o	DINNER OPTIONS  	Dinner Options:
-					cron (no output except warnings and above)
-					make_installclean (runs "make installclean" before build starts)
-					make_clean (runs "make clean" before build starts)
+						cron (no output except warnings and above)
+						make_installclean (runs "make installclean" before build starts)
+						make_clean (runs "make clean" before build starts)
 	-r	SHELL COMMAND   	Run command on successful build
 	-s	SKIP SYNC   		Skips the repo sync
 	-t	TARGET DIRECTORY	Move files into given Directory
