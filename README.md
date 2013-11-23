@@ -21,7 +21,7 @@ For building ROMs using Android Dinner, you need:
 - Mail Notifications
 - Pre-build commands (not fully implemented)
 - Post-build commands (not fully implemented)
-- parameter for 'no sync'
-- Changes since last build (via mail)
+- parameter for 'no repo sync'
+- Changes since last build (via mail on build/or prompt with parameter)
 
 Take a look to our [TODO´s](/doc/TODO.md) and our feature [Idea's](/doc/IDEAS.md)
