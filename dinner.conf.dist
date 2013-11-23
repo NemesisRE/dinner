@@ -27,5 +27,5 @@ BUILD_FOR_DEVICE="i9300"
 #TARGET_DIR=''											# set this if you want always move your build to the given directory
 #CLEANUP_OLDER_THAN=''									# set this if you want always automatic cleanup
 #DOWNLOAD_LINK=''										# set this if you want always a download link
-#PRE_BUILD_COMMAND=''									# set this if you want always run a command before a build is started
-#POST_BUILD_COMMAND=''									# set this if you want always run a command after a build was successful
+#PRE_BUILD_COMMAND=''									# set this if you want always run a command before brunch is started
+#POST_BUILD_COMMAND=''									# set this if you want always run a command after a build was successful and before move
