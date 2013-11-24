@@ -93,15 +93,15 @@ function _e_warning () {
 }
 
 function _e_error () {
-	echo -e "ERROR:\t\t${1}" >2
+	echo -e "ERROR:\t\t${1}" 1>&2
 }
 
 function _e_fatal () {
 	if [ ${2} ]; then
-		echo -e "FATAL:\t\t${1} (Exit Code ${2})\n\t\tStopping..." >2
+		echo -e "FATAL:\t\t${1} (Exit Code ${2})\n\t\tStopping..." 1>&2
 		exit ${2}
 	else
-		echo -e "FATAL:\t\t${1}\n\t\tStopping..." >2
+		echo -e "FATAL:\t\t${1}\n\t\tStopping..." 1>&2
 		exit 1
 	fi
 }
@@ -622,19 +622,19 @@ function _main() {
 while getopts ":n:t:l:c:o:vhsg" opt; do
 	case ${opt} in
 		"n")
-			PROMT_MAIL='${OPTARG}'
+			PROMT_MAIL="${OPTARG}"
 		;;
 		"t")
-			PROMPT_TARGET_DIR='${OPTARG}'
+			PROMPT_TARGET_DIR="${OPTARG}"
 		;;
 		"r")
-			PROMPT_POST_BUILD_COMMAND='${OPTARG}'
+			PROMPT_POST_BUILD_COMMAND="${OPTARG}"
 		;;
 		"l")
-			PROMPT_DOWNLOAD_LINK='${OPTARG}'
+			PROMPT_DOWNLOAD_LINK="${OPTARG}"
 		;;
 		"c")
-			PROMPT_CLEANUP_OLDER_THAN='${OPTARG}'
+			PROMPT_CLEANUP_OLDER_THAN="${OPTARG}"
 		;;
 		"s")
 			PROMPT_SKIP_SYNC=true
@@ -646,7 +646,7 @@ while getopts ":n:t:l:c:o:vhsg" opt; do
 			GET_CHANGELOG_ONLY=true
 		;;
 		"o")
-			DINNER_OPTIONS='${OPTARG}'
+			DINNER_OPTIONS="${OPTARG}"
 		;;
 		"h")
 			_usage
