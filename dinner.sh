@@ -189,7 +189,7 @@ function _check_variables () {
 	fi
 
 	for DINNER_OPTION in ${DINNER_OPTIONS}; do
-		case "${DINNER_OPTION}" in
+		case ${DINNER_OPTION} in
 			"cron")
 				DINNER_CRON=true
 			;;
@@ -465,9 +465,9 @@ function _run_config () {
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
 	fi
 
-	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
-
 	_check_prerequisites
+
+	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
 
 	cd "${REPO_DIR}"
 
