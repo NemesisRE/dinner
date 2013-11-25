@@ -575,8 +575,8 @@ function _run_config () {
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
 		WARNING_CONFIGS="${WARNING_CONFIGS}; ${CURRENT_CONFIG}"
-	elif [ "${CURRENT_BUILD_STATUS}" == "false" ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
-		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
+	elif [ "${CURRENT_BUILD_STATUS}" == "false" ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
+		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}; ${CURRENT_CONFIG}"
 	else
 		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
