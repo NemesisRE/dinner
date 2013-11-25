@@ -36,11 +36,11 @@ export TZ="/usr/share/zoneinfo/UTC"
 # Define global variables
 MAIL_BIN="$(which mail)"
 REPO_BIN="$(which repo)"
-ANSI2HTML_BIN="${DINNER_DIR}/helper/ansi2html.sh"
 DINNER_DIR="$( cd $( dirname ${0} ) && pwd )"
 DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -exec basename {} \; )"
 DINNER_USE_CCACHE="1"
 DINNER_CRON=false
+ANSI2HTML_BIN="${DINNER_DIR}/helper/ansi2html.sh"
 SHOW_VERBOSE=false
 SKIP_SYNC=false
 SKIP_SYNC_TIME="1800"
