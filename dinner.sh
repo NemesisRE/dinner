@@ -568,16 +568,18 @@ function _run_config () {
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
 		+${CURRENT_SEND_MAIL_EXIT_CODE} \
 	))
-	if [ ${CURRENT_BUILD_STATUS} == false ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
-		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
-		FAILED_CONFIGS="${FAILED_CONFIGS}; ${CURRENT_CONFIG}"
-	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
-		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
-		WARNING_CONFIGS="${WARNING_CONFIGS}; ${CURRENT_CONFIG}"
-	else
+	if ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}${CURRENT_CONFIG}; "
 		_set_lastbuild
+	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
+		WARNING_CONFIGS="${WARNING_CONFIGS}; ${CURRENT_CONFIG}"
+	elif [ "${CURRENT_BUILD_STATUS}" == "false" ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
+		FAILED_CONFIGS="${FAILED_CONFIGS}; ${CURRENT_CONFIG}"
+	else
+		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
 	fi
 	echo -e ""
 	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
