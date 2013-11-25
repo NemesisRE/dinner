@@ -288,7 +288,7 @@ function _sync_repo () {
 function _get_breakfast_variables () {
 	_exec_command "breakfast ${CURRENT_DEVICE}"
 	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
-	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]
+	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]; then
 		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d'); do
 			eval "${VARIABLE}"
 		done
