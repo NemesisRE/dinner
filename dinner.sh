@@ -286,13 +286,14 @@ function _sync_repo () {
 }
 
 function _get_breakfast_variables () {
-	for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d'); do
-		eval "${VARIABLE}"
-	done
-	if [ ${PLATFORM_VERSION} ]; then
-		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=0
+	_exec_command "breakfast ${CURRENT_DEVICE}"
+	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
+	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]
+		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d'); do
+			eval "${VARIABLE}"
+		done
 	else
-		_e_warning "Something went wrong while getting breakfast variables" "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}"
+		_e_fatal "Something went wrong while getting breakfast variables"
 	fi
 }
 
@@ -380,7 +381,7 @@ function _send_mail () {
 			_generate_admin_message "${CURRENT_CLEANED_FILES}"
 		fi
 	else
-		_generate_user_message "Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
+		_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 		_generate_admin_message "Logfile:"
 		if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
 			_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
@@ -409,6 +410,8 @@ function _check_build () {
 		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
+		else
+			echo ${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}
 		fi
 	fi
 }
@@ -565,7 +568,7 @@ function _run_config () {
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
 		+${CURRENT_SEND_MAIL_EXIT_CODE} \
 	))
-	if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+	if [ ${CURRENT_BUILD_STATUS} == false ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}; ${CURRENT_CONFIG}"
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
