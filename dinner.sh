@@ -600,7 +600,7 @@ function _main() {
 			_run_config
 		done
 
-		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ ! ${FAILED_CONFIGS} ] && [ ! ${WARNING_CONFIGS} ]; then
+		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z ${FAILED_CONFIGS} ] && [ -z ${WARNING_CONFIGS} ]; then
 			_e_notice "=== YEAH all configs finished sucessfull! ==="
 			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
 			exit 0
