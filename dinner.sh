@@ -302,7 +302,7 @@ function _brunch_device () {
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "Package complete:" | awk '{print $3}')
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}')
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
 		_e_error "Config ${CURRENT_CONFIG} failed, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
@@ -600,7 +600,7 @@ function _main() {
 			_run_config
 		done
 
-		if [ ${OVERALL_EXIT_CODE} == 0 ]; then
+		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ ! ${FAILED_CONFIGS} ] && [ ! ${WARNING_CONFIGS} ]; then
 			_e_notice "=== YEAH all configs finished sucessfull! ==="
 			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
 			exit 0
