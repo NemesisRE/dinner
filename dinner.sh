@@ -229,7 +229,7 @@ function _check_variables () {
 		export CCACHE_DIR=${DINNER_CCACHE_PATH}
 	fi
 
-	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZEi##*[!0-9]*} ]; then
+	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
 		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}"
 		if [ ${?} != 0 ]; then
 			_e_error "There was an error while setting ccache size, take a look into the logs."
@@ -573,7 +573,7 @@ function _run_config () {
 		WARNING_CONFIGS="${WARNING_CONFIGS}; ${CURRENT_CONFIG}"
 	else
 		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
-		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}; ${CURRENT_CONFIG}"
+		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}${CURRENT_CONFIG}; "
 		_set_lastbuild
 	fi
 	echo -e ""
