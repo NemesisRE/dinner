@@ -298,7 +298,7 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${TARGET_DEVICE}) with version ${PLATFORM_VERSION}... \c"
+	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "Package complete:" | awk '{print $3}')
@@ -345,9 +345,9 @@ function _post_build_command () {
 function _clean_old_builds () {
 	_e_notice "Running cleanup of old builds..."
 	if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${TARGET_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
+		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	else
-		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${TARGET_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
+		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	fi
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
@@ -366,7 +366,7 @@ function _send_mail () {
 	:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
 
 	if ${CURRENT_BUILD_STATUS}; then
-		_generate_user_message "Build for ${TARGET_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 		_generate_admin_message "Used config \"${CURRENT_CONFIG}\"\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
@@ -393,11 +393,11 @@ function _send_mail () {
 	_generate_user_message "\e[21m"
 
 	if [ "${CURRENT_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${TARGET_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\""
 	fi
 
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${TARGET_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
@@ -410,9 +410,9 @@ function _check_build () {
 		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
-		else
-			echo ${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}
 		fi
+	else
+		_e_error "Outputfile does not exist!"
 	fi
 }
 
