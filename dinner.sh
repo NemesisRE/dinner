@@ -216,7 +216,7 @@ function _check_variables () {
 		SKIP_SYNC=false
 	fi
 
-	if [ ! ${SKIP_SYNC_TIME} ] || [[ ${SKIP_SYNC_TIME} =~ "^[0-9]+$" ]]; then
+	if [ ! ${SKIP_SYNC_TIME} ] || [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
 		SKIP_SYNC_TIME="1800"
 	fi
@@ -229,7 +229,7 @@ function _check_variables () {
 		export CCACHE_DIR=${DINNER_CCACHE_PATH}
 	fi
 
-	if [ ${DINNER_CCACHE_SIZE} ] && [[ ${DINNER_CCACHE_SIZE} =~ "^[0-9]+$" ]]; then
+	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZEi##*[!0-9]*} ]; then
 		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}"
 		if [ ${?} != 0 ]; then
 			_e_error "There was an error while setting ccache size, take a look into the logs."
@@ -256,7 +256,7 @@ function _check_variables () {
 		CLEANUP_OLDER_THAN=${PROMPT_CLEANUP_OLDER_THAN}
 	fi
 
-	if [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
+	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
 		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
 		CLEANUP_OLDER_THAN=""
 	fi
