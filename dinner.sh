@@ -256,7 +256,7 @@ function _check_variables () {
 		CLEANUP_OLDER_THAN=${PROMPT_CLEANUP_OLDER_THAN}
 	fi
 
-	if [ ${CLEANUP_OLDER_THAN} ] && ! [[ ${CLEANUP_OLDER_THAN} =~ "^[0-9]+$" ]]; then
+	if [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
 		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
 		CLEANUP_OLDER_THAN=""
 	fi
