@@ -157,8 +157,8 @@ function _check_prerequisites () {
 		if [ ${?} != 0 ]; then
 			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
 		fi
-		if [ -f "${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt" ]; then
-			if ! ${SKIP_SYNC} && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt"))) -lt ${SKIP_SYNC_TIME} ]; then
+		if [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt" ]; then
+			if ! ${SKIP_SYNC} && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 				_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 				SKIP_SYNC=true
 			fi
@@ -281,7 +281,7 @@ function _sync_repo () {
 	if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" != 0 ]; then
 		_e_warning "Something went wrong  while doing repo sync" "${CURRENT_SYNC_REPO_EXIT_CODE}"
 	else
-		echo $(date +%s) > ${DINNER_TEMP_DIR}/lastsync_${REPO_NAME}.txt
+		echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
 	fi
 }
 
@@ -301,7 +301,7 @@ function _brunch_device () {
 	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "Package complete:" | awk '{print $3}')
+	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
@@ -410,6 +410,8 @@ function _check_build () {
 		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
+		else
+			_e_error "Outputfile too old!"
 		fi
 	else
 		_e_error "Outputfile does not exist!"
@@ -574,10 +576,10 @@ function _run_config () {
 		_set_lastbuild
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
-		WARNING_CONFIGS="${WARNING_CONFIGS}; ${CURRENT_CONFIG}"
+		WARNING_CONFIGS="${WARNING_CONFIGS}${CURRENT_CONFIG}; "
 	elif [ "${CURRENT_BUILD_STATUS}" == "false" ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
-		FAILED_CONFIGS="${FAILED_CONFIGS}; ${CURRENT_CONFIG}"
+		FAILED_CONFIGS="${FAILED_CONFIGS}${CURRENT_CONFIG}; "
 	else
 		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
 	fi
@@ -600,19 +602,19 @@ function _main() {
 			_run_config
 		done
 
-		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z ${FAILED_CONFIGS} ] && [ -z ${WARNING_CONFIGS} ]; then
+		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 			_e_notice "=== YEAH all configs finished sucessfull! ==="
 			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
 			exit 0
 		else
 			_e_error "=== DAMN something went wrong ==="
-			if [ ${FAILED_CONFIGS} ]; then
+			if [ "${FAILED_CONFIGS}" ]; then
 				_e_error "These configs failed: ${FAILED_CONFIGS}"
 			fi
-			if [ ${WARNING_CONFIGS} ]; then
+			if [ "${WARNING_CONFIGS}" ]; then
 				_e_error "These configs had warnings: ${WARNING_CONFIGS}"
 			fi
-			if [ ${SUCCESS_CONFIGS} ]; then
+			if [ "${SUCCESS_CONFIGS}" ]; then
 				_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
 			fi
 			_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
