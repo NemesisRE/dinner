@@ -476,7 +476,7 @@ function _run_config () {
 
 	cd "${REPO_DIR}"
 
-	if [ ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
+	if [ -x ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
 		_exec_command "${REPO_DIR}/vendor/cm/get-prebuilts"
 	fi
 
