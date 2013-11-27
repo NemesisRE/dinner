@@ -129,6 +129,10 @@ function _check_prerequisites () {
 
 	_source_envsetup
 
+	if [ ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
+		_exec_command ./vendor/cm/get-prebuilts
+	fi
+
 	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
 	if [ ! -d "${DINNER_LOG_DIR}" ]; then
 		mkdir -p "${DINNER_LOG_DIR}"
@@ -289,7 +293,7 @@ function _get_breakfast_variables () {
 	_exec_command "breakfast ${CURRENT_DEVICE}"
 	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
 	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]; then
-		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d'); do
+		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)'); do
 			eval "${VARIABLE}"
 		done
 	else
