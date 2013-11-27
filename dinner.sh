@@ -129,10 +129,6 @@ function _check_prerequisites () {
 
 	_source_envsetup
 
-	if [ ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
-		_exec_command ./vendor/cm/get-prebuilts
-	fi
-
 	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
 	if [ ! -d "${DINNER_LOG_DIR}" ]; then
 		mkdir -p "${DINNER_LOG_DIR}"
@@ -305,7 +301,7 @@ function _brunch_device () {
 	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
+	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
 		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
@@ -479,6 +475,10 @@ function _run_config () {
 	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
 
 	cd "${REPO_DIR}"
+
+	if [ ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
+		_exec_command "${REPO_DIR}/vendor/cm/get-prebuilts"
+	fi
 
 	if [ ${DINNER_MAKE} ]; then
 		_exec_command "${DINNER_MAKE}"
