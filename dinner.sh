@@ -499,6 +499,7 @@ function _run_config () {
 
 	#Set current config Variables
 	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
+	eval CURRENT_REPOPICK="\"${REPOPICK}\""
 	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
@@ -513,6 +514,17 @@ function _run_config () {
 		_sync_repo
 	else
 		CURRENT_SYNC_REPO_EXIT_CODE=0
+	fi
+
+	if [ "${CURRENT_REPOPICK}" ]; then
+		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
+			export ANDROID_BUILD_TOP=${REPO_DIR}
+			for CHANGE in ${CURRENT_REPOPICK}; do
+				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}"
+			done
+		else
+			_e_error "Could not find repopick.py, cannot make a repopick."
+		fi
 	fi
 
 	if ${GET_CHANGELOG_ONLY}; then
