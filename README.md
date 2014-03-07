@@ -2,8 +2,6 @@
 #Android Dinner
 *...if you have no time to breakfast, brunch or lunch.*
 
-of Android Roms, handling brunch and lunch commands.
-
 Android Dinner is a build script for comfortable and automated building
 of Android Roms.
 
