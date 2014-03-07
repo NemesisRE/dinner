@@ -5,15 +5,16 @@
 #
 # Copyright 2013, Steven Koeberich (nemesissre@gmail.com)
 #
-# Title:		dinner.sh
-# Author:		Steven "NemesisRE" Koeberich
-# Date: 		20131117
-# Version:		1.1
-# Description:	Builds Roms automatically
+# Title:			dinner.sh
+# Author:			Steven "NemesisRE" Koeberich
+# Contributors:		ToeiRei
+# Creation Date:	20131117
+# Version:			1.1
+# Description:		Builds Roms automatically
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -32,13 +33,18 @@ export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
 export TZ="/usr/share/zoneinfo/UTC"
 
-#Make us of CCACHE
-export USE_CCACHE=1
-
 # Define global variables
-MAIL_BIN=$(which mail)
-CONVERT_TO_HTML=$(which ansi2html)							# install package kbtin to use this feature
-SHOW_VERBOSE="> /dev/null 2>&1"
+MAIL_BIN="$(which mail)"
+REPO_BIN="$(which repo)"
+DINNER_DIR="$( cd $( dirname ${0} ) && pwd )"
+DINNER_CONFIGS="$(find ${DINNER_DIR}/config.d/* -type f ! -name 'example.dist' -exec basename {} \; )"
+DINNER_USE_CCACHE="1"
+DINNER_CRON=false
+ANSI2HTML_BIN="${DINNER_DIR}/helper/ansi2html.sh"
+SHOW_VERBOSE=false
+SKIP_SYNC=false
+SKIP_SYNC_TIME="1800"
+GET_CHANGELOG_ONLY=false
 
 ######################
 #
@@ -46,188 +52,356 @@ SHOW_VERBOSE="> /dev/null 2>&1"
 #
 #
 function _usage() {
-echo $"Usage: ${0} [-n \"smith@example.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- i9300 mako ]"
-cat<<EOF
+echo "Usage: ${0} [-n \"smith@exampldinne.com\"] [-t \'/var/www/awsome-download-dir\'] [-r \'scp \$\{OUTPUT_FILE\} example.com:\' ][-l \"http://example.com/download/omnirom\"] [-c 7] [-v] [-- config_name1 config_name2 ]"
+$(which cat)<<EOF
+
+You can overwrite the Variables from the config/s with the the options below
+NOTE: This overwrites are for every choosen config
 
 Options:
-	-n		Send notification to given Mail-Adress
-	-t		Move files into given Directorie
-	-r		Run command on successful build
-	-l		If you choose a target dir you may want put
-			a download link into the mail message
-	-c		Cleanup builds older then N days
-	-v		Verbose Output
-	-h		See this Message
+	-c	CLEANUP BUILD   	Cleanup builds older then N days
+	-g	GET CHANGELOG   	Show hanges since last successful build for
+					the first found config and exit
+	-h	DINNER HELP 		See this Message
+	-l	DOWNLOAD LINK   	If you choose a target dir you may want put
+					a download link into the mail message
+	-n	NOTIFICATION		Send notification to given Mail-Adress
+	-o	DINNER OPTIONS  	Dinner Options:
+						cron (no output except warnings and above)
+						make_installclean (runs "make installclean" before build starts)
+						make_clean (runs "make clean" before build starts)
+	-r	SHELL COMMAND   	Run command on successful build
+	-s	SKIP SYNC   		Skips the repo sync
+	-t	TARGET DIRECTORY	Move files into given Directory
+	-v	VERBOSE OUTPUT  	Verbose Output
 
 EOF
 }
 
 function _e_notice () {
-	echo -e "NOTICE: ${1}"
+	if ! ${DINNER_CRON}; then
+		echo -e "NOTICE:\t\t${1}"
+	fi
 }
 
 function _e_warning () {
-	echo -e "WARNING:Something went wrong ${1} (Exit Code ${2})"
+	if [ ${2} ]; then
+		echo -e "WARNING:\t${1} (Exit Code ${2})"
+	else
+		echo -e "WARNING:\t${1}"
+	fi
 }
 
 function _e_error () {
-	echo -e "ERROR: ${1}"
+	echo -e "ERROR:\t\t${1}" 1>&2
 }
 
 function _e_fatal () {
-	echo -e "FATAL: ${1}"
-	exit 1
+	if [ ${2} ]; then
+		echo -e "FATAL:\t\t${1} (Exit Code ${2})\n\t\tStopping..." 1>&2
+		exit ${2}
+	else
+		echo -e "FATAL:\t\t${1}\n\t\tStopping..." 1>&2
+		exit 1
+	fi
+}
+
+function _exec_command () {
+	if ${SHOW_VERBOSE}; then
+		# log STDOUT and STDERR, send both to STDOUT
+		eval "${1} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+	else
+		# log STDOUT and STDERR but send only STDERR to STDOUT
+		eval "${1} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
+	fi
+}
+
+function _generate_user_message () {
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
+}
+
+function _generate_admin_message () {
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
 }
 
 function _check_prerequisites () {
-	if [ -f "dinner.conf" ]; then
-		. dinner.conf
+	_check_variables
+
+	_source_envsetup
+
+	DINNER_LOG_DIR=$(echo "${DINNER_LOG_DIR}"|sed 's/\/$//g')
+	if [ ! -d "${DINNER_LOG_DIR}" ]; then
+		mkdir -p "${DINNER_LOG_DIR}"
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not create Log directory (${DINNER_LOG_DIR})!"
+		fi
 	else
-		cat<<- EOF > dinner.conf
-		REPO_DIR=""
-		LOG_DIR=""
-		MAIL=''					# set this if you want always an email
-		ADMIN_MAIL=''			# set this if you want always an email (with logs)
-		TARGET_DIR=''			# set this if you want always move your build to the given directorie
-		CLEANUP_OLDER_THEN=''	# set this if you want always automatic cleanup
-		DOWNLOAD_LINK=''		# set this if you want always a download link
-		RUN_COMMAND=''			# set this if you want always run a command after a build was successful
-		BUILD_FOR_DEVICE=""		# set this if you want always build for the given device/s
-		EOF
-		_e_fatal "No dinner config found, created it."
+		echo "test" > ${DINNER_LOG_DIR}/permissions_test
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not write into ${DINNER_LOG_DIR}"
+		fi
 	fi
 
-	if [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
-		. ${REPO_DIR}/build/envsetup.sh
-	else
-		_e_fatal "envsetup could not be found."
+	if [ ! "${DINNER_TEMP_DIR}" ]; then
+		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
 
+	DINNER_TEMP_DIR=$(echo "${DINNER_TEMP_DIR}"|sed 's/\/$//g')
+	if [ ! -d "${DINNER_TEMP_DIR}" ]; then
+		mkdir -p "${DINNER_TEMP_DIR}"
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not create TMP directory (${DINNER_TEMP_DIR})!"
+		fi
+	else
+		echo "test" > ${DINNER_TEMP_DIR}/permissions_test
+		if [ ${?} != 0 ]; then
+			_e_fatal "Could not write into ${DINNER_TEMP_DIR}"
+		fi
+		if [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt" ]; then
+			if ! ${SKIP_SYNC} && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
+				_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+				SKIP_SYNC=true
+			fi
+		fi
+	fi
+}
+
+function _source_envsetup () {
+	if [ ! -d "${REPO_DIR}/.repo" ]; then
+		_e_fatal "${REPO_DIR} is not a Repo!"
+	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
+		_exec_command ". ${REPO_DIR}/build/envsetup.sh"
+	else
+		_e_fatal "${REPO_DIR}/build/envsetup.sh could not be found."
+	fi
+}
+
+function _check_variables () {
+	# Check essentials
+	if [ ! ${REPO_BIN} ] || [ ! -x ${REPO_BIN} ]; then
+		_e_fatal "Repo binary (${REPO_BIN}) is not found or not executable!"
+	fi
+
+	if [ ! "${REPO_DIR}" ]; then
+		_e_fatal "REPO_DIR is not set!"
+	elif [ ! ${BUILD_FOR_DEVICE} ]; then
+		_e_fatal "No Device given! Stopping..."
+	fi
+
+	for DINNER_OPTION in ${DINNER_OPTIONS}; do
+		case ${DINNER_OPTION} in
+			"cron")
+				DINNER_CRON=true
+			;;
+			"make_installclean")
+				if [ ${DINNER_MAKE} ]; then
+					_e_fatal "Use only one make command!"
+				else
+					DINNER_MAKE="make installclean"
+				fi
+			;;
+			"make_clean")
+				if [ ${DINNER_MAKE} ]; then
+					_e_fatal "Use only one make command!"
+				else
+					DINNER_MAKE="make clean"
+				fi
+			;;
+		esac
+	done
+
+	if [ ${PROMPT_SKIP_SYNC} ]; then
+		SKIP_SYNC=true
+	else
+		SKIP_SYNC=false
+	fi
+
+	if [ ! ${SKIP_SYNC_TIME} ] || [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
+		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
+		SKIP_SYNC_TIME="1800"
+	fi
+
+	if [ ${DINNER_USE_CCACHE} ] && [[ "${DINNER_USE_CCACHE}" =~ "^{0,1}$" ]]; then
+		export USE_CCACHE=${DINNER_USE_CCACHE}
+	fi
+
+	if [ ${DINNER_CCACHE_DIR} ]; then
+		export CCACHE_DIR=${DINNER_CCACHE_PATH}
+	fi
+
+	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
+		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}"
+		if [ ${?} != 0 ]; then
+			_e_error "There was an error while setting ccache size, take a look into the logs."
+		fi
+	fi
+
+	if [ ${PROMT_MAIL} ]; then
+		MAIL= ${PROMT_MAIL}
+	fi
+
+	if [ ${PROMPT_TARGET_DIR} ]; then
+		TARGET_DIR=${PROMPT_TARGET_DIR}
+	fi
+
+	if [ ${PROMPT_POST_BUILD_COMMAND} ]; then
+		POST_BUILD_COMMAND=${PROMPT_POST_BUILD_COMMAND}
+	fi
+
+	if [ ${PROMPT_DOWNLOAD_LINK} ]; then
+		DOWNLOAD_LINK=${PROMPT_DOWNLOAD_LINK}
+	fi
+
+	if [ ${PROMPT_CLEANUP_OLDER_THAN} ]; then
+		CLEANUP_OLDER_THAN=${PROMPT_CLEANUP_OLDER_THAN}
+	fi
+
+	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
+		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
+		CLEANUP_OLDER_THAN=""
+	fi
 
 	if [ "${TARGET_DIR}" ]; then
 		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 	fi
 
-	if [ "${LOG_DIR}" ]; then
-		LOG_DIR=$(echo "${LOG_DIR}"|sed 's/\/$//g')
+	if [ ! "${DINNER_LOG_DIR}" ]; then
+		DINNER_LOG_DIR="$(echo $(pwd)/logs)"
 	fi
 
-	if [ -z "${BUILD_FOR_DEVICE}" ]; then
-		_e_fatal "No Device given! Stopping..."
-	fi
-
-	if [ ! -d "${LOG_DIR}" ]; then
-		mkdir -p "${LOG_DIR}"
+	if [ ! "${DINNER_TEMP_DIR}" ]; then
+		DINNER_TEMP_DIR="$(echo $(pwd)/tmp)"
 	fi
 }
 
 function _sync_repo () {
 	_e_notice "Running repo sync..."
-	eval "repo sync ${SHOW_VERBOSE}"
-	SYNC_REPO_EXIT_CODE=$?
-	if [ "${SYNC_REPO_EXIT_CODE}" != 0 ]; then
-		_e_warning "while doing repo sync" "${SYNC_REPO_EXIT_CODE}"
+	_exec_command "${REPO_BIN} sync"
+	CURRENT_SYNC_REPO_EXIT_CODE=$?
+	if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong  while doing repo sync" "${CURRENT_SYNC_REPO_EXIT_CODE}"
+	else
+		echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
 	fi
 }
 
 function _get_breakfast_variables () {
-	for VARIABLE in `breakfast ${DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/ d'`; do
-		eval "${VARIABLE}"
-	done
-	if [ ${PLATFORM_VERSION} ]; then
-		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=0
+	_exec_command "breakfast ${CURRENT_DEVICE}"
+	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
+	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]; then
+		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)'); do
+			eval "${VARIABLE}"
+		done
 	else
-		_e_warning "while getting breakfast variables" "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}"
+		_e_fatal "Something went wrong while getting breakfast variables"
 	fi
 }
 
 function _brunch_device () {
-	_e_notice "Running brunch for ${DEVICE} with version ${PLATFORM_VERSION}..."
-	eval "brunch ${DEVICE} 2>&1 | tee ${LOG_DIR}/brunch_${DEVICE}.log ${SHOW_VERBOSE}"
+	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
+	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${LOG_DIR}/brunch_${DEVICE}.log | grep "real" | awk '{print $2}')
+	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
-		_e_warning "while brunch the ${DEVICE}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_error "Config ${CURRENT_CONFIG} failed, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+	else
+		echo -e "finished after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
 function _move_build () {
-	if [ -d ${CURRENT_TARGET_DIR}/ ]; then
+	if [ -d "${CURRENT_TARGET_DIR}/" ]; then
 		_e_notice "Moving files to target directory..."
-		mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/
+		_exec_command "mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/"
 		CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		if [ "${CURRENT_MOVE_BUILD_EXIT_CODE}" != 0 ]; then
-			_e_warning "while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
+			_e_warning "Something went wrong while moving the build" "${CURRENT_MOVE_BUILD_EXIT_CODE}"
 		fi
 	else
-		e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
+		_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
 	fi
 }
 
-function _run_command () {
-	_e_notice "Run command..."
-	eval ${CURRENT_RUN_COMMAND} ${SHOW_VERBOSE}
-	CURR]NT_RUN_COMMAND_EXIT_CODE=$?
-	if [ "${CURRENT_RUN_COMMAND_EXIT_CODE}" != 0 ]; then
-		_e_warning "while running your command" "${CURRENT_RUN_COMMAND_EXIT_CODE}"
+function _pre_build_command () {
+	_e_notice "Running pre build command..."
+	_exec_command "${CURRENT_PRE_BUILD_COMMAND}"
+	CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=$?
+	if [ "${CURRENT_PRE_BUILD_COMMAND_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong while running your pre build command" "${CURRENT_PRE_BUILD_COMMAND_EXIT_CODE}"
+	fi
+}
+
+function _post_build_command () {
+	_e_notice "Running post build command..."
+	_exec_command "${CURRENT_POST_BUILD_COMMAND}"
+	CURRENT_POST_BUILD_COMMAND_EXIT_CODE=$?
+	if [ "${CURRENT_POST_BUILD_COMMAND_EXIT_CODE}" != 0 ]; then
+		_e_warning "Something went wrong while running your post build command" "${CURRENT_POST_BUILD_COMMAND_EXIT_CODE}"
 	fi
 }
 
 function _clean_old_builds () {
 	_e_notice "Running cleanup of old builds..."
-	if [ "${CURRENT_TARGET_DIR}" ]; then
-		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
+	if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
+		CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	else
-		CURRENT_CLEANED_FILES=$(find `dirname ${OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THEN} -delete)
+		CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
 	fi
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
-		CURRENT_CLEANED_FILES="Nothing to clean up for ${DEVICE}."
+		CURRENT_CLEANED_FILES="Nothing to clean up for ${CURRENT_CONFIG}."
 	elif [ "${CURRENT_CLEANED_FILES}" ]; then
 		_e_notice "${CURRENT_CLEANED_FILES}"
 	fi
 	if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-		_e_warning "while cleaning builds for ${DEVICE}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
+		_e_warning "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 	fi
 }
 
 function _send_mail () {
 	_e_notice "Sending status mail..."
-	MAIL_MESSAGE="\e[1mBuild Status:\n\n"
-	ADMIN_MAIL_MESSAGE=""
+	:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
+	:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
+
 	if ${CURRENT_BUILD_STATUS}; then
-		MAIL_MESSAGE+="Build for ${DEVICE} was successfull finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
+		_generate_admin_message "Used config \"${CURRENT_CONFIG}\"\n"
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-			MAIL_MESSAGE+="You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
+			_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 		fi
+
+		if [ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]; then
+			_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt)"
+		fi
+
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
-			ADMIN_MAIL_MESSAGE+="Removed the following files:\n"
-			ADMIN_MAIL_MESSAGE+=${CURRENT_CLEANED_FILES}
+			_generate_admin_message "Removed the following files:"
+			_generate_admin_message "${CURRENT_CLEANED_FILES}"
 		fi
 	else
-		MAIL_MESSAGE+="Build was has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
-		ADMIN_MAIL_MESSAGE+="Logfile:"
-		ADMIN_MAIL_MESSAGE+=$(cat ${LOG_DIR}/brunch_${DEVICE}.log)
+		_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
+		_generate_admin_message "Logfile:"
+		if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
+			_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+		else
+			_generate_admin_message "ERROR: Logfile not found"
+		fi
 	fi
-	MAIL_MESSAGE+="\e[21m"
+
+	_generate_user_message "\e[21m"
+
 	if [ "${CURRENT_MAIL}" ]; then
-		if [ ${CONVERT_TO_HTML} ]; then
-			echo -e "${MAIL_MESSAGE}" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_MAIL}"
-		else
-			echo -e "${MAIL_MESSAGE}" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_MAIL}"
-		fi
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\""
 	fi
+
 	if [ "${CURRENT_ADMIN_MAIL}" ]; then
-		FULL_ADMIN_MESSAGE=$(echo -e "${MAIL_MESSAGE}${ADMIN_MAIL_MESSAGE}")
-		if [ ${CONVERT_TO_HTML} ]; then
-			echo -e "${FULL_ADMIN_MESSAGE}" | ${CONVERT_TO_HTML} | ${MAIL_BIN} -a "Content-type: text/html" -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
-		else
-			echo -e "${FULL_ADMIN_MESSAGE}" | ${MAIL_BIN} -s "Finished dinner." "${CURRENT_ADMIN_MAIL}"
-		fi
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\""
 	fi
 	CURRENT_SEND_MAIL_EXIT_CODE=$?
 	if [ "${CURRENT_SEND_MAIL_EXIT_CODE}" != 0 ]; then
-		_e_warning "while sending E-Mail" "${CURRENT_SEND_MAIL_EXIT_CODE}"
+		_e_warning "Something went wrong while sending E-Mail" "${CURRENT_SEND_MAIL_EXIT_CODE}"
 	fi
 }
 
@@ -236,8 +410,197 @@ function _check_build () {
 		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
+		else
+			_e_error "Outputfile too old!"
+		fi
+	else
+		_e_error "Outputfile does not exist!"
+	fi
+}
+
+function _set_lastbuild () {
+	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
+}
+
+function _get_changelog () {
+	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
+		_e_notice "Gathering Changes since last build..."
+		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
+
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
+		do
+			cd $line
+			log=$(git log --pretty="%an - %s" --since=${LASTBUILD} --date-order)
+			project=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+			if [ ! -z "$log" ]; then
+				origin=`grep "$project" ${REPO_DIR}/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
+
+				if [ "$origin" = "bam" ]; then
+						proj_credit=JELLYBAM
+				elif [ "$origin" = "aosp" ]; then
+						proj_credit=AOSP
+				elif [ "$origin" = "cm" ]; then
+						proj_credit=CyanogenMod
+				else
+						proj_credit="OmniROM"
+				fi
+
+				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+
+				echo "$log" | while read line
+				do
+					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+				done
+
+				echo "" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+			fi
+		done
+	fi
+}
+
+function _run_config () {
+	if [ "${CURRENT_CONFIG}" ] && [ "${CURRENT_CONFIG}" == "dinner_default" ]; then
+		. ${DINNER_DIR}/dinner.conf
+	elif [ -f "${DINNER_DIR}/dinner.conf" ] && [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
+		. ${DINNER_DIR}/dinner.conf
+		. ${DINNER_DIR}/config.d/${CURRENT_CONFIG}
+	else
+		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
+	fi
+
+	_check_prerequisites
+
+	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
+
+	cd "${REPO_DIR}"
+
+	if [ -x ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
+		_exec_command "${REPO_DIR}/vendor/cm/get-prebuilts"
+	fi
+
+	if [ ${DINNER_MAKE} ]; then
+		_exec_command "${DINNER_MAKE}"
+	fi
+
+	#Set initial exitcodes
+	OVERALL_EXIT_CODE=0
+	CURRENT_SYNC_REPO_EXIT_CODE=1
+	CURRENT_BUILD_STATUS=false
+	CURRENT_CONFIG_EXIT_CODE=1
+	CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
+	CURRENT_MOVE_BUILD_EXIT_CODE=1
+	CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=1
+	CURRENT_POST_BUILD_COMMAND_EXIT_CODE=1
+	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=1
+	CURRENT_SEND_MAIL_EXIT_CODE=1
+	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
+
+	#Set current config Variables
+	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
+	eval CURRENT_REPOPICK="\"${REPOPICK}\""
+	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
+	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
+	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
+	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
+	eval CURRENT_MAIL="${MAIL}"
+	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
+	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
+	eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
+	eval CURRENT_STATUS="failed"
+
+	if ! ${SKIP_SYNC}; then
+		_sync_repo
+	else
+		CURRENT_SYNC_REPO_EXIT_CODE=0
+	fi
+
+	if [ "${CURRENT_REPOPICK}" ]; then
+		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
+			export ANDROID_BUILD_TOP=${REPO_DIR}
+			for CHANGE in ${CURRENT_REPOPICK}; do
+				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}"
+			done
+		else
+			_e_error "Could not find repopick.py, cannot make a repopick."
 		fi
 	fi
+
+	if ${GET_CHANGELOG_ONLY}; then
+		_get_changelog
+		cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		exit 0
+	fi
+
+	_get_changelog
+
+	_get_breakfast_variables
+
+	if [ ${CURRENT_PRE_BUILD_COMMAND} ]; then
+		_pre_build_command
+	else
+		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
+	fi
+
+	_brunch_device
+
+	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
+		_check_build
+		if ${CURRENT_BUILD_STATUS}; then
+			CURRENT_STATUS="finished successfully"
+			if [ ${CURRENT_POST_BUILD_COMMAND} ]; then
+				_post_build_command
+			else
+				CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
+			fi
+			if [ "${CURRENT_TARGET_DIR}" ]; then
+				_move_build
+			else
+				CURRENT_MOVE_BUILD_EXIT_CODE=0
+			fi
+			if [ "${CLEANUP_OLDER_THAN}" ]; then
+				_clean_old_builds
+			else
+				CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
+			fi
+		else
+			CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
+			CURRENT_MOVE_BUILD_EXIT_CODE=0
+			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
+		fi
+	fi
+
+
+	if [ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]; then
+		_send_mail
+	else
+		CURRENT_SEND_MAIL_EXIT_CODE=0
+	fi
+
+	CURRENT_CONFIG_EXIT_CODE=$(( \
+		${SYNC_REPO_EXIT_CODE} \
+		+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE} \
+		+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
+		+${CURRENT_MOVE_BUILD_EXIT_CODE} \
+		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
+		+${CURRENT_SEND_MAIL_EXIT_CODE} \
+	))
+	if ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
+		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
+		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}${CURRENT_CONFIG}; "
+		_set_lastbuild
+	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
+		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
+		WARNING_CONFIGS="${WARNING_CONFIGS}${CURRENT_CONFIG}; "
+	elif [ "${CURRENT_BUILD_STATUS}" == "false" ] && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
+		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
+		FAILED_CONFIGS="${FAILED_CONFIGS}${CURRENT_CONFIG}; "
+	else
+		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
+	fi
+	echo -e ""
+	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
 
 ######################
@@ -246,92 +609,67 @@ function _check_build () {
 #
 #
 function _main() {
-	#Set initial exitcodes
-	OVERALL_EXIT_CODE=0
-	SYNC_REPO_EXIT_CODE=1
-	
-	_check_prerequisites
+	if [ ${PROMPT_CONFIGS} ]; then
+		DINNER_CONFIGS="${PROMPT_CONFIGS}"
+	fi
 
-	cd "${REPO_DIR}"
+	if [ "${DINNER_CONFIGS}" ]; then
+		for CURRENT_CONFIG in ${DINNER_CONFIGS}; do
+			_run_config
+		done
 
-	_sync_repo
-
-	for DEVICE in ${BUILD_FOR_DEVICE}; do
-		CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=1
-		_get_breakfast_variables
-		eval CURRENT_TARGET_DIR="${TARGET_DIR}"
-		eval CURRENT_MAIL="${MAIL}"
-		eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
-		eval CURRENT_OUTPUT_FILE="${OUT_DIR}/target/product/${DEVICE}/omni-${PLATFORM_VERSION}-$(date +%Y%m%d)-${DEVICE}-HOMEMADE.zip"
-		eval CURRENT_BUILD_STATUS=false
-		CURRENT_DEVICE_EXIT_CODE=1
-		CURRENT_BRUNCH_DEVICE_EXIT_CODE=1
-		CURRENT_MOVE_BUILD_EXIT_CODE=1
-		CURRENT_RUN_COMMAND_EXIT_CODE=0
-		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=1
-		CURRENT_SEND_MAIL_EXIT_CODE=1
-
-		_brunch_device
-
-		if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
-			_check_build
-			if ${CURRENT_BUILD_STATUS}; then
-				if [ "${CURRENT_TARGET_DIR}" ]; then
-					_move_build
-				else
-					CURRENT_MOVE_BUILD_EXIT_CODE=0
-				fi
-
-				if [ "${CLEANUP_OLDER_THEN}" ]; then
-					_clean_old_builds
-				else
-					CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
-				fi
+		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
+			_e_notice "=== YEAH all configs finished sucessfull! ==="
+			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+			exit 0
+		else
+			_e_error "=== DAMN something went wrong ==="
+			if [ "${FAILED_CONFIGS}" ]; then
+				_e_error "These configs failed: ${FAILED_CONFIGS}"
 			fi
-		else
-			CURRENT_MOVE_BUILD_EXIT_CODE=0
-			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
+			if [ "${WARNING_CONFIGS}" ]; then
+				_e_error "These configs had warnings: ${WARNING_CONFIGS}"
+			fi
+			if [ "${SUCCESS_CONFIGS}" ]; then
+				_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+			fi
+			_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
 		fi
-
-
-		if [ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]; then
-			_send_mail
-		else
-			CURRENT_SEND_MAIL_EXIT_CODE=0
-		fi
-
-		CURRENT_DEVICE_EXIT_CODE=$((${SYNC_REPO_EXIT_CODE}+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}+${CURRENT_BRUNCH_DEVICE_EXIT_CODE}+${CURRENT_MOVE_BUILD_EXIT_CODE}+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}+${CURRENT_SEND_MAIL_EXIT_CODE}))
-		if ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-			_e_warning "buildcheck for ${DEVICE} has failed" "${CURRENT_DEVICE_EXIT_CODE}"
-		elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_DEVICE_EXIT_CODE}" -gt 0 ]; then
-			_e_warning "buildcheck for ${DEVICE} was successful but something else went wrong" "${CURRENT_DEVICE_EXIT_CODE}"
-		else
-			_e_notice "All jobs for ${DEVICE} finished successfully."
-		fi
-		OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_DEVICE_EXIT_CODE}))
-	done
+	else
+		CURRENT_CONFIG="dinner_default"
+		_run_config
+	fi
 }
 
 ## Parameter handling
-while getopts ":n:t:l:c:vh" opt; do
+while getopts ":n:t:l:c:o:vhsg" opt; do
 	case ${opt} in
 		"n")
-			MAIL='${OPTARG}'
+			PROMT_MAIL="${OPTARG}"
 		;;
 		"t")
-			TARGET_DIR='${OPTARG}'
+			PROMPT_TARGET_DIR="${OPTARG}"
 		;;
 		"r")
-			RUN_COMMAND='${OPTARG}'
+			PROMPT_POST_BUILD_COMMAND="${OPTARG}"
 		;;
 		"l")
-			DOWNLOAD_LINK='${OPTARG}'
+			PROMPT_DOWNLOAD_LINK="${OPTARG}"
 		;;
 		"c")
-			CLEANUP_OLDER_THEN="${OPTARG}"
+			PROMPT_CLEANUP_OLDER_THAN="${OPTARG}"
+		;;
+		"s")
+			PROMPT_SKIP_SYNC=true
 		;;
 		"v")
-			SHOW_VERBOSE=""
+			SHOW_VERBOSE=true
+		;;
+		"g")
+			GET_CHANGELOG_ONLY=true
+		;;
+		"o")
+			DINNER_OPTIONS="${OPTARG}"
 		;;
 		"h")
 			_usage
@@ -352,10 +690,10 @@ done
 shift $((${OPTIND}-1))
 
 if [ "${@}" ]; then
-	BUILD_FOR_DEVICE="${@}"
+	PROMPT_CONFIGS="${@}"
 fi
 
 _main
 
-exit 0
+exit 1
 

@@ -1,0 +1,32 @@
+# You can have a set of different configs and can even override variables from the global
+# config (dinner.conf) in case you want to build for a different device/rom or even if
+# you want to make an other build with cherrypicks or so
+#
+# It is Possible to override all global settings per config
+#
+#
+# !!!This is an example file and will be overwritten on each update please just copy it!!!
+
+# Override for REPO_DIR if you want to build from an other Repository
+#REPO_DIR="${HOME}/android/[ROM_NAME]"
+
+# Set the Device you want to build for
+#BUILD_FOR_DEVICE="i9300"
+
+# LOG and TMP dir can be set to other values, but default is dinner dir
+#DINNER_LOG_DIR="${DINNER_DIR}/logs"					# if empty "${DINNER_DIR}/logs/" will be used
+#DINNER_TEMP_DIR="${DINNER_DIR}/tmp"					# if empty "${DINNER_DIR}/tmp/" will be used
+#SKIP_SYNC_TIME="900"									# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
+#DINNER_USE_CCACHE="1"									# Use ccache or not 1/0 (Default: 1)
+#DINNER_CCACHE_DIR=""									# Change ccache directory (Default: No default)
+#DINNER_CCACHE_SIZE=""									# Change ccache max cache size in gigabytes (Default: No default)
+
+# Variables that are not necessary.
+#MAIL='john+i9300@gmail.com'							# set this if you want always an email
+#ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with build logs)
+#TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'				# set this if you want always move your build to the given directory
+#CLEANUP_OLDER_THAN='7'									# set this if you want always automatic cleanup
+#DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want always a download link
+#PRE_BUILD_COMMAND=''									# set this if you want always run a command before brunch is started
+#POST_BUILD_COMMAND=''									# set this if you want always run a command after a build was successful and before move
+#REPOPICK=''										# Space separeted list of gerrit change ID's which will be cherrypicked
