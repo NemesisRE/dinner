@@ -61,8 +61,10 @@ _dinner_complete()
 
 	local -r cmds='
 		clean
+		changelog
 		list
 		cook
+		update
 	'
 	local -r short_opts='-v      -s     -c'
 	local -r long_opts='--verbose --skip --cron'
@@ -107,6 +109,10 @@ _dinner_complete()
 		# Offer command argument completions.
 		case "$cmd" in
 			cook)
+				# Offer one or more config completions.
+				_dinner_complete_configs "$cur"
+				;;
+			changelog)
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
 				;;

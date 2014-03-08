@@ -67,7 +67,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(clean changelog cook list help)
+valid_commands=(clean changelog cook list update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -105,6 +105,7 @@ while [[ $# -gt 0 ]]; do
 			[[ ! ${dinner_make} ]] && dinner_make="$1" || params+=("$1")
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
+		update) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		help)
 			[[ ! $help_cmd ]] && help_cmd=$1
 			shift; continue;;
@@ -124,17 +125,16 @@ if [[ ! $params ]]; then
 	esac
 fi
 
-[[ ! ${dinner_make} ]] && dinner_make="clean"
-
 case $cmd in
-	list)  _list_configs           ;;
-	help)  help $help_cmd ;;
+	list)   _list_configs  ;;
+	update) _dinner_update ;;
+	help)   help $help_cmd ;;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
 				clean)         _run_config $cmd "$dinner_make" "$params"  ;;
-				changelog)     _run_config $cmd "$params"             ;;
-				cook)          _run_config $cmd "$params"                       ;;
+				changelog)     _run_config $cmd "$params"                 ;;
+				cook)          _run_config $cmd "$params"                 ;;
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then

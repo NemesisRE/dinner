@@ -13,11 +13,12 @@ Usage: dinner [options] TASK
   dinner clean MENU                # Clean a menu
   dinner cook MENU                 # Clone URI as a menu for dinner
   dinner list                      # List all menus
+  dinner update                    # Updates dinner
   dinner help [TASK]               # Show usage of a task
 
  Runtime options:
    -v, [--verbose]    # Show full output
-   -s, [--skip]     # Skip sync
+   -s, [--skip]       # Skip sync
 
  Note:
   To clean or cook all your menus
@@ -44,6 +45,10 @@ function extended_help {
 		list)
       printf "Lists all menus\n"
       printf "Usage:\n  dinner list"
+      ;;
+		update)
+      printf "Updates dinner\n"
+      printf "Usage:\n  dinner update"
       ;;
 		help)
       printf "Shows usage of a task\n"

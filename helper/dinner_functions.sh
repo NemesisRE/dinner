@@ -28,6 +28,11 @@ function _exec_command () {
 	fi
 }
 
+function _dinner_update () {
+	_exec_command "cd ${DINNER_DIR};$(which git) pull"
+}
+
+
 function _generate_user_message () {
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
 }
