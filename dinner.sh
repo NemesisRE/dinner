@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DINNER_DIR="$( cd $( dirname ${0} ) && pwd )"
+DINNER="${0}"
 
 function dinner() {
 	$DINNER_DIR/bin/dinner.sh "$@"

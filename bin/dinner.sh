@@ -26,7 +26,7 @@
 #set -e 	#do not enable otherwise brunch will fail
 #set -x
 
-DINNER_DIR="$( cd $( dirname ${0} ) && pwd )"
+DINNER_DIR="$( cd $( dirname ${DINNER} ) && pwd )"
 
 source ${DINNER_DIR}/helper/dinner_defaults.sh
 source ${DINNER_DIR}/helper/dinner_functions.sh
