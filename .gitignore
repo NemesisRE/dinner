@@ -1,5 +1,7 @@
 /*
-/tmp/*
-/logs/*
-/helper/*
+/bin/*
 /config.d/*
+/doc/*
+/helper/*
+/logs/*
+/tmp/*
