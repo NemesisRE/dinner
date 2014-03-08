@@ -34,11 +34,13 @@ source ${DINNER_DIR}/helper/log.sh
 source ${DINNER_DIR}/helper/help.sh
 source ${DINNER_DIR}/helper/exit_status.sh
 
+trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" SIGINT SIGTERM
+
 exit_status=$EX_SUCCESS
 
 test -x $(which repo) && REPO_BIN=$(which repo) || _e_fatal "repo not found in path" $EX_SOFTWARE
 test -x $(which mail) && MAIL_BIN=$(which mail) || _e_fatal "mail not found in path" $EX_SOFTWARE
-#test -x $(which dinner_ansi2html.sh) && ANSI2HTML_BIN=$(which dinner_ansi2html.sh) || _e_fatal " not found in path" $EX_SOFTWARE
+test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal " not found in path" $EX_SOFTWARE
 
 # Retrieve all the flags preceeding a subcommand
 while [[ $# -gt 0 ]]; do

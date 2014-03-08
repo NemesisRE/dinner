@@ -128,16 +128,15 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}... \c"
+	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" != 0 ]; then
-		echo -e "failed after ${CURRENT_BRUNCH_RUN_TIME}"
-		_e_error "Config ${CURRENT_CONFIG} failed, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
+		_e_error "Config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}, see logfile for more information" "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}"
 	else
-		echo -e "finished after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_success "Config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
 	fi
 }
 
@@ -253,8 +252,8 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
+	_e_notice "Gathering Changes since last build..."
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
-		_e_notice "Gathering Changes since last build..."
 		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
 
 		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt

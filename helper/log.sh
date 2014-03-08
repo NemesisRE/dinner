@@ -11,28 +11,34 @@ bldwht="\e[1;37m" # White - info
 
 function _e_notice () {
 	if ! ${DINNER_CRON}; then
-		printf "${bldwht}\t%s${txtdef} %s\n" "NOTICE:" "$1"
+		printf "${bldwht}%b${txtdef} \t %b\n" "NOTICE:" "$1"
+	fi
+}
+
+function _e_success () {
+	if ! ${DINNER_CRON}; then
+		printf "${bldwht}%b${txtdef} \t ${bldgrn}%b${txtdef}\n" "NOTICE:" "$1"
 	fi
 }
 
 function _e_warning () {
 	if [ ${2} ]; then
-		printf "${bldylw}\t%s${txtdef} %s\n" "WARNING:" "$1 (Exit Code ${2}"
+		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1 (Exit Code ${2}"
 	else
-		printf "${bldylw}\t%s${txtdef} %s\n" "WARNING:" "$1"
+		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1"
 	fi
 }
 
 function _e_error () {
-	printf "${bldred}\t%s${txtdef} %s\n" "ERROR:" "$1" 1>&2
+	printf "${bldred}%b${txtdef} \t\t %b\n" "ERROR:" "$1" 1>&2
 }
 
 function _e_fatal () {
 	if [ ${2} ]; then
-		printf "${bldpur}\t%s${txtdef} %s\n" "FATAL:" "${1} (Exit Code ${2})" "Stopping..." 1>&2
-		exit ${2}
+	    printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code ${2})" "Stopping..." 1>&2
+	    exit ${2}
 	else
-		printf "${bldpur}\t%s${txtdef} %s\n" "FATAL:" "${1} (Exit Code 1)" "Stopping..." 1>&2
-		exit 1
+	    printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code 1)" "Stopping..." 1>&2
+	    exit 1
 	fi
 }
