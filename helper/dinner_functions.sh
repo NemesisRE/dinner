@@ -19,10 +19,10 @@ function _exec_command () {
 		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 	local EXIT_CODE=${?}
-	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "EMPTY"]; then
+	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "EMPTY" ]; then
 		eval ${FAIL} ${EXIT_CODE}
 		return ${EXIT_CODE}
-	elif [ "${SUCCESS}" != "EMPTY"]; then
+	elif [ "${SUCCESS}" != "EMPTY" ]; then
 		eval ${SUCCESS}
 		return ${EXIT_CODE}
 	fi
