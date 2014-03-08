@@ -146,7 +146,12 @@ function _check_variables () {
 }
 
 function _sync_repo () {
-	if ! ${SKIP_SYNC}; then
+	if [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt" ]; then
+		if ! ${SKIP_SYNC} && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
+			_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+			CURRENT_SYNC_REPO_EXIT_CODE=0
+		fi
+	elif ! ${SKIP_SYNC}; then
 		_e_notice "Running repo sync..."
 		_exec_command "${REPO_BIN} sync" "_e_warning \"Something went wrong  while doing repo sync\""
 		CURRENT_SYNC_REPO_EXIT_CODE=$?
