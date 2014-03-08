@@ -35,10 +35,10 @@ function _e_error () {
 
 function _e_fatal () {
 	if [ ${2} ]; then
-	    printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code ${2})" "Stopping..." 1>&2
-	    exit ${2}
+		printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code ${2})" "Stopping..." 1>&2
+		exit ${2}
 	else
-	    printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code 1)" "Stopping..." 1>&2
-	    exit 1
+		printf "${bldpur}%b${txtdef} \t\t %b\n" "FATAL:" "${1} (Exit Code 1)" "Stopping..." 1>&2
+		exit 1
 	fi
 }

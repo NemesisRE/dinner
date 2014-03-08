@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
 		case $1 in
 			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
-			-v | --verbose) SHOW_VERBOSE=false ; shift; continue ;;
+			-v | --verbose) SHOW_VERBOSE=true  ; shift; continue ;;
 			-s | --skip)            SKIP=true  ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
@@ -91,7 +91,7 @@ while [[ $# -gt 0 ]]; do
 		case $1 in
 			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
-			-v | --verbose) SHOW_VERBOSE=false ; shift; continue ;;
+			-v | --verbose) SHOW_VERBOSE=true  ; shift; continue ;;
 			-s | --skip)       SKIP_SYNC=true  ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
@@ -115,14 +115,14 @@ if [[ ! $params ]]; then
 		clean | changelog | cook)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
-			done < <(list_configs) ;;
+			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
 		# none) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
 case $cmd in
-	list)  list           ;;
+	list)  _list_configs           ;;
 	help)  help $help_cmd ;;
 	*)
 		for params in "${params[@]}"; do
