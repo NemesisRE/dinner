@@ -302,7 +302,7 @@ function _send_mail () {
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} ${LOGFILE} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${LOGFILE}\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
