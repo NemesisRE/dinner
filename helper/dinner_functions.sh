@@ -340,7 +340,7 @@ function _check_build () {
 
 function _dinner_make {
 	if [ ${DINNER_MAKE} ]; then
-		_exec_command "${DINNER_MAKE}"
+		_exec_command "make ${DINNER_MAKE}"
 		if ${CLEAN_ONLY}; then
 			continue
 		fi

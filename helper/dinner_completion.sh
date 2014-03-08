@@ -112,7 +112,7 @@ _dinner_complete()
 				;;
 			clean)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
-					COMPREPLY=("make clean" "make installclean")
+					COMPREPLY=(clean installclean)
 				else
 				_dinner_complete_configs "$cur"
 				fi

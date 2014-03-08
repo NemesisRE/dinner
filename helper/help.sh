@@ -35,7 +35,7 @@ function extended_help {
 	case $1 in
 		clean)
       printf "Triggers \"make clean\" or \"make installclean\" for the given menu(s)\n"
-      printf "Usage:\n  dinner clean [COMMAND] [MENU ..]"
+      printf "Usage:\n  dinner clean [MAKE_COMMAND] [MENU ..]"
       ;;
 		cook)
       printf "builds a rom from the given menu(s)\n"

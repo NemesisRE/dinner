@@ -124,7 +124,7 @@ if [[ ! $params ]]; then
 	esac
 fi
 
-[[ ! ${dinner_make} ]] && dinner_make="make clean"
+[[ ! ${dinner_make} ]] && dinner_make="clean"
 
 case $cmd in
 	list)  _list_configs           ;;
