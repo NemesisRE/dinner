@@ -377,7 +377,7 @@ function _check_current_config () {
 }
 
 function _set_lastbuild () {
-	if ! ${BUILD_SKIPPED}
+	if ! ${BUILD_SKIPPED}; then
 		echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
 	fi
 }
