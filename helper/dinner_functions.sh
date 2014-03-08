@@ -1,4 +1,12 @@
 #!/bin/bash
+
+##
+# _exec_command
+#
+# param1 = command
+# param2 = Fail command
+# param3 = Success command
+#
 function _exec_command () {
 	local COMMAND=${1}
 	local FAIL=${2}
@@ -330,6 +338,15 @@ function _check_build () {
 	fi
 }
 
+function _dinner_make {
+	if [ ${DINNER_MAKE} ]; then
+		_exec_command "${DINNER_MAKE}"
+		if ${CLEAN_ONLY}; then
+			continue
+		fi
+	fi
+}
+
 function _check_current_config () {
 	CURRENT_CONFIG_EXIT_CODE=$(( \
 		${SYNC_REPO_EXIT_CODE} \
@@ -415,16 +432,16 @@ function _run_config () {
 			DINNER_MAKE=${2}
 			CURRENT_CONFIG=${3}
 			;;
-		*)
-			CURRENT_CONFIG=${1}
+		"cook")
+			CURRENT_CONFIG=${2}
 			;;
+		*)
+			_e_fatal "Unknown command '$1'" $EX_USAGE
 	esac
 
 	_check_prerequisites
 
-	if [ ${DINNER_MAKE} ]; then
-		_exec_command "${DINNER_MAKE}"
-	fi
+	_dinner_make
 
 	_sync_repo
 

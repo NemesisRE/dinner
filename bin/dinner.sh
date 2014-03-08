@@ -102,7 +102,7 @@ while [[ $# -gt 0 ]]; do
 			params+=("$1")
 			shift; continue ;;
 		clean)
-			[[ ! ${dinner_make} ]] && dinner_make="make clean" || params+=("$1")
+			[[ ! ${dinner_make} ]] && dinner_make="$1" || params+=("$1")
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		help)
