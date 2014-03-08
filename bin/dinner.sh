@@ -132,13 +132,13 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				clean)         _run_config clean "$dinner_make" "$params"  ;;
-				changelog)     _run_config changelog "$params"             ;;
-				cook)          _run_config "$params"                       ;;
+				clean)         _run_config $cmd "$dinner_make" "$params"  ;;
+				changelog)     _run_config $cmd "$params"             ;;
+				cook)          _run_config $cmd "$params"                       ;;
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-			_e_notice "=== YEAH all configs finished sucessfull! ==="
+			_e_success "=== YEAH all configs finished sucessfull! ==="
 			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
 			exit 0
 		else
