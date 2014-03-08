@@ -90,6 +90,7 @@ function _set_current_variables () {
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
+	eval CURRENT_CLEANUP_OLDER_THAN="${CLEANUP_OLDER_THAN}"
 	eval CURRENT_MAIL="${MAIL}"
 	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
@@ -235,12 +236,12 @@ function _post_build_command () {
 }
 
 function _clean_old_builds () {
-	if [ "${CLEANUP_OLDER_THAN}" ]; then
+	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_notice "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
+			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)
 		else
-			CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CLEANUP_OLDER_THAN} -delete)
+			CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)
 		fi
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
