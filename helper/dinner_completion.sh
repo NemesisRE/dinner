@@ -2,11 +2,11 @@
 #
 ###############################################################################
 #
-# Bash completion for homeshick (https://github.com/andsens/homeshick).
+# Bash completion for dinner (https://github.com/NemesisRE/dinner).
 #
 # To use, add this line (or equivalent) to your .bashrc:
 #
-#   source ~/.homesick/repos/homeshick/completions/homeshick-completion.bash
+#   source ~/.dinner/helper/dinner_completion.sh
 #
 ###############################################################################
 #
@@ -49,10 +49,10 @@ _dinner_complete_configs()
 	COMPREPLY=($(compgen -W "$(_dinner_configs)" -- "$1"))
 }
 
-_homeshick_complete()
+_dinner_complete()
 {
 	# The comments at the bottom of the file explain what's going on here.
-	if [ $_HOMESHICK_HAS_COMPOPT ]; then
+	if [ $_DINNER_HAS_COMPOPT ]; then
 		compopt +o default +o nospace
 		COMPREPLY=()
 	else
@@ -147,6 +147,6 @@ _homeshick_complete()
 # space characters to the command line, rather than generating filenames.
 #
 if type compopt >/dev/null 2>&1; then
-	_HOMESHICK_HAS_COMPOPT=1
+	_DINNER_HAS_COMPOPT=1
 fi
-complete -o default -F _homeshick_complete homeshick
+complete -o default -F _dinner_complete dinner
