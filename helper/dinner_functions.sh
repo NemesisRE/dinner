@@ -9,8 +9,8 @@
 #
 function _exec_command () {
 	local COMMAND=${1}
-	local FAIL=${2}
-	local SUCCESS=${3}
+	local FAIL=${2:EMPTY}
+	local SUCCESS=${3:EMPTY}
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		eval "${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
@@ -19,10 +19,10 @@ function _exec_command () {
 		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 	local EXIT_CODE=${?}
-	if [ "${EXIT_CODE}" != 0 ]; then
+	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "EMPTY"]; then
 		eval ${FAIL} ${EXIT_CODE}
 		return ${EXIT_CODE}
-	else
+	elif [ "${SUCCESS}" != "EMPTY"]; then
 		eval ${SUCCESS}
 		return ${EXIT_CODE}
 	fi
