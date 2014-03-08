@@ -136,7 +136,6 @@ case $cmd in
 				changelog)     _run_config changelog "$params"             ;;
 				cook)          _run_config "$params"                       ;;
 			esac
-			_check_current_config
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 			_e_notice "=== YEAH all configs finished sucessfull! ==="

@@ -345,6 +345,7 @@ function _dinner_make {
 	if [ ${DINNER_MAKE} ]; then
 		_exec_command "make ${DINNER_MAKE}"
 		if ${CLEAN_ONLY}; then
+			_check_current_config
 			continue
 		fi
 	fi
@@ -423,6 +424,7 @@ function _get_changelog () {
 	if ${CHANGELOG_ONLY}; then
 		CURRENT_BUILD_SKIPPED=true
 		[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
+		_check_current_config
 		continue
 	fi
 }
