@@ -283,7 +283,7 @@ function _send_mail () {
 			_generate_admin_message "Logfile:"
 			if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
 				_generate_admin_message "Logfile attached"
-				LOGFILE="-A ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+				LOGFILE="-A ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi
