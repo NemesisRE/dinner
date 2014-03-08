@@ -47,13 +47,6 @@ function _check_prerequisites () {
 
 	_source_envsetup
 
-	if [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt" ]; then
-		if ! ${SKIP_SYNC} && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
-			_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
-			SKIP_SYNC=true
-		fi
-	fi
-
 	if [ -x ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
 		_exec_command "${REPO_DIR}/vendor/cm/get-prebuilts"
 	fi
