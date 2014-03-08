@@ -287,10 +287,13 @@ function _get_changelog () {
 				echo "" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 			fi
 		done
+	else
+	    _e_warning "There was never a successfull build so we have no changes"
 	fi
 }
 
 function _run_config () {
+	CURRENT_CONFIG=${1}
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
 		. ${DINNER_DIR}/config.d/${CURRENT_CONFIG}
 	else
@@ -354,16 +357,14 @@ function _run_config () {
 		fi
 	fi
 
-	case ${1}
+	case ${2} in
 		"changelog")
 			_get_changelog
-			cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
 			exit 0
 			;;
-		"clean")
-
-			;;
-	fi
+		"clean");;
+		esac
 
 	_get_changelog
 

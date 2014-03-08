@@ -26,7 +26,7 @@
 #set -e 	#do not enable otherwise brunch will fail
 #set -x
 
-DINNER_DIR="$( cd $( dirname ${DINNER} ) && pwd )"
+DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
 
 source ${DINNER_DIR}/helper/dinner_defaults.sh
 source ${DINNER_DIR}/helper/dinner_functions.sh
@@ -36,9 +36,9 @@ source ${DINNER_DIR}/helper/exit_status.sh
 
 exit_status=$EX_SUCCESS
 
-test -x $(which repo) || _e_fatal "repo not found in path" $EX_SOFTWARE
-test -x $(which mail) || _e_fatal "mail not found in path" $EX_SOFTWARE
-test -x $(which dinner_ansi2html.sh) || _e_fatal " not found in path" $EX_SOFTWARE
+test -x $(which repo) && REPO_BIN=$(which repo) || _e_fatal "repo not found in path" $EX_SOFTWARE
+test -x $(which mail) && MAIL_BIN=$(which mail) || _e_fatal "mail not found in path" $EX_SOFTWARE
+#test -x $(which dinner_ansi2html.sh) && ANSI2HTML_BIN=$(which dinner_ansi2html.sh) || _e_fatal " not found in path" $EX_SOFTWARE
 
 # Retrieve all the flags preceeding a subcommand
 while [[ $# -gt 0 ]]; do
@@ -125,9 +125,9 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				clean)         _run_config $          ;;
-				changelog)     _run_config changelog      ;;
-				cook)          _run_config                ;;
+				clean)         _run_config $params clean          ;;
+				changelog)     _run_config $params changelog      ;;
+				cook)          _run_config $params                ;;
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
