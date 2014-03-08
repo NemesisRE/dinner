@@ -5,6 +5,9 @@
 Android Dinner is a build script for comfortable and automated building
 of Android Roms.
 
+**NOTE**
+The script Structure is taken from [andsens homeshick](https://github.com/andsens/homeshick) (hopefully this is ok with him)
+
 ##Requirements:
 For building ROMs using Android Dinner, you need:
 - A working Android Build environment

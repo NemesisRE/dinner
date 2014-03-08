@@ -78,6 +78,7 @@ function _source_envsetup () {
 function _set_current_variables () {
 	#Set initial exitcodes
 	OVERALL_EXIT_CODE=0
+	CURRENT_BUILD_SKIPPED=false
 	CURRENT_SYNC_REPO_EXIT_CODE=1
 	CURRENT_BUILD_STATUS=false
 	CURRENT_CONFIG_EXIT_CODE=1
@@ -339,6 +340,8 @@ function _check_build () {
 }
 
 function _dinner_make {
+	CURRENT_BUILD_SKIPPED=true
+	_e_notice "Running \"make ${DINNER_MAKE}\"..."
 	if [ ${DINNER_MAKE} ]; then
 		_exec_command "make ${DINNER_MAKE}"
 		if ${CLEAN_ONLY}; then
@@ -374,7 +377,9 @@ function _check_current_config () {
 }
 
 function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
+	if ! ${BUILD_SKIPPED}
+		echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
+	fi
 }
 
 function _get_changelog () {
@@ -416,8 +421,9 @@ function _get_changelog () {
 		_e_warning "No successfull build for config \"${CURRENT_CONFIG}\" found, skipping gathering changes..."
 	fi
 	if ${CHANGELOG_ONLY}; then
+		CURRENT_BUILD_SKIPPED=true
 		[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
-		exit 0
+		continue
 	fi
 }
 
