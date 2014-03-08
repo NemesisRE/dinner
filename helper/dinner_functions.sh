@@ -9,8 +9,8 @@
 #
 function _exec_command () {
 	local COMMAND=${1}
-	local FAIL=${2:EMPTY}
-	local SUCCESS=${3:EMPTY}
+	local FAIL=${2:NOTSET}
+	local SUCCESS=${3:NOTSET}
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		eval "${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
@@ -19,10 +19,10 @@ function _exec_command () {
 		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 	local EXIT_CODE=${?}
-	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "EMPTY" ]; then
+	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
 		eval ${FAIL} ${EXIT_CODE}
 		return ${EXIT_CODE}
-	elif [ "${SUCCESS}" != "EMPTY" ]; then
+	elif [ "${SUCCESS}" != "NOTSET" ]; then
 		eval ${SUCCESS}
 		return ${EXIT_CODE}
 	fi
@@ -188,7 +188,7 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
-	_exec_command "brunch ${CURRENT_DEVICE}"
+	_exec_command "brunch ${CURRENT_DEVICE}" "NOTSET" "NOTSET"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
