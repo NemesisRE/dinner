@@ -21,11 +21,10 @@ function _exec_command () {
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
 		eval ${FAIL} ${EXIT_CODE}
-		return ${EXIT_CODE}
 	elif [ "${SUCCESS}" != "NOTSET" ]; then
 		eval ${SUCCESS}
-		return ${EXIT_CODE}
 	fi
+	return ${EXIT_CODE}
 }
 
 function _dinner_update () {
