@@ -29,7 +29,8 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_exec_command "cd ${DINNER_DIR};$(which git) pull 2>&1"
+	_exec_command "cd ${DINNER_DIR};$(which git) pull 2>&1" "_e_fatal \"Something went wrong will updating\"" "_e_success \"Update successfull\""
+	source ${DINNER_DIR}/dinner.sh
 }
 
 
