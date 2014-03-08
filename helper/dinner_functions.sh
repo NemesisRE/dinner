@@ -416,7 +416,7 @@ function _get_changelog () {
 		_e_notice "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_notice "Show last found changelog...";cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_warning "No Changelog found"
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_notice "Showing last found changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_warning "No Changelog found"
 			_check_current_config
 			continue
 		fi
