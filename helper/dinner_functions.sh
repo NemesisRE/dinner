@@ -405,8 +405,7 @@ function _get_changelog () {
 }
 
 function _run_config () {
-
-	case ${2} in
+	case ${1} in
 		"changelog")
 			CHANGELOG_ONLY=true
 			CURRENT_CONFIG=${2}
