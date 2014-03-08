@@ -91,15 +91,18 @@ while [[ $# -gt 0 ]]; do
 		case $1 in
 			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
-			-v | --verbose) SHOW_VERBOSE=true  ; shift; continue ;;
-			-s | --skip)       SKIP_SYNC=true  ; shift; continue ;;
+			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
+			-s | --skip)        SKIP_SYNC=true ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
 	fi
 
 	case $cmd in
-		clean | changelog | cook)
+		changelog | cook)
 			params+=("$1")
+			shift; continue ;;
+		clean)
+			[[ ! ${dinner_make} ]] && dinner_make="make clean" || params+=("$1")
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		help)
@@ -112,14 +115,16 @@ done
 # If no additional arguments are given, run the subcommand for every config
 if [[ ! $params ]]; then
 	case $cmd in
-		clean | changelog | cook)
+		changelog | cook)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
 			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
-		# none) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
+		clean) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
+
+[[ ! ${dinner_make} ]] && dinner_make="make clean"
 
 case $cmd in
 	list)  _list_configs           ;;
@@ -127,9 +132,9 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				clean)         _run_config $params clean          ;;
-				changelog)     _run_config $params changelog      ;;
-				cook)          _run_config $params                ;;
+				clean)         _run_config clean "$dinner_make" "$params"  ;;
+				changelog)     _run_config changelog "$params"             ;;
+				cook)          _run_config "$params"                       ;;
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then

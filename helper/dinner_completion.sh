@@ -39,7 +39,7 @@ _dinner_basename()
 
 _dinner_configs() {
 	local CONFIG_DIR=${HOME}/.dinner/config.d
-	for config in $(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z); do
+	for config in $(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist | sort -z); do
 		_dinner_basename ${config}
 	done
 }
@@ -106,9 +106,16 @@ _dinner_complete()
 	else
 		# Offer command argument completions.
 		case "$cmd" in
-			clean | cook)
+			cook)
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
+				;;
+			clean)
+				if (( $COMP_CWORD == $cmd_index + 1 )); then
+					COMPREPLY=(make_clean make_installclean)
+				else
+				_dinner_complete_configs "$cur"
+				fi
 				;;
 			help)
 				# Offer exactly one command name completion.

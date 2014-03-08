@@ -405,10 +405,20 @@ function _get_changelog () {
 }
 
 function _run_config () {
-	CURRENT_CONFIG=${1}
+
 	case ${2} in
-		"changelog") CHANGELOG_ONLY=true;;
-		"clean");;
+		"changelog")
+			CHANGELOG_ONLY=true
+			CURRENT_CONFIG=${2}
+			;;
+		"clean")
+			CLEAN_ONLY=true
+			DINNER_MAKE=${2}
+			CURRENT_CONFIG=${3}
+			;;
+		*)
+			CURRENT_CONFIG=${1}
+			;;
 	esac
 
 	_check_prerequisites
