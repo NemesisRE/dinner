@@ -38,7 +38,7 @@ _dinner_basename()
 }
 
 _dinner_configs() {
-	local CONFIG_DIR=${HOME}/.dinner/configs.d
+	local CONFIG_DIR=${HOME}/.dinner/config.d
 	for config in $(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z); do
 		_dinner_basename ${config}
 	done
