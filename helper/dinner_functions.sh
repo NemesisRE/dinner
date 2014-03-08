@@ -116,28 +116,6 @@ function _check_variables () {
 		_e_fatal "No Device given! Stopping..."
 	fi
 
-	for DINNER_OPTION in ${DINNER_OPTIONS}; do
-		case ${DINNER_OPTION} in
-			"cron")
-				DINNER_CRON=true
-			;;
-			"make_installclean")
-				if [ ${DINNER_MAKE} ]; then
-					_e_fatal "Use only one make command!"
-				else
-					DINNER_MAKE="make installclean"
-				fi
-			;;
-			"make_clean")
-				if [ ${DINNER_MAKE} ]; then
-					_e_fatal "Use only one make command!"
-				else
-					DINNER_MAKE="make clean"
-				fi
-			;;
-		esac
-	done
-
 	if [ ! ${SKIP_SYNC_TIME} ] || [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
 		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
 		SKIP_SYNC_TIME="1800"
@@ -340,9 +318,9 @@ function _check_build () {
 }
 
 function _dinner_make {
-	CURRENT_BUILD_SKIPPED=true
-	_e_notice "Running \"make ${DINNER_MAKE}\"..."
 	if [ ${DINNER_MAKE} ]; then
+		CURRENT_BUILD_SKIPPED=true
+		_e_notice "Running \"make ${DINNER_MAKE}\"..."
 		_exec_command "make ${DINNER_MAKE}"
 		if ${CLEAN_ONLY}; then
 			_check_current_config
