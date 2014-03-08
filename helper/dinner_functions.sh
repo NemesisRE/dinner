@@ -29,7 +29,7 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_exec_command "cd ${DINNER_DIR};$(which git) pull"
+	_exec_command "cd ${DINNER_DIR};$(which git) pull 2>&1"
 }
 
 
