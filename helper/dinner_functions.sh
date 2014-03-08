@@ -102,6 +102,8 @@ function _set_current_variables () {
 	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 	eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 	eval CURRENT_STATUS="failed"
+	eval CURRENT_CHANGELOG_ONLY="false"
+	eval CURRENT_CLEAN_ONLY="false"
 }
 
 function _check_variables () {
@@ -318,11 +320,11 @@ function _check_build () {
 }
 
 function _dinner_make {
-	if [ ${DINNER_MAKE} ]; then
+	if [ ${CURRENT_DINNER_MAKE} ]; then
 		CURRENT_BUILD_SKIPPED=true
 		_e_notice "Running \"make ${DINNER_MAKE}\"..."
 		_exec_command "make ${DINNER_MAKE}"
-		if ${CLEAN_ONLY}; then
+		if ${CURRENT_CLEAN_ONLY}; then
 			_check_current_config
 			continue
 		fi
@@ -400,7 +402,7 @@ function _get_changelog () {
 	else
 		_e_warning "No successfull build for config \"${CURRENT_CONFIG}\" found, skipping gathering changes..."
 	fi
-	if ${CHANGELOG_ONLY}; then
+	if ${CURRENT_CHANGELOG_ONLY}; then
 		CURRENT_BUILD_SKIPPED=true
 		[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
 		_check_current_config
@@ -411,12 +413,12 @@ function _get_changelog () {
 function _run_config () {
 	case ${1} in
 		"changelog")
-			CHANGELOG_ONLY=true
+			CURRENT_CHANGELOG_ONLY=true
 			CURRENT_CONFIG=${2}
 			;;
 		"clean")
-			CLEAN_ONLY=true
-			DINNER_MAKE=${2}
+			CURRENT_CLEAN_ONLY=true
+			CURRENT_DINNER_MAKE=${2}
 			CURRENT_CONFIG=${3}
 			;;
 		"cook")
