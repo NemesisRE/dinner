@@ -30,7 +30,7 @@ function _exec_command () {
 
 function _dinner_update () {
 	_exec_command "cd ${DINNER_DIR};$(which git) pull 2>&1" "_e_fatal \"Something went wrong will updating\"" "_e_success \"Update successfull\""
-	source ${DINNER_DIR}/dinner.sh
+	_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 }
 
 
@@ -148,18 +148,18 @@ function _check_variables () {
 function _sync_repo () {
 	if ! ${SKIP_SYNC} && [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt" ] && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${REPO_DIR} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 		_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
-		SKIP_SYNC=true
-	fi
-	if ! ${SKIP_SYNC}; then
-		_e_notice "Running repo sync..."
-		_exec_command "${REPO_BIN} sync" "_e_warning \"Something went wrong  while doing repo sync\""
-		CURRENT_SYNC_REPO_EXIT_CODE=$?
-		if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
-			echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
-		fi
 	else
-		_e_notice "Skipping repo sync..."
-		CURRENT_SYNC_REPO_EXIT_CODE=0
+		if ! ${SKIP_SYNC}; then
+			_e_notice "Running repo sync..."
+			_exec_command "${REPO_BIN} sync" "_e_warning \"Something went wrong  while doing repo sync\""
+			CURRENT_SYNC_REPO_EXIT_CODE=$?
+			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
+				echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
+			fi
+		else
+			_e_notice "Skipping repo sync..."
+			CURRENT_SYNC_REPO_EXIT_CODE=0
+		fi
 	fi
 }
 
