@@ -406,15 +406,22 @@ function _get_changelog () {
 				echo "" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
 			fi
 		done
+		if ${CURRENT_CHANGELOG_ONLY}; then
+			CURRENT_BUILD_SKIPPED=true
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
+			_check_current_config
+			continue
+		fi
 	else
 		_e_notice "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
+		if ${CURRENT_CHANGELOG_ONLY}; then
+			CURRENT_BUILD_SKIPPED=true
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_notice "Show last found changelog...";cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_warning "No Changelog found"
+			_check_current_config
+			continue
+		fi
 	fi
-	if ${CURRENT_CHANGELOG_ONLY}; then
-		CURRENT_BUILD_SKIPPED=true
-		[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
-		_check_current_config
-		continue
-	fi
+
 }
 
 function _run_config () {
