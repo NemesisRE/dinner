@@ -23,7 +23,7 @@ function _e_success () {
 
 function _e_warning () {
 	if [ ${2} ]; then
-		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1 (Exit Code ${2}"
+		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1 (Exit Code ${2})"
 	else
 		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1"
 	fi

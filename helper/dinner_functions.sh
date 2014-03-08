@@ -282,7 +282,8 @@ function _send_mail () {
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 			_generate_admin_message "Logfile:"
 			if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
-				_generate_admin_message "$($(which cat) ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+				_generate_admin_message "Logfile attached"
+				LOGFILE="-A ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi
@@ -296,8 +297,8 @@ function _send_mail () {
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending E-Mail\""
-			CURRENT_SEND_MAIL_EXIT_CODE+=$?
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} ${LOGFILE} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
+			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
 		CURRENT_SEND_MAIL_EXIT_CODE=0
@@ -363,8 +364,8 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
-	_e_notice "Gathering Changes since last successfull build..."
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
+		_e_notice "Gathering Changes since last successfull build..."
 		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
 
 		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
@@ -398,7 +399,7 @@ function _get_changelog () {
 			fi
 		done
 	else
-		_e_warning "No successfull build for config \"${CURRENT_CONFIG}\" found, skipping gathering changes..."
+		_e_notice "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
 	fi
 	if ${CURRENT_CHANGELOG_ONLY}; then
 		CURRENT_BUILD_SKIPPED=true
