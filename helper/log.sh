@@ -66,7 +66,7 @@ function _e_pending_error () {
 function _e_error () {
 	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
 	[[ ${3} ]] && local ERROR_MESSAGE=${3}
-	_e "${bldred}" "ERROR" "${bldred}${1}${txtdef} (Exit Code ${EXIT_CODE})${txtdef}" "Error Message:\n"
+	_e "${bldred}" "ERROR" "${bldred}${1}${txtdef} (Exit Code ${EXIT_CODE})${txtdef}" "${3}"
 }
 
 function _e_fatal () {

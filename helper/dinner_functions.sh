@@ -32,14 +32,17 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=\"$($(which git) fetch --dry-run --no-progress 2>/dev/null)\""
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "${GIT_MESSAGE}" && _e_error "" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
-	if [ "${?}" == "0" ]; then
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
+	local EXIT_CODE=${?}
+	if [ "${EXIT_CODE}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
 			printf "                    $line\n" >&2
 		done
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
+	else
+		_e_error "See details below:" "${EXIT_CODE}" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"
 	fi
 }
 

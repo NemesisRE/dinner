@@ -132,7 +132,7 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				make)         _run_config $cmd "$dinner_make" "$params"  ;;
+				make)          _run_config $cmd "$dinner_make" "$params"  ;;
 				changelog)     _run_config $cmd "$params"                 ;;
 				cook)          _run_config $cmd "$params"                 ;;
 			esac
