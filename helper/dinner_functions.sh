@@ -62,7 +62,7 @@ function _dinner_update () {
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
 	else
-		while read -r LINE
+		while read -r LINE; do
 			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
