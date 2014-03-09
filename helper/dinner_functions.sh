@@ -31,7 +31,7 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=\"$($(which git) fetch --dry-run --no-progress 2>/dev/null)\""
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress)\"" '_e_fail "${GIT_MESSAGE}"' '_e_success "$(echo ${GIT_MESSAGE} | head -1)"'
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress)\"" '_e_pending_error "${GIT_MESSAGE}"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
 	if [ "${?}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
 			printf "                    $line\n" >&2
@@ -157,16 +157,16 @@ function _check_variables () {
 function _sync_repo () {
 	_e_pending "Running repo sync..."
 	if ! ${SKIP_SYNC} && [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt" ] && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
-		_e_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ! ${SKIP_SYNC}; then
-			_exec_command "${REPO_BIN} sync" "_e_fail \"Something went wrong  while doing repo sync\"" "_e_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
 			fi
 		else
-			_e_skipped "Skipping repo sync..."
+			_e_pending_skipped "Skipping repo sync..."
 			CURRENT_SYNC_REPO_EXIT_CODE=0
 		fi
 	fi
@@ -202,7 +202,7 @@ function _brunch_device () {
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
-		_e_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_pending_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
 		_check_build
 		if ${CURRENT_BUILD_STATUS}; then
 			CURRENT_STATUS="finished successfully"
@@ -215,7 +215,7 @@ function _brunch_device () {
 			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 		fi
 	else
-		_e_fail "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}, see logfile for more information"
+		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}, see logfile for more information"
 	fi
 }
 
@@ -263,11 +263,11 @@ function _clean_old_builds () {
 		fi
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
-			_e_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
+			_e_pending_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
-			_e_success "Cleanup finished, removed the following files: ${CURRENT_CLEANED_FILES}"
+			_e_pending_success "Cleanup finished, removed the following files: ${CURRENT_CLEANED_FILES}"
 		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-			_e_fail "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
+			_e_pending_error "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
 	else
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
@@ -309,13 +309,13 @@ function _send_mail () {
 
 		if [ "${CURRENT_MAIL}" ]; then
 			_e_pending "Sending User E-Mail..."
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_fail \"Something went wrong while sending User E-Mail\"" "_e_success \"Successfully send User E-Mail\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE}" "_e_fail \"Something went wrong while sending Admin E-Mail\""  "_e_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
@@ -421,17 +421,17 @@ function _get_changelog () {
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_success "Showing changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fail "No Changelog found"
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_pending_success "Showing changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
 		fi
 	else
-		_e_fail "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
+		_e_pending_warn "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_success "Showing last changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fail "No Changelog found"
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_pending_success "Showing last changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
 		fi

@@ -38,27 +38,29 @@ function _e_notice () {
 	fi
 }
 
-function _e_success () {
+function _e_pending_success () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
+	_e "\r\033[K${bldgrn}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
-function _e_skipped () {
+function _e_pending_skipped () {
 	[[ $1 ]] && pending_message=$1
 	_e "\r\033[K${bldblu}" "SKIPPING" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
-function _e_fail () {
+function _e_pending_warn () {
 	[[ $1 ]] && pending_message=$1
 	_e "\r\033[K${bldylw}" "WARNING" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
-function _e_warning () {
+function _e_pending_error () {
+	[[ $1 ]] && pending_message=$1
 	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
-	_e "${bldylw}" "WARNING" "${bldylw}${1} (Exit Code ${EXIT_CODE})${txtdef}"
+	_e "\r\033[K${bldylw}" "ERROR" "${bldred}${pending_message} (Exit Code ${EXIT_CODE})${txtdef}"
+	unset pending_status pending_message
 }
 
 function _e_error () {
