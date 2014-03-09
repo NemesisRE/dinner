@@ -11,38 +11,49 @@ bldwht="\e[1;37m" # White - info
 
 function _e {
 	if ! ${DINNER_CRON}; then
-		printf "$1%b$txtdef %b\n" "$2" "$3"
+		printf "$1%20b${txtdef} %b\n" "\r$2" "$3"
 	fi
+}
+
+pending_status=''
+pending_message=''
+function _e_pending {
+	pending_status="$1"
+	pending_message="$2"
+	_e "$bldcyn" "$pending_message" "$pending_status"
 }
 
 function _e_notice () {
 	if ! ${DINNER_CRON}; then
-		_e "${bldwht}" "NOTICE:\t" "$1"
+		_e "${bldwht}" "NOTICE:" "$1"
 	fi
 }
 
 function _e_success () {
-		_e "${bldwht}" "NOTICE:\t" "${bldgrn}$1${txtdef}"
+	[[ $1 ]] && pending_status=$1
+	[[ $2 ]] && pending_message=$2
+	printf "${bldwht}%20b${txtdef} %b" "${pending_status}" "${bldgrn}${pending_message}${txtdef}"
+	unset pending_status pending_message
 }
 
 function _e_warning () {
 	if [ ${2} ]; then
-		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1 (Exit Code ${2})"
+		_e "${bldylw}" "WARNING:" "$1 (Exit Code ${2})"
 	else
-		printf "${bldylw}%b${txtdef} \t %b\n" "WARNING:" "$1"
+		_e "${bldylw}" "WARNING:" "$1"
 	fi
 }
 
 function _e_error () {
-	_e "${bldred}" "ERROR:\t\t" "$1" 1>&2
+	_e "${bldred}" "ERROR:" "$1" 1>&2
 }
 
 function _e_fatal () {
 	if [ ${2} ]; then
-		_e "${bldpur}" "FATAL:\t\t" "${1} (Exit Code ${2})" "Stopping..." 1>&2
+		_e "${bldpur}" "FATAL:" "${1} (Exit Code ${2})" "Stopping..." 1>&2
 		exit ${2}
 	else
-		_e "${bldpur}" "FATAL:\t\t" "${1} (Exit Code 1)" "Stopping..." 1>&2
+		_e "${bldpur}" "FATAL:" "${1} (Exit Code 1)" "Stopping..." 1>&2
 		exit 1
 	fi
 }
