@@ -53,14 +53,18 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-	_exec_command "cd ${DINNER_DIR}"
-	_exec_command "$(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err > >(tee ${DINNER_TEMP_DIR}/dinner_update.log)" '_e_pending_error "at Dinner updated, see details below:"' '[[ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]] && _e_pending_success "Successfully updated" || _e_pending_success "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)"'
+	eval "cd ${DINNER_DIR}"
+	eval "$(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err > >(tee ${DINNER_TEMP_DIR}/dinner_update.log)"
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" == "0" ]; then
 		if [ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
+			_e_pending_success "Successfully updated"
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+		else
+			_e_pending_success "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)"
 		fi
 	else
+		_e_pending_error "while Dinner update, see details below:"
 		while read -r LINE; do
 			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
