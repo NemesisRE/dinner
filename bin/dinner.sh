@@ -9,7 +9,7 @@
 # Author:			Steven "NemesisRE" Koeberich
 # Contributors:		ToeiRei
 # Creation Date:	20131117
-# Version:			1.1
+# Version:			2.0
 # Description:		Builds Roms automatically
 #
 # This program is free software: you can redistribute it and/or modify
