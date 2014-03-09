@@ -257,9 +257,9 @@ function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)
+			_exec_command "CURRENT_CLEANED_FILES=\"$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
 		else
-			CURRENT_CLEANED_FILES=$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)
+			_exec_command "CURRENT_CLEANED_FILES=\"$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
 		fi
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
@@ -275,7 +275,7 @@ function _clean_old_builds () {
 }
 
 function _send_mail () {
-	if [ ${MAIL_BIN} ] && [ [ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ] ]; then
+	if [ ${MAIL_BIN} ] && [[ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]]; then
 		_e_notice "Generating status mail..."
 		:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
 		:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
@@ -315,7 +315,7 @@ function _send_mail () {
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} ${LOGFILE} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""  "_e_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE}" "_e_warning \"Something went wrong while sending Admin E-Mail\""  "_e_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
