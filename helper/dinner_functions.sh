@@ -55,8 +55,7 @@ function _dinner_update () {
 	_e_pending "Checking for updates"
 	eval "cd ${DINNER_DIR}"
 	eval "$(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err >${DINNER_TEMP_DIR}/dinner_update.log"
-	local EXIT_CODE=${?}
-	if [ "${EXIT_CODE}" == "0" ]; then
+	if [ "${?}" == "0" ]; then
 		if [ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
 			_e_pending_success "Successfully updated"
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
