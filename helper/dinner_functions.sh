@@ -42,7 +42,7 @@ function _dinner_update () {
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
 	else
-		_e_error "See details below:" "${EXIT_CODE}" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"
+		_e_error "See details below:" "NULL" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"
 	fi
 }
 
