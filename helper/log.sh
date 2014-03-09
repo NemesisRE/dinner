@@ -29,46 +29,47 @@ function _e {
 pending_status=''
 pending_message=''
 function _e_pending {
-	pending_message="$1"
+	pending_message="${1}"
 	printf "${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
 	sleep 3
 }
 
 function _e_notice () {
 	if ! ${DINNER_CRON}; then
-		_e "${bldwht}" "NOTICE" "$1"
+		_e "${bldwht}" "NOTICE" "${1}"
 	fi
 }
 
 function _e_pending_success () {
-	[[ ${1} ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldgrn}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_skipped () {
-	[[ ${1} ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldblu}" "SKIPED" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_warn () {
-	[[ ${1} ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldylw}" "WARNING" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_error () {
-	[[ ${1} ]] && pending_message=$1
-	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
-	_e "\r\033[K${bldred}" "ERROR" "${bldred}${pending_message} (Exit Code ${EXIT_CODE})${txtdef}"
+	[[ ${1} ]] && pending_message=${1}
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
+	_e "\r\033[K${bldred}" "ERROR" "${bldred}${pending_message} ${EXIT_CODE}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_error () {
-	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
+	[[ ${1} ]] && local EXIT_MESSAGE=${1}
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	[[ ${3} ]] && local ERROR_MESSAGE="${3}"
-	_e "${bldred}" "ERROR" "${bldred}${1} (Exit Code ${EXIT_CODE})${txtdef}" ${3}
+	_e "${bldred}" "ERROR" "${bldred}${EXIT_MESSAGE} ${EXIT_CODE}${txtdef}" ${3}
 }
 
 function _e_fatal () {
