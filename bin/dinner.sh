@@ -139,18 +139,18 @@ case $cmd in
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 			_e_success "=== YEAH all configs finished sucessfull! ==="
-			_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+			_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 			exit 0
 		else
 			_e_error "=== DAMN something went wrong ==="
 			if [ "${FAILED_CONFIGS}" ]; then
-				_e_error "These configs failed: ${FAILED_CONFIGS}"
+				_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
 			fi
 			if [ "${WARNING_CONFIGS}" ]; then
-				_e_error "These configs had warnings: ${WARNING_CONFIGS}"
+				_e_error "These configs had warnings:" "NULL" "${WARNING_CONFIGS}"
 			fi
 			if [ "${SUCCESS_CONFIGS}" ]; then
-				_e_notice "These configs were successfull: ${SUCCESS_CONFIGS}"
+				_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 			fi
 			_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
 		fi
