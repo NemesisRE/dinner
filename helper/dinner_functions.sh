@@ -31,7 +31,9 @@ function _dinner_update () {
 	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress)
 	if [ "${?}" == "0" ]; then
 		_e_success "${GIT_MESSAGE}"
-		_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
+			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+		fi
 	else
 		_e_fatal "${GIT_MESSAGE}"
 	fi
