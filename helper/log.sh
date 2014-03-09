@@ -43,7 +43,7 @@ function _e_skipped () {
 
 function _e_fail () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "ERROR" "${bldylw}${pending_message}${txtdef}"
+	_e "\r\033[K${bldwht}" "WARNING" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
