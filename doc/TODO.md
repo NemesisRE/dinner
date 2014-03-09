@@ -1,6 +1,6 @@
 ###TODO´s:
 
-- Cherrypicking patches
+- config generation (dinner add [configname])
 - cleanup log directory
 - APK injection into ROMs
 - Injection of ZIP files into the ROM
