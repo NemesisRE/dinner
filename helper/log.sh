@@ -17,9 +17,9 @@ function _e {
 	local STATUS_MESSAGE=${3}
 	shift 3
 	if ! ${DINNER_CRON}; then
-		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}"
+		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		for line in "$@"; do
-			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n" 1>&2
+			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		done
 	fi
 }
@@ -39,36 +39,38 @@ function _e_notice () {
 }
 
 function _e_pending_success () {
-	[[ $1 ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=$1
 	_e "\r\033[K${bldgrn}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_skipped () {
-	[[ $1 ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=$1
 	_e "\r\033[K${bldblu}" "SKIPED" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_warn () {
-	[[ $1 ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=$1
 	_e "\r\033[K${bldylw}" "WARNING" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_pending_error () {
-	[[ $1 ]] && pending_message=$1
+	[[ ${1} ]] && pending_message=$1
 	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
 	_e "\r\033[K${bldred}" "ERROR" "${bldred}${pending_message} (Exit Code ${EXIT_CODE})${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_error () {
-	_e "${bldred}" "ERROR" "${bldred}$1${txtdef}" 1>&2
+	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
+	[[ ${3} ]] && local ERROR_MESSAGE=${3}
+	_e "${bldred}" "ERROR" "${bldred}${1}${txtdef} (Exit Code ${EXIT_CODE})${txtdef}" "Error Message:\n"
 }
 
 function _e_fatal () {
 	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
-	_e "${bldpur}" "ABORT" "${bldpur}${1} (Exit Code ${EXIT_CODE})${txtdef}" "Stopping..." 1>&2
+	_e "${bldpur}" "ABORT" "${bldpur}${1} (Exit Code ${EXIT_CODE})${txtdef}" "Stopping..."
 	exit ${EXIT_CODE}
 }

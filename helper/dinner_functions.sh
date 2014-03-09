@@ -17,6 +17,7 @@ function _exec_command () {
 		eval "${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
+		_e "${bldylw}" "COMMAND" "${COMMAND}" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	fi
 	local EXIT_CODE=${?}
@@ -31,7 +32,7 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=\"$($(which git) fetch --dry-run --no-progress 2>/dev/null)\""
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress)\"" '_e_pending_error "${GIT_MESSAGE}"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "${GIT_MESSAGE}" && _e_error "" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
 	if [ "${?}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
 			printf "                    $line\n" >&2
