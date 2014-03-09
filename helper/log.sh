@@ -12,7 +12,7 @@ bldwht="\e[1;37m" # White - notice
 
 function _e {
 	if ! ${DINNER_CRON}; then
-		printf "$1%20b${txtdef} %b\n" "\r$2" "$3"
+		printf "$1\r%20b${txtdef} %b\n" "$2" "$3"
 	fi
 }
 
