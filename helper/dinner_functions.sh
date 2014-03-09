@@ -275,7 +275,7 @@ function _clean_old_builds () {
 }
 
 function _send_mail () {
-	if [ ${MAIL_BIN} ] && [[ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]]; then
+	if [ ${MAIL_BIN} ] && ([ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
 		_e_notice "Generating status mail..."
 		:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
 		:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
