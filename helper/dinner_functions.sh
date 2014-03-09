@@ -36,7 +36,7 @@ function _dinner_update () {
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
-			printf "                    $line\n" >&2
+			printf "                    $line\n"
 		done
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
