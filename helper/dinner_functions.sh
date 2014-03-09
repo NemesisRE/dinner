@@ -28,7 +28,8 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_exec_command "cd ${DINNER_DIR};$(which git) pull -no-stat" "_e_fatal \"Something went wrong will updating\"" "_e_success \"Update successfull\""
+	_exec_command "cd ${DINNER_DIR}"
+	_exec_command "GIT_MESSAGE=$($(which git) pull --no-stat)" "_e_fatal \"${GIT_MESSAGE}\"" "_e_success \"${GIT_MESSAGE}\""
 	_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 }
 
