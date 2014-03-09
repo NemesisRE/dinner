@@ -61,7 +61,7 @@ function _dinner_update () {
 			_e_pending_success "Successfully updated"
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		else
-			_e_pending_success "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)"
+			_e_pending_success "Already up-to-date."
 		fi
 	else
 		_e_pending_error "while Dinner update, see details below:"
