@@ -20,7 +20,7 @@ pending_status=''
 pending_message=''
 function _e_pending {
 	pending_message="$1"
-	printf "$bldcyn%10b:${txtdef}\t%b" "NOTICE" "$pending_message"
+	printf "%10b:\t$bldcyn%b${txtdef}" "NOTICE" "$pending_message"
 }
 
 function _e_notice () {
