@@ -12,7 +12,7 @@ bldwht="\e[1;37m" # White - notice
 
 function _e {
 	if ! ${DINNER_CRON}; then
-		printf "$1\r%20b${txtdef} %b\n" "$2" "$3"
+		printf "$1\r%10b${txtdef} %4b\n" "$2" "$3"
 	fi
 }
 
@@ -21,7 +21,7 @@ pending_message=''
 function _e_pending {
 	pending_status="$1"
 	pending_message="$2"
-	printf "$bldcyn%20b${txtdef} %b" "$pending_status" "$pending_message"
+	printf "$bldcyn%10b${txtdef} %4b" "$pending_status" "$pending_message"
 }
 
 function _e_notice () {
