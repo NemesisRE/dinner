@@ -18,10 +18,10 @@ function _e {
 	shift 3
 	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}"
-		printf "%b:\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
+		printf "${STATUS_NAME}: ${STATUS_MESSAGE}" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		for line in "$@"; do
 			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n"
-			printf "%11b\t%b" " " "$line\n" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
+			printf "$line\n" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		done
 	fi
 }
