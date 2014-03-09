@@ -6,7 +6,8 @@ bldred="\e[1;31m" # Red - error
 bldgrn="\e[1;32m" # Green - success
 bldylw="\e[1;33m" # Yellow - warning
 bldpur="\e[1;35m" # Purple - fatal
-bldwht="\e[1;37m" # White - info
+bldcyn="\e[1;36m" # Cyan - pending
+bldwht="\e[1;37m" # White - notice
 
 
 function _e {
@@ -20,7 +21,7 @@ pending_message=''
 function _e_pending {
 	pending_status="$1"
 	pending_message="$2"
-	_e "$bldcyn" "$pending_message" "$pending_status"
+	_e "$bldcyn" "$pending_status" "$pending_message"
 }
 
 function _e_notice () {
