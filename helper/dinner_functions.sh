@@ -30,7 +30,7 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)
-	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress | head -1 2>/dev/null)
+	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null | head -1)
 	DINNER_UPDATE_EXIT_CODE=${?}
 	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
 		_e_success "${GIT_MESSAGE}       "
