@@ -31,7 +31,7 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=\"$($(which git) fetch --dry-run --no-progress 2>/dev/null)\""
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>/dev/null | head -1)\"" '_e_fail "${GIT_MESSAGE}"' '_e_success "${GIT_MESSAGE}"'
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress)\"" '_e_fail "${GIT_MESSAGE}"' '_e_success "${GIT_MESSAGE} | head -1"'
 	if [ "${?}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
 			printf "                    $line\n" >&2
