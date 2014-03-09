@@ -13,7 +13,7 @@ function _exec_command () {
 	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
-		eval "_e \"${bldylw}\" \"COMMAND\" \"\"${COMMAND}\"\"; ${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+		eval "_e \"${bldylw}\" \"COMMAND\" \"$(printf \"${COMMAND}\")\"; ${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
 		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
