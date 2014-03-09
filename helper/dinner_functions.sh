@@ -29,7 +29,7 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)
+	cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)
 	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress | head -1 2>/dev/null)
 	DINNER_UPDATE_EXIT_CODE=${?}
 	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
@@ -303,7 +303,7 @@ function _send_mail () {
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 			if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
 				_generate_admin_message "Logfile attached"
-				LOGFILE="-A \"\"${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log\"\""
+				LOGFILE="-A \"${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi

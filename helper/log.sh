@@ -56,7 +56,7 @@ function _e_warning () {
 }
 
 function _e_error () {
-	_e "${bldred}" "ERROR:" "$1" 1>&2
+	_e "${bldred}" "ERROR" "$1" 1>&2
 }
 
 function _e_fatal () {
