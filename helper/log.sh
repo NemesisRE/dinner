@@ -17,7 +17,7 @@ function _e {
 	local STATUS_MESSAGE=${3}
 	shift 3
 	if ! ${DINNER_CRON}; then
-		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_COLOR}" "${STATUS_MESSAGE}"
+		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}"
 		for line in "$@"; do
 			printf "\t${STATUS_COLOR}%11b${txtdef}" "$line\n" 1>&2
 		done
