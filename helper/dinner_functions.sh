@@ -29,7 +29,7 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending 'NOTICE:' "Checking for updates"
-	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress)
+	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null)
 	if [ "${?}" == "0" ]; then
 		_e_success "${GIT_MESSAGE}"
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
