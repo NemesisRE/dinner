@@ -31,8 +31,8 @@ function _e_notice () {
 }
 
 function _e_success () {
-	[[ $1 ]] && pending_status=$1
-	[[ $2 ]] && pending_message=$2
+	[[ $1 ]] && pending_message=$1
+	[[ $2 ]] && pending_status=$2 || pending_status="NOTICE:"
 	printf "${bldwht}%20b${txtdef} %b" "${pending_status}" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
