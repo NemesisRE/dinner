@@ -28,9 +28,13 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_exec_command "cd ${DINNER_DIR}"
-	_exec_command "GIT_MESSAGE=$($(which git) pull --no-stat)" "_e_fatal \"${GIT_MESSAGE}\"" "_e_success \"${GIT_MESSAGE}\""
-	_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress)
+	if [ "${?}" == "0" ]; then
+		_e_success "${GIT_MESSAGE}"
+		_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+	else
+		_e_fatal "${GIT_MESSAGE}"
+	fi
 }
 
 
