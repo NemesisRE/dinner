@@ -190,7 +190,8 @@ function _repo_pick () {
 }
 
 function _get_breakfast_variables () {
-	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_fatal \"Something went wrong while getting breakfast variables\""
+	_e_pending "Breakfast and getting its variables..."
+	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while getting breakfast variables\"" "_e_pending_success \"Breakfast finished\""
 	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
 	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]; then
 		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)'); do
