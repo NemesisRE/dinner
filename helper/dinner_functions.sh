@@ -32,7 +32,7 @@ function _dinner_update () {
 	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null)
 	DINNER_UPDATE_EXIT_CODE=${?}
 	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
-		_e_success "${GIT_MESSAGE}\t\t"
+		_e_success "${GIT_MESSAGE}       "
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
