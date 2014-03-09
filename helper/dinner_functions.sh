@@ -1,4 +1,27 @@
 #!/bin/bash
+##################################################
+#
+# vim: ai:ts=4:sw=4:noet:sts=4:ft=sh
+#
+# Copyright 2013, Steven Koeberich (nemesissre@gmail.com)
+#
+# Title:			dinner.sh
+# Author:			Steven "NemesisRE" Koeberich
+# Contributors:		ToeiRei
+# Creation Date:	20131117
+# Version:			1.1
+# Description:		Builds Roms automatically
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License at (http://www.gnu.org/licenses/) for
+# more details.
 
 ##
 # _exec_command
@@ -31,7 +54,7 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '_e_pending_success "Successfully updated"'
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '[[ "${GIT_MESSAGE}" != "Already up-to-date." ]] && _e_pending_success "Successfully updated" || _e_pending_success "$(echo ${GIT_MESSAGE})"'
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" == "0" ]; then
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
