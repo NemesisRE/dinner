@@ -22,6 +22,7 @@ pending_message=''
 function _e_pending {
 	pending_message="$1"
 	printf "%10b:\t$bldcyn%b${txtdef}" "NOTICE" "$pending_message"
+	sleep 2
 }
 
 function _e_notice () {
@@ -38,7 +39,7 @@ function _e_success () {
 
 function _e_skipped () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "NOTICE" "${bldblu}${pending_message}${txtdef}"
+	_e "\r\033[K${bldwht}" "SKIPPING" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
