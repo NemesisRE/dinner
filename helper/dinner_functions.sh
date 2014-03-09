@@ -28,7 +28,7 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_exec_command "cd ${DINNER_DIR};$(which git) pull 2>&1" "_e_fatal \"Something went wrong will updating\"" "_e_success \"Update successfull\""
+	_exec_command "cd ${DINNER_DIR};$(which git) pull -no-stat" "_e_fatal \"Something went wrong will updating\"" "_e_success \"Update successfull\""
 	_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 }
 
@@ -288,10 +288,9 @@ function _send_mail () {
 			fi
 		else
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
-			_generate_admin_message "Logfile:"
 			if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
 				_generate_admin_message "Logfile attached"
-				LOGFILE="-A \"${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log\""
+				LOGFILE="-A \"\\\"${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log\"\\\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi
@@ -305,7 +304,7 @@ function _send_mail () {
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${LOGFILE}\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} ${LOGFILE} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
