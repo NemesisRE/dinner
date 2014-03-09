@@ -41,31 +41,33 @@ function _e_notice () {
 }
 
 function _e_pending_success () {
+	unset pending_message
 	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldgrn}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
-	unset pending_status pending_message
+
 }
 
 function _e_pending_skipped () {
+	unset pending_message
 	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldblu}" "SKIPED" "${bldblu}${pending_message}${txtdef}"
-	unset pending_status pending_message
 }
 
 function _e_pending_warn () {
+	unset pending_message
 	[[ ${1} ]] && pending_message=${1}
 	_e "\r\033[K${bldylw}" "WARNING" "${bldylw}${pending_message}${txtdef}"
-	unset pending_status pending_message
 }
 
 function _e_pending_error () {
+	unset pending_message EXIT_CODE
 	[[ ${1} ]] && pending_message=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "\r\033[K${bldred}" "ERROR" "${bldred}${pending_message} ${EXIT_CODE}${txtdef}"
-	unset pending_status pending_message
 }
 
 function _e_pending_fatal () {
+	unset pending_message EXIT_CODE
 	[[ ${1} ]] && pending_message=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "\r\033[K${bldpur}" "ABORT" "${bldpur}${pending_message} ${EXIT_CODE}${txtdef}" "Stopping..."
@@ -73,13 +75,15 @@ function _e_pending_fatal () {
 }
 
 function _e_error () {
+	unset EXIT_MESSAGE EXIT_CODE ERROR_MESSAGE
 	[[ ${1} ]] && local EXIT_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	[[ ${3} ]] && local ERROR_MESSAGE="${3}"
-	_e "${bldred}" "ERROR" "${bldred}${EXIT_MESSAGE} ${EXIT_CODE}${txtdef}" ${3}
+	_e "${bldred}" "ERROR" "${bldred}${EXIT_MESSAGE} ${EXIT_CODE}${txtdef}" ${ERROR_MESSAGE}
 }
 
 function _e_fatal () {
+	unset EXIT_MESSAGE EXIT_CODE
 	[[ ${1} ]] && local EXIT_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "${bldpur}" "ABORT" "${bldpur}${EXIT_MESSAGE} ${EXIT_CODE}${txtdef}" "Stopping..."
