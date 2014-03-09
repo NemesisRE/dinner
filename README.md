@@ -28,5 +28,6 @@ For building ROMs using Android Dinner, you need:
 - option for "make clean" and "make installclean"
 - Changes since last build (via mail on build/or prompt with parameter)
 - Cherrypicking via repopick.py
+- Commandline completion
 
 Take a look to our [TODO´s](/doc/TODO.md) and our feature [Idea's](/doc/IDEAS.md)
