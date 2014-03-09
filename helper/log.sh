@@ -19,7 +19,7 @@ function _e {
 	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}"
 		for line in "$@"; do
-			printf "\t${STATUS_COLOR}%11b${txtdef}" "$line\n" 1>&2
+			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n" 1>&2
 		done
 	fi
 }

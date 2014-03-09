@@ -426,7 +426,7 @@ function _get_changelog () {
 			continue
 		fi
 	else
-		_e_fail "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
+		_e_fail "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
