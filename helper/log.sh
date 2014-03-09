@@ -29,15 +29,15 @@ function _e {
 pending_status=''
 pending_message=''
 function _e_pending {
-	pending_message="${1}"
-	printf "${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
-	sleep 3
+	if ! ${DINNER_CRON}; then
+		pending_message="${1}"
+		printf "${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
+		sleep 3
+	fi
 }
 
 function _e_notice () {
-	if ! ${DINNER_CRON}; then
-		_e "${bldwht}" "NOTICE" "${1}"
-	fi
+	_e "${bldwht}" "NOTICE" "${1}"
 }
 
 function _e_pending_success () {
