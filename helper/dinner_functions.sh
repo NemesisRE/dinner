@@ -196,7 +196,7 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_pending "brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
+	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
@@ -445,7 +445,7 @@ function _run_config () {
 			CURRENT_CHANGELOG_ONLY=true
 			CURRENT_CONFIG=${2}
 			;;
-		"clean")
+		"make")
 			CURRENT_CLEAN_ONLY=true
 			CURRENT_DINNER_MAKE=${2}
 			CURRENT_CONFIG=${3}

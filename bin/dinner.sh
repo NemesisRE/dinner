@@ -67,7 +67,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(clean changelog cook list update help)
+valid_commands=(make changelog cook list update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -101,7 +101,7 @@ while [[ $# -gt 0 ]]; do
 		changelog | cook)
 			params+=("$1")
 			shift; continue ;;
-		clean)
+		make)
 			[[ ! ${dinner_make} ]] && dinner_make="$1" || params+=("$1")
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
@@ -121,7 +121,7 @@ if [[ ! $params ]]; then
 				params+=("$name")
 			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
-		clean) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
+		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
@@ -132,7 +132,7 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				clean)         _run_config $cmd "$dinner_make" "$params"  ;;
+				make)         _run_config $cmd "$dinner_make" "$params"  ;;
 				changelog)     _run_config $cmd "$params"                 ;;
 				cook)          _run_config $cmd "$params"                 ;;
 			esac

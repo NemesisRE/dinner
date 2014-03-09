@@ -60,7 +60,7 @@ _dinner_complete()
 	fi
 
 	local -r cmds='
-		clean
+		make
 		changelog
 		list
 		cook
@@ -116,7 +116,7 @@ _dinner_complete()
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
 				;;
-			clean)
+			make)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
 					COMPREPLY=(clean installclean)
 				else
