@@ -29,10 +29,14 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null)
+cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)
+	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress | head -1 2>/dev/null)
 	DINNER_UPDATE_EXIT_CODE=${?}
 	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
 		_e_success "${GIT_MESSAGE}       "
+		for line in "${DINNER_UPDATES}"; do
+			printf "                    $line\n" >&2
+		done
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
