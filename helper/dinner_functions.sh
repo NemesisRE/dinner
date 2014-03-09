@@ -28,15 +28,16 @@ function _exec_command () {
 }
 
 function _dinner_update () {
-	_e_pending 'NOTICE:' "Checking for updates"
+	_e_pending "Checking for updates"
 	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null)
-	if [ "${?}" == "0" ]; then
-		_e_success "${GIT_MESSAGE}"
+	DINNER_UPDATE_EXIT_CODE=${?}
+	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
+		_e_success "${GIT_MESSAGE}\t\t"
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
 	else
-		_e_fatal "${GIT_MESSAGE}"
+		_e_fail "${GIT_MESSAGE}"
 	fi
 }
 

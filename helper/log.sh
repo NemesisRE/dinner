@@ -19,9 +19,8 @@ function _e {
 pending_status=''
 pending_message=''
 function _e_pending {
-	pending_status="$1"
-	pending_message="$2"
-	printf "$bldcyn%10b:${txtdef}\t%b" "$pending_status" "$pending_message"
+	pending_message="$1"
+	printf "$bldcyn%10b:${txtdef}\t%b" "NOTICE" "$pending_message"
 }
 
 function _e_notice () {
@@ -32,8 +31,19 @@ function _e_notice () {
 
 function _e_success () {
 	[[ $1 ]] && pending_message=$1
-	[[ $2 ]] && pending_status=$2 || pending_status="NOTICE"
-	_e "${bldwht}" "${pending_status}" "${bldgrn}${pending_message}${txtdef}"
+	_e "\r${bldwht}" "NOTICE" "${bldgrn}${pending_message}${txtdef}"
+	unset pending_status pending_message
+}
+
+function _e_skipped () {
+	[[ $1 ]] && pending_message=$1
+	_e "\r${bldwht}" "WARNING" "${bldylw}${pending_message}${txtdef}"
+	unset pending_status pending_message
+}
+
+function _e_fail () {
+	[[ $1 ]] && pending_message=$1
+	_e "\r${bldwht}" "ERROR" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
