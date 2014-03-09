@@ -63,7 +63,7 @@ function _dinner_update () {
 			_e_pending_success "Already up-to-date."
 		fi
 	else
-		_e_pending_error "while Dinner update, see details below:"
+		_e_pending_error "while Dinner update, see details below:\n"
 		while read -r LINE; do
 			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
