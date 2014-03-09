@@ -9,8 +9,8 @@
 #
 function _exec_command () {
 	local COMMAND=${1}
-	local FAIL=${2:NOTSET}
-	local SUCCESS=${3:NOTSET}
+	[[ ${2} ]] && local FAIL=${2} || local FAIL="NOTSET"
+	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		eval "_e \"${bldylw}\" \"COMMAND\" \"$(printf "${COMMAND}")\"; ${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
@@ -29,19 +29,15 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-	cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)
-	cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null | head -1)
-	DINNER_UPDATE_EXIT_CODE=${?}
-	if [ "${DINNER_UPDATE_EXIT_CODE}" == "0" ]; then
-		_e_success "${GIT_MESSAGE}       "
+	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=$($(which git) fetch --dry-run --no-progress 2>/dev/null)"
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=$($(which git) pull --no-stat --no-progress 2>/dev/null | head -1)" "_e_fail \"${GIT_MESSAGE}\"" "_e_success \"${GIT_MESSAGE}\""
+	if [ "${?}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
 			printf "                    $line\n" >&2
 		done
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
-	else
-		_e_fail "${GIT_MESSAGE}"
 	fi
 }
 
@@ -56,7 +52,7 @@ function _generate_admin_message () {
 
 function _check_prerequisites () {
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
-		source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}
+		_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
 	else
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
 	fi
@@ -71,7 +67,7 @@ function _check_prerequisites () {
 
 	_set_current_variables
 
-	cd "${REPO_DIR}"
+	_exec_command "cd \"${REPO_DIR}\""
 
 	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
 }
@@ -200,7 +196,7 @@ function _get_breakfast_variables () {
 
 function _brunch_device () {
 	_e_notice "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
-	_exec_command "brunch ${CURRENT_DEVICE}" "NOTSET" "NOTSET"
+	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
@@ -258,7 +254,7 @@ function _post_build_command () {
 
 function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
-		_e_notice "Running cleanup of old builds..."
+		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
 			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)
 		else
@@ -266,12 +262,11 @@ function _clean_old_builds () {
 		fi
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
-			CURRENT_CLEANED_FILES="Nothing to clean up for ${CURRENT_CONFIG}."
+			_e_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
-			_e_notice "${CURRENT_CLEANED_FILES}"
-		fi
-		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-			_e_warning "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
+			_e_success "Cleanup finished, removed the following files: ${CURRENT_CLEANED_FILES}"
+		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
+			_e_fail "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
 	else
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
@@ -280,7 +275,7 @@ function _clean_old_builds () {
 
 function _send_mail () {
 	if [ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]; then
-		_e_notice "Sending status mail..."
+		_e_notice "Generating status mail..."
 		:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
 		:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
 
@@ -312,12 +307,14 @@ function _send_mail () {
 		_generate_user_message "\e[21m"
 
 		if [ "${CURRENT_MAIL}" ]; then
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_warning \"Something went wrong while sending User E-Mail\""
+			_e_pending "Sending User E-Mail..."
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_fail \"Something went wrong while sending User E-Mail\"" "_e_success \"Successfully send User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} ${LOGFILE} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""
+			_e_pending "Sending Admin E-Mail..."
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -a \"Content-type: text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\"" "_e_warning \"Something went wrong while sending Admin E-Mail\""  "_e_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
