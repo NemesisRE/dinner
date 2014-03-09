@@ -69,7 +69,7 @@ function _e_pending_fatal () {
 	[[ ${1} ]] && pending_message=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "\r\033[K${bldpur}" "ABORT" "${bldpur}${pending_message} ${EXIT_CODE}${txtdef}" "Stopping..."
-	exit ${EXIT_CODE}
+	exit ${2:-1}
 }
 
 function _e_error () {
@@ -83,5 +83,5 @@ function _e_fatal () {
 	[[ ${1} ]] && local EXIT_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "${bldpur}" "ABORT" "${bldpur}${EXIT_MESSAGE} ${EXIT_CODE}${txtdef}" "Stopping..."
-	exit ${EXIT_CODE}
+	exit ${2:-1}
 }
