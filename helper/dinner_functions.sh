@@ -54,14 +54,17 @@ function _exec_command () {
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '[[ "${GIT_MESSAGE}" != "Already up-to-date." ]] && _e_pending_success "Successfully updated" || _e_pending_success "$(echo ${GIT_MESSAGE})"'
+	_exec_command "cd ${DINNER_DIR}"
+	_exec_command "GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated, see details below:"' '[[ "${GIT_MESSAGE}" != "Already up-to-date." ]] && _e_pending_success "Successfully updated" || _e_pending_success "$(echo ${GIT_MESSAGE})"'
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" == "0" ]; then
 		if [ "${GIT_MESSAGE}" != "Already up-to-date." ]; then
 			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		fi
 	else
-		_e_error "See details below:" "NULL" "$(cat ${DINNER_TEMP_DIR}/dinner_update.err)"
+		while read -r LINE
+			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
+		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
 }
 
