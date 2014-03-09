@@ -21,7 +21,7 @@ pending_message=''
 function _e_pending {
 	pending_status="$1"
 	pending_message="$2"
-	printf "$bldcyn%10b:${txtdef}\t%b" "$pending_status" "$pending_message"
+	printf "$bldcyn%10b:${txtdef}\t\r%b" "$pending_status" "$pending_message"
 }
 
 function _e_notice () {
@@ -32,7 +32,7 @@ function _e_notice () {
 
 function _e_success () {
 	[[ $1 ]] && pending_message=$1
-	[[ $2 ]] && pending_status=$2 || pending_status="NOTICE:"
+	[[ $2 ]] && pending_status=$2 || pending_status="NOTICE"
 	_e "${bldwht}" "${pending_status}" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
