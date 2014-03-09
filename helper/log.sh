@@ -12,8 +12,15 @@ bldwht="\e[1;37m" # White - notice
 
 
 function _e {
+	local STATUS_COLOR=${1}
+	local STATUS_NAME=${2}
+	local STATUS_MESSAGE=${3}
+	shift 3
 	if ! ${DINNER_CRON}; then
-		printf "$1%10b:${txtdef}\t%b\n" "$2" "$3"
+		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_COLOR}" "${STATUS_MESSAGE}"
+		for line in "$@"; do
+			printf "\t${STATUS_COLOR}%11b${txtdef}" "$line\n" 1>&2
+		done
 	fi
 }
 
@@ -22,7 +29,7 @@ pending_message=''
 function _e_pending {
 	pending_message="$1"
 	printf "%10b:\t$bldcyn%b${txtdef}" "NOTICE" "$pending_message"
-	sleep 2
+	sleep 3
 }
 
 function _e_notice () {
@@ -33,13 +40,13 @@ function _e_notice () {
 
 function _e_success () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "NOTICE" "${bldgrn}${pending_message}${txtdef}"
+	_e "\r\033[K${bldwht}" "FINISHED" "${bldgrn}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_skipped () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "SKIPPING" "${bldblu}${pending_message}${txtdef}"
+	_e "\r\033[K${bldblu}" "SKIPPING" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
@@ -50,23 +57,16 @@ function _e_fail () {
 }
 
 function _e_warning () {
-	if [ ${2} ]; then
-		_e "${bldylw}" "WARNING" "$1 (Exit Code ${2})"
-	else
-		_e "${bldylw}" "WARNING" "$1"
-	fi
+	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
+	_e "${bldylw}" "WARNING" "${bldylw}${1} (Exit Code ${EXIT_CODE})${txtdef}"
 }
 
 function _e_error () {
-	_e "${bldred}" "ERROR" "$1" 1>&2
+	_e "${bldred}" "ERROR" "${bldred}$1${txtdef}" 1>&2
 }
 
 function _e_fatal () {
-	if [ ${2} ]; then
-		_e "${bldpur}" "FATAL" "${1} (Exit Code ${2})" "Stopping..." 1>&2
-		exit ${2}
-	else
-		_e "${bldpur}" "FATAL" "${1} (Exit Code 1)" "Stopping..." 1>&2
-		exit 1
-	fi
+	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
+	_e "${bldpur}" "ABORT" "${bldpur}${1} (Exit Code ${EXIT_CODE})${txtdef}" "Stopping..." 1>&2
+	exit ${EXIT_CODE}
 }
