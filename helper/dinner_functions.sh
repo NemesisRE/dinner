@@ -32,7 +32,7 @@ function _exec_command () {
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	_exec_command "cd ${DINNER_DIR} && DINNER_UPDATES=\"$($(which git) fetch --dry-run --no-progress 2>/dev/null)\""
-	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '_e_pending_success "$(echo ${GIT_MESSAGE} | head -1)"'
+	_exec_command "cd ${DINNER_DIR} && GIT_MESSAGE=\"$($(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err)\"" '_e_pending_error "at Dinner updated"' '_e_pending_success "Successfully updated"'
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" == "0" ]; then
 		for line in "${DINNER_UPDATES}"; do
