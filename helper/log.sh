@@ -28,7 +28,7 @@ pending_status=''
 pending_message=''
 function _e_pending {
 	pending_message="$1"
-	printf "%10b:\t$bldcyn%b${txtdef}" "NOTICE" "$pending_message"
+	printf "${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
 	sleep 3
 }
 
@@ -46,7 +46,7 @@ function _e_pending_success () {
 
 function _e_pending_skipped () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldblu}" "SKIPPING" "${bldblu}${pending_message}${txtdef}"
+	_e "\r\033[K${bldblu}" "SKIPED" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
@@ -59,7 +59,7 @@ function _e_pending_warn () {
 function _e_pending_error () {
 	[[ $1 ]] && pending_message=$1
 	[[ ${2} ]] && local EXIT_CODE=${2} || local EXIT_CODE="1"
-	_e "\r\033[K${bldylw}" "ERROR" "${bldred}${pending_message} (Exit Code ${EXIT_CODE})${txtdef}"
+	_e "\r\033[K${bldred}" "ERROR" "${bldred}${pending_message} (Exit Code ${EXIT_CODE})${txtdef}"
 	unset pending_status pending_message
 }
 

@@ -155,7 +155,7 @@ function _check_variables () {
 }
 
 function _sync_repo () {
-	_e_pending "Running repo sync..."
+	_e_pending "repo sync..."
 	if ! ${SKIP_SYNC} && [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt" ] && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
@@ -196,7 +196,7 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_pending "Running brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
+	_e_pending "brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
@@ -235,8 +235,8 @@ function _move_build () {
 
 function _pre_build_command () {
 	if [ ${CURRENT_PRE_BUILD_COMMAND} ]; then
-		_e_notice "Running pre build command..."
-		_exec_command "${CURRENT_PRE_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your pre build command\""
+		_e_pending "pre build command..."
+		_exec_command "${CURRENT_PRE_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your pre build command\"" "_e_success \"Succesfully run pre build command\""
 		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=$?
 	else
 		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
@@ -245,8 +245,8 @@ function _pre_build_command () {
 
 function _post_build_command () {
 	if [ ${CURRENT_POST_BUILD_COMMAND} ]; then
-		_e_notice "Running post build command..."
-		_exec_command "${CURRENT_POST_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your post build command\""
+		_e_pending "post build command..."
+		_exec_command "${CURRENT_POST_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your post build command\"" "_e_success \"Succesfully run post build command\""
 		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=$?
 	else
 		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
@@ -339,8 +339,8 @@ function _check_build () {
 function _dinner_make {
 	if [ ${CURRENT_DINNER_MAKE} ]; then
 		CURRENT_BUILD_SKIPPED=true
-		_e_notice "Running \"make ${DINNER_MAKE}\"..."
-		_exec_command "make ${DINNER_MAKE}"
+		_e_pending "make ${DINNER_MAKE}..."
+		_exec_command "MAKE_MESSAGE=\"$(make ${DINNER_MAKE})\"" '_e_pending_error "${MAKE_MESSAGE}"' '_e_pending_success "$(echo ${MAKE_MESSAGE} | head -1)"'
 		if ${CURRENT_CLEAN_ONLY}; then
 			_check_current_config
 			continue
