@@ -5,6 +5,7 @@ txtdef="\e[0m"    # Revert to default
 bldred="\e[1;31m" # Red - error
 bldgrn="\e[1;32m" # Green - success
 bldylw="\e[1;33m" # Yellow - warning
+bldblu="\e[1;34m" # Blue - no action/ignored
 bldpur="\e[1;35m" # Purple - fatal
 bldcyn="\e[1;36m" # Cyan - pending
 bldwht="\e[1;37m" # White - notice
@@ -37,13 +38,13 @@ function _e_success () {
 
 function _e_skipped () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "WARNING" "${bldylw}${pending_message}${txtdef}"
+	_e "\r\033[K${bldwht}" "NOTICE" "${bldblu}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 
 function _e_fail () {
 	[[ $1 ]] && pending_message=$1
-	_e "\r\033[K${bldwht}" "WARNING" "${bldylw}${pending_message}${txtdef}"
+	_e "\r\033[K${bldylw}" "WARNING" "${bldylw}${pending_message}${txtdef}"
 	unset pending_status pending_message
 }
 

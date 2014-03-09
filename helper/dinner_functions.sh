@@ -155,18 +155,18 @@ function _check_variables () {
 }
 
 function _sync_repo () {
+	_e_pending "Running repo sync..."
 	if ! ${SKIP_SYNC} && [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt" ] && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
-		_e_notice "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+		_e_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ! ${SKIP_SYNC}; then
-			_e_notice "Running repo sync..."
-			_exec_command "${REPO_BIN} sync" "_e_warning \"Something went wrong  while doing repo sync\""
+			_exec_command "${REPO_BIN} sync" "_e_fail \"Something went wrong  while doing repo sync\"" "_e_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
 			fi
 		else
-			_e_notice "Skipping repo sync..."
+			_e_skipped "Skipping repo sync..."
 			CURRENT_SYNC_REPO_EXIT_CODE=0
 		fi
 	fi
@@ -385,8 +385,8 @@ function _set_lastbuild () {
 }
 
 function _get_changelog () {
+	_e_pending "Gathering Changes since last successfull build..."
 	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
-		_e_notice "Gathering Changes since last successfull build..."
 		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
 
 		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
@@ -421,15 +421,17 @@ function _get_changelog () {
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fatal "No Changelog found"
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_success "Showing changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fail "No Changelog found"
 			_check_current_config
 			continue
 		fi
 	else
-		_e_notice "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
+		_e_fail "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found..."
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_notice "Showing last found changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_warning "No Changelog found"
+			_e_pending "Searching last changelog..."
+			sleep 3
+			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_success "Showing last changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_fail "No Changelog found"
 			_check_current_config
 			continue
 		fi
