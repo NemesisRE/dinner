@@ -464,8 +464,9 @@ function _cleanup () {
 
 function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
+	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
 	_e_pending "Cleaning logfiles..."
-	_exec_command "find ${DINNER_LOG_DIR} -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs\"" "_e_pending_success \"Successfull cleaned logs\""
+	_exec_command "find ${DINNER_LOG_DIR} -name "${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs\"" "_e_pending_success \"Successfull cleaned logs\""
 }
 
 function _run_config () {
