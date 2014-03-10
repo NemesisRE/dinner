@@ -310,13 +310,15 @@ function _send_mail () {
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
 			if [ -f ${CURRENT_LOG} ]; then
 				_generate_admin_message "Logfile attached"
-				LOGFILE="-a \"${CURRENT_LOG}\""
+				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
+				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
 				_generate_admin_message "Error Logfile attached"
-				ERRLOGFILE="-a \"${CURRENT_ERRLOG}\""
+				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
+				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log\""
 			else
 				_generate_admin_message "ERROR: Error Logfile not found"
 			fi
@@ -375,25 +377,20 @@ function _check_current_config () {
 		+${CURRENT_SEND_MAIL_EXIT_CODE} \
 	))
 	if ${CURRENT_BUILD_SKIPPED}; then
-		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
-		_e_notice "All jobs for config \"${CURRENT_CONFIG}\" finished successfully."
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 		_set_lastbuild
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
-		_e_warning "Buildcheck for config \"${CURRENT_CONFIG}\" was successful but something else went wrong" "${CURRENT_CONFIG_EXIT_CODE}"
 		WARNING_CONFIGS="${WARNING_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ! ${CURRENT_BUILD_STATUS}; then
-		_e_error "Build for config \"${CURRENT_CONFIG}\" has failed" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
 	else
 		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
 	fi
-	echo -e ""
 	OVERALL_EXIT_CODE=$((${OVERALL_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
 
@@ -458,7 +455,7 @@ function _get_changelog () {
 
 function _cleanup () {
 	_e_pending "Cleaning tempory files..."
-	TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err"
+	TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err dinner_${CURRENT_CONFIG}.log dinner_${CURRENT_CONFIG}_error.log"
 	for TEMPFILE in ${TEMPFILES}; do
 		if [ -e ${DINNER_TEMP_DIR}/${TEMPFILE} ]; then
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
@@ -516,13 +513,15 @@ function _run_config () {
 	_cleanup
 
 	_send_mail
+
+	echo " "
 }
 
 function _list_configs {
 	printf "${bldwht}%s${txtdef}\n" "Available Configs:"
 	while IFS= read -d $'\n' -r config ; do
 		printf "\t\t%s\n" "$config"
-done < <(_print_configs)
+	done < <(_print_configs)
 	exit $EX_SUCCESS
 }
 
