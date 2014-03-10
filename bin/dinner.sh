@@ -27,6 +27,7 @@
 #set -x
 
 DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
+DINNER_VERSION="2.0"
 eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 
 source ${DINNER_DIR}/helper/dinner_defaults.sh
@@ -150,7 +151,7 @@ case $cmd in
 					_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					exit 0
 				else
-					_e_error "\n=== DAMN something went wrong ==="
+					_e_error "=== DAMN something went wrong ==="
 					if [ "${FAILED_CONFIGS}" ]; then
 						_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
 					fi
