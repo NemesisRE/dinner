@@ -27,6 +27,7 @@
 #set -x
 
 DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
+eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 
 source ${DINNER_DIR}/helper/dinner_defaults.sh
 source ${DINNER_DIR}/helper/dinner_functions.sh

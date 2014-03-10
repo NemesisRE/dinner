@@ -66,6 +66,7 @@ _dinner_complete()
 		list
 		cook
 		update
+		help
 	'
 	local -r short_opts='-v      -s     -c'
 	local -r long_opts='--verbose --skip --cron'
@@ -126,7 +127,7 @@ _dinner_complete()
 				;;
 			clearlogs)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
-					COMPREPLY=({0..9})
+					COMPREPLY=(all {0..9})
 				else
 					_dinner_complete_configs "$cur"
 				fi

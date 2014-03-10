@@ -18,7 +18,7 @@ function _exec_command () {
 	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
-		_e "${bldylw}" "COMMAND" "${COMMAND}"
+		_e "\n${bldylw}" "COMMAND" "${COMMAND}"
 		eval "${COMMAND} 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}) > >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log})"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
@@ -120,7 +120,6 @@ function _set_current_variables () {
 	eval CURRENT_MAIL="${MAIL}"
 	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
-	eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
 	eval CURRENT_STATUS="failed"
 	[[ $CURRENT_CHANGELOG_ONLY ]] && CURRENT_CHANGELOG_ONLY="true" || CURRENT_CHANGELOG_ONLY="false"
 	[[ $CURRENT_CLEAN_ONLY ]] && CURRENT_CLEAN_ONLY="true" || CURRENT_CLEAN_ONLY="false"
@@ -211,8 +210,8 @@ function _brunch_device () {
 	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${CURRENT_LOG} | grep "real" | awk '{print $2}' | tr -d ' ')
+	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_ERRLOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${CURRENT_ERRLOG} | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 		_e_pending_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
 		_check_build
@@ -472,7 +471,7 @@ function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	_exec_command "find ${DINNER_LOG_DIR} -name "${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
+	_exec_command "find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
 }
 
 function _run_config () {

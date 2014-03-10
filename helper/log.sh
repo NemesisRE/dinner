@@ -18,11 +18,11 @@ function _e {
 	shift 3
 	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%10b:\t%b\n${txtdef}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
-		printf "${STATUS_NAME}: ${STATUS_MESSAGE}\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} ) &> /dev/null
+		printf "${STATUS_NAME}: ${STATUS_MESSAGE}\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 
 		for line in "$@"; do
 			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n"
-			printf "$line\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} ) &> /dev/null
+			printf "$line\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 		done
 	fi
 }
