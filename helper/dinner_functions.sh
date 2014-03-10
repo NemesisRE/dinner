@@ -351,8 +351,8 @@ function _check_build () {
 function _dinner_make {
 	if [ ${CURRENT_DINNER_MAKE} ]; then
 		CURRENT_BUILD_SKIPPED=true
-		_e_pending "make ${DINNER_MAKE}..."
-		_exec_command "MAKE_MESSAGE=\"$(make ${DINNER_MAKE})\"" '_e_pending_error "${MAKE_MESSAGE}"' '_e_pending_success "$(echo ${MAKE_MESSAGE} | head -1)"'
+		_e_pending "make ${CURRENT_DINNER_MAKE}..."
+		_exec_command "make ${CURRENT_DINNER_MAKE}" '_e_pending_error "Failed"' '_e_pending_success "Done"'
 		if ${CURRENT_CLEAN_ONLY}; then
 			_check_current_config
 			continue
