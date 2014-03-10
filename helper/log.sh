@@ -33,7 +33,7 @@ function _e_pending {
 	if ! ${DINNER_CRON}; then
 		[[ ${1} ]] && pending_message=${1}
 		printf "${bldcyn}%10b:\t%b${txtdef}" "RUNNING" "$pending_message"
-		printf "RUNNING:\t$pending_message"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
+		printf "RUNNING:\t$pending_message\n"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 		sleep 3
 	fi
 }
