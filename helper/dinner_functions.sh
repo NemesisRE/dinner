@@ -19,10 +19,10 @@ function _exec_command () {
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		_e "${bldylw}" "COMMAND" "${COMMAND}"
-		eval "${COMMAND} &> >(tee -a ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log)"
+		eval "${COMMAND} 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}) > >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log})"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
-		eval "${COMMAND} &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
+		eval "${COMMAND} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} >>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}"
 	fi
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
@@ -211,8 +211,8 @@ function _brunch_device () {
 	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
-	CURRENT_BRUNCH_RUN_TIME=$(tail ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log | grep "real" | awk '{print $2}' | tr -d ' ')
+	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" )
+	CURRENT_BRUNCH_RUN_TIME=$(tail ${CURRENT_LOG} | grep "real" | awk '{print $2}' | tr -d ' ')
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 		_e_pending_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
 		_check_build
@@ -309,11 +309,17 @@ function _send_mail () {
 			fi
 		else
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
-			if [ -f ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log ]; then
+			if [ -f ${CURRENT_LOG} ]; then
 				_generate_admin_message "Logfile attached"
-				LOGFILE="-a \"${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log\""
+				LOGFILE="-a \"${CURRENT_LOG}\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
+			fi
+			if [ -f ${CURRENT_ERRLOG} ]; then
+				_generate_admin_message "Error Logfile attached"
+				ERRLOGFILE="-a \"${CURRENT_ERRLOG}\""
+			else
+				_generate_admin_message "ERROR: Error Logfile not found"
 			fi
 		fi
 
@@ -327,7 +333,7 @@ function _send_mail () {
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
@@ -465,8 +471,8 @@ function _cleanup () {
 function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
-	_e_pending "Cleaning logfiles..."
-	_exec_command "find ${DINNER_LOG_DIR} -name "${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs\"" "_e_pending_success \"Successfull cleaned logs\""
+	_e_pending "Cleaning logfiles for ${CONFIG}..."
+	_exec_command "find ${DINNER_LOG_DIR} -name "${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
 }
 
 function _run_config () {
@@ -487,6 +493,9 @@ function _run_config () {
 			_e_fatal "Unknown command '$1'" $EX_USAGE
 	esac
 
+	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
+	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
+
 	_check_prerequisites
 
 	_dinner_make
@@ -503,11 +512,11 @@ function _run_config () {
 
 	_brunch_device
 
-	_send_mail
-
 	_check_current_config
 
 	_cleanup
+
+	_send_mail
 }
 
 function _list_configs {

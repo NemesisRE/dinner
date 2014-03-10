@@ -141,23 +141,28 @@ case $cmd in
 				clearlogs)     _clear_logs "$older_than" "$params"        ;;
 			esac
 		done
-		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-			_e "${bldgrn}" "SUCCESS" "${bldgrn}=== YEAH all configs finished sucessfull! ===${txtdef}"
-			_e "${bldgrn}" "SUCCESS" "${bldgrn}These configs were successfull:${txtdef}" "${SUCCESS_CONFIGS}"
-			exit 0
-		else
-			_e_error "=== DAMN something went wrong ==="
-			if [ "${FAILED_CONFIGS}" ]; then
-				_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
-			fi
-			if [ "${WARNING_CONFIGS}" ]; then
-				_e_error "These configs had warnings:" "NULL" "${WARNING_CONFIGS}"
-			fi
-			if [ "${SUCCESS_CONFIGS}" ]; then
-				_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
-			fi
-			_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
-		fi
+		case $cmd in
+			clearlogs) exit 0;;
+			*)
+				if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
+					_e "${bldgrn}" "SUCCESS" "${bldgrn}=== YEAH all configs finished sucessfull! ===${txtdef}"
+					_e "${bldgrn}" "SUCCESS" "${bldgrn}These configs were successfull:${txtdef}" "${SUCCESS_CONFIGS}"
+					exit 0
+				else
+					_e_error "=== DAMN something went wrong ==="
+					if [ "${FAILED_CONFIGS}" ]; then
+						_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
+					fi
+					if [ "${WARNING_CONFIGS}" ]; then
+						_e_error "These configs had warnings:" "NULL" "${WARNING_CONFIGS}"
+					fi
+					if [ "${SUCCESS_CONFIGS}" ]; then
+						_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+					fi
+					_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
+				fi
+			;;
+		esac
 		;;
 esac
 
