@@ -55,11 +55,11 @@ function _dinner_update () {
 
 
 function _generate_user_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
 }
 
 function _generate_admin_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
+	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
 function _check_prerequisites () {
@@ -289,8 +289,8 @@ function _clean_old_builds () {
 function _send_mail () {
 	if [ ${MAIL_BIN} ] && ([ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
 		_e_notice "Generating status mail..."
-		:> "${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt"
-		:> "${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt"
+		:> "${DINNER_TEMP_DIR}/mail_user_message.txt"
+		:> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
@@ -327,13 +327,13 @@ function _send_mail () {
 
 		if [ "${CURRENT_MAIL}" ]; then
 			_e_pending "Sending User E-Mail..."
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ "${CURRENT_ADMIN_MAIL}" ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message_${CURRENT_CONFIG}.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message_${CURRENT_CONFIG}.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	else
