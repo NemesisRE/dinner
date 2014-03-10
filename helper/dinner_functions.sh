@@ -470,6 +470,22 @@ function _clear_logs () {
 	_exec_command "find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
 }
 
+function _list_configs {
+	printf "${bldwht}%s${txtdef}\n" "Available Configs:"
+	while IFS= read -d $'\n' -r config ; do
+		printf "\t\t%s\n" "$config"
+	done < <(_print_configs)
+	exit $EX_SUCCESS
+}
+
+function _print_configs {
+	while IFS= read -d $'\0' -r configpath ; do
+		local config=$(basename "${configpath}")
+		printf "$config\n"
+	done < <(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z)
+	return $EX_SUCCESS
+}
+
 function _run_config () {
 	case ${1} in
 		"changelog")
@@ -510,22 +526,4 @@ function _run_config () {
 	_cleanup
 
 	_send_mail
-
-	echo " "
-}
-
-function _list_configs {
-	printf "${bldwht}%s${txtdef}\n" "Available Configs:"
-	while IFS= read -d $'\n' -r config ; do
-		printf "\t\t%s\n" "$config"
-	done < <(_print_configs)
-	exit $EX_SUCCESS
-}
-
-function _print_configs {
-	while IFS= read -d $'\0' -r configpath ; do
-		local config=$(basename "${configpath}")
-		printf "$config\n"
-	done < <(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z)
-	return $EX_SUCCESS
 }
