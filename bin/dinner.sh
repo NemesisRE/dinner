@@ -105,7 +105,7 @@ while [[ $# -gt 0 ]]; do
 			[[ ! ${dinner_make} ]] && dinner_make="$1" || params+=("$1")
 			shift; continue ;;
 		clearlogs)
-			[[ ! ${older_than} ]] && older_than="$1"
+			[[ ! ${older_than} ]] && older_than="$1" || params+=("$1")
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		update) _e_fatal "The 'update' command does not take any arguments" $EX_USAGE;;
@@ -119,7 +119,7 @@ done
 # If no additional arguments are given, run the subcommand for every config
 if [[ ! $params ]]; then
 	case $cmd in
-		changelog | cook)
+		changelog | cook | clearlogs)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
 			done < <(_print_configs) ;;
@@ -138,7 +138,7 @@ case $cmd in
 				make)          _run_config $cmd "$dinner_make" "$params"  ;;
 				changelog)     _run_config $cmd "$params"                 ;;
 				cook)          _run_config $cmd "$params"                 ;;
-				clearlogs)     _clear_logs "$older_than"                  ;;
+				clearlogs)     _clear_logs "$older_than" "$params"        ;;
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then

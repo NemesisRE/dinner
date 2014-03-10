@@ -121,12 +121,14 @@ _dinner_complete()
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
 					COMPREPLY=(clean installclean)
 				else
-				_dinner_complete_configs "$cur"
+					_dinner_complete_configs "$cur"
 				fi
 				;;
 			clearlogs)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
 					COMPREPLY=({0..9})
+				else
+					_dinner_complete_configs "$cur"
 				fi
 				;;
 			help)
