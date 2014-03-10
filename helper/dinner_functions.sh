@@ -22,6 +22,7 @@ function _exec_command () {
 		eval "${COMMAND} 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}) > >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log})"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
+		printf "COMMAND:\t${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 		eval "${COMMAND} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} >>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}"
 	fi
 	local EXIT_CODE=${?}
@@ -287,10 +288,6 @@ function _clean_old_builds () {
 
 function _send_mail () {
 	if [ ${MAIL_BIN} ] && ([ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
-		_e_notice "Generating status mail..."
-		:> "${DINNER_TEMP_DIR}/mail_user_message.txt"
-		:> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
-
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"\n"
@@ -454,14 +451,12 @@ function _get_changelog () {
 }
 
 function _cleanup () {
-	_e_pending "Cleaning tempory files..."
 	TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err dinner_${CURRENT_CONFIG}.log dinner_${CURRENT_CONFIG}_error.log"
 	for TEMPFILE in ${TEMPFILES}; do
 		if [ -e ${DINNER_TEMP_DIR}/${TEMPFILE} ]; then
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
 		fi
 	done
-	_e_pending_success "Cleanup done"
 }
 
 function _clear_logs () {
