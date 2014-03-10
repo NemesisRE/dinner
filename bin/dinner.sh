@@ -142,8 +142,8 @@ case $cmd in
 			esac
 		done
 		if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-			_e_success "=== YEAH all configs finished sucessfull! ==="
-			_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+			_e "${bldgrn}" "SUCCESS" "${bldgrn}=== YEAH all configs finished sucessfull! ===${txtdef}"
+			_e "${bldgrn}" "SUCCESS" "${bldgrn}These configs were successfull:${txtdef}" "${SUCCESS_CONFIGS}"
 			exit 0
 		else
 			_e_error "=== DAMN something went wrong ==="
