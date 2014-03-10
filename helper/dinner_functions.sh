@@ -524,7 +524,7 @@ function _run_config () {
 
 	_check_current_config
 
-	_cleanup
-
 	_send_mail
+
+	_cleanup
 }
