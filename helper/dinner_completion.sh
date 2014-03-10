@@ -62,6 +62,7 @@ _dinner_complete()
 	local -r cmds='
 		make
 		changelog
+		clearlogs
 		list
 		cook
 		update
@@ -121,6 +122,11 @@ _dinner_complete()
 					COMPREPLY=(clean installclean)
 				else
 				_dinner_complete_configs "$cur"
+				fi
+				;;
+			clearlogs)
+				if (( $COMP_CWORD == $cmd_index + 1 )); then
+					COMPREPLY=({0..9})
 				fi
 				;;
 			help)

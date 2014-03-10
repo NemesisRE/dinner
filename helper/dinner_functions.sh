@@ -50,6 +50,7 @@ function _dinner_update () {
 			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
+	_cleanup
 }
 
 
@@ -450,6 +451,23 @@ function _get_changelog () {
 
 }
 
+function _cleanup () {
+	_e_pending "Cleaning tempory files..."
+	TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err"
+	for TEMPFILE in ${TEMPFILES}; do
+		if [ -e ${DINNER_TEMP_DIR}/${TEMPFILE} ]; then
+			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
+		fi
+	done
+	_e_pending_success "Cleanup done"
+}
+
+function _clear_logs () {
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THEN="-mtime ${1}" || local OLDER_THEN=""
+	_e_pending "Cleaning logfiles..."
+	_exec_command "find ${DINNER_LOG_DIR} -type f ${OLDER_THEN} -exec rm -f {} \;" "_e_pending_error \"Somthing went wrong will cleaning logs\"" "_e_pending_success \"Successfull cleaned logs\""
+}
+
 function _run_config () {
 	case ${1} in
 		"changelog")
@@ -487,6 +505,8 @@ function _run_config () {
 	_send_mail
 
 	_check_current_config
+
+	_cleanup
 }
 
 function _list_configs {

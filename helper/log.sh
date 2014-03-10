@@ -18,10 +18,10 @@ function _e {
 	shift 3
 	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%10b:${txtdef}\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}"
-		printf "${STATUS_NAME}: ${STATUS_MESSAGE}" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
+		printf "${STATUS_NAME}: ${STATUS_MESSAGE}\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		for line in "$@"; do
 			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n"
-			printf "$line\n" &>> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
+			printf "$line\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log
 		done
 	fi
 }
@@ -30,8 +30,16 @@ pending_status=''
 pending_message=''
 function _e_pending {
 	if ! ${DINNER_CRON}; then
-		pending_message="${1}"
+		[[ ${1} ]] && pending_message=${1}
 		printf "${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
+		sleep 3
+	fi
+}
+
+function _e_pending_running {
+	if ! ${DINNER_CRON}; then
+		[[ ${1} ]] && pending_message=${1}
+		printf "\r\033[K${bldcyn}%10b:${txtdef}\t${bldcyn}%b${txtdef}" "RUNNING" "$pending_message"
 		sleep 3
 	fi
 }
