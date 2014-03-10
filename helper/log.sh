@@ -18,7 +18,7 @@ function _e {
 	shift 3
 	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%10b:\t%b\n${txtdef}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
-		printf "${STATUS_NAME}:\t${STATUS_MESSAGE}\n" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
+		printf "%10b:\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 
 		for line in "$@"; do
 			printf "${STATUS_COLOR}%11b\t%b${txtdef}" " " "$line\n"
@@ -33,7 +33,7 @@ function _e_pending {
 	if ! ${DINNER_CRON}; then
 		[[ ${1} ]] && pending_message=${1}
 		printf "${bldcyn}%10b:\t%b${txtdef}" "RUNNING" "$pending_message"
-		printf "RUNNING:\t$pending_message\n"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
+		printf "%10b:\t%b\n" "RUNNING" "$pending_message"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 		sleep 3
 	fi
 }
