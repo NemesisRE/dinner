@@ -64,6 +64,9 @@ function _generate_admin_message () {
 }
 
 function _check_prerequisites () {
+	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
+	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
+
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
 		_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
 	else
@@ -451,7 +454,7 @@ function _get_changelog () {
 }
 
 function _cleanup () {
-	TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err dinner_${CURRENT_CONFIG}.log dinner_${CURRENT_CONFIG}_error.log"
+	local TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err dinner_${CURRENT_CONFIG}.log dinner_${CURRENT_CONFIG}_error.log"
 	for TEMPFILE in ${TEMPFILES}; do
 		if [ -e ${DINNER_TEMP_DIR}/${TEMPFILE} ]; then
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
@@ -482,10 +485,8 @@ function _run_config () {
 			;;
 		*)
 			_e_fatal "Unknown command '$1'" $EX_USAGE
+			;;
 	esac
-
-	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
-	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
 
 	_check_prerequisites
 
