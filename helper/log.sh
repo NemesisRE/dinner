@@ -52,7 +52,7 @@ function _e_pending_success () {
 function _e_pending_skipped () {
 	unset pending_message
 	[[ ${1} ]] && pending_message=${1}
-	_e "\r\033[K${bldblu}" "SKIPED" "${pending_message}"
+	_e "\r\033[K${bldblu}" "SKIPPED" "${pending_message}"
 }
 
 function _e_pending_warn () {
