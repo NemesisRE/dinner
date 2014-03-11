@@ -19,11 +19,11 @@ function _exec_command () {
 	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		_e "\n${bldylw}" "COMMAND" "${COMMAND}"
-		eval "${COMMAND} &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log})" 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})
+		eval "${COMMAND} &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
 		printf "%10b:\t%b\n" "COMMAND" "${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
-		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}" 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}
+		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
 	fi
 	local EXIT_CODE=${?}
 	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
