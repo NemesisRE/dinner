@@ -26,6 +26,7 @@ function _exec_command () {
 		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
 	fi
 	local EXIT_CODE=${?}
+	printf "%10b:\t%b\n" "EXIT CODE" "${EXIT_CODE}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
 		eval ${FAIL} ${EXIT_CODE}
 	elif [ "${SUCCESS}" != "NOTSET" ]; then
