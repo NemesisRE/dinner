@@ -462,7 +462,7 @@ function _cleanup () {
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
 		fi
 	done
-	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name %s ') ! -name .empty -type f -exec rm {} \;"
+	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_general* -type f -exec rm {} \;"
 }
 
 function _clear_logs () {
