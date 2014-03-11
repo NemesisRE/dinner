@@ -79,8 +79,9 @@ function _e_pending_fatal () {
 function _e_error () {
 	unset EXIT_MESSAGE EXIT_CODE ERROR_MESSAGE
 	[[ ${1} ]] && local EXIT_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "${bldred}" "ERROR" "${EXIT_MESSAGE} ${EXIT_CODE}" ${@}
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
+	shift 2
+	_e "${bldred}" "ERROR" "${EXIT_MESSAGE} ${EXIT_CODE}" "${@}"
 }
 
 function _e_fatal () {
