@@ -163,8 +163,8 @@ function _check_variables () {
 		_e_fatal "No Device given! Stopping..."
 	fi
 
-	if [ ${SKIP_SYNC_TIME:-"1800"} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
-		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (1800)!"
+	if [ ${SKIP_SYNC_TIME} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
+		_e_error "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
 		SKIP_SYNC_TIME="1800"
 	fi
 
