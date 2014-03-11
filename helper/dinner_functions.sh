@@ -157,7 +157,7 @@ function _check_variables () {
 		_e_fatal "Repo binary (${REPO_BIN}) is not found or not executable!"
 	fi
 
-	[[ ! "${REPO_DIR}" ]]; then
+	if [ ! "${REPO_DIR}" ]; then
 		_e_fatal "REPO_DIR is not set!"
 	elif [ ! ${BUILD_FOR_DEVICE} ]; then
 		_e_fatal "No Device given! Stopping..."
@@ -190,7 +190,7 @@ function _sync_repo () {
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
-			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS:-'-q -d -j100'}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS:-"-q -d -j100"}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
