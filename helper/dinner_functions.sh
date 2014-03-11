@@ -157,7 +157,7 @@ function _check_variables () {
 		_e_fatal "Repo binary (${REPO_BIN}) is not found or not executable!"
 	fi
 
-	if [ ! "${REPO_DIR}" ]; then
+	[[ ! "${REPO_DIR}" ]]; then
 		_e_fatal "REPO_DIR is not set!"
 	elif [ ! ${BUILD_FOR_DEVICE} ]; then
 		_e_fatal "No Device given! Stopping..."
@@ -168,13 +168,9 @@ function _check_variables () {
 		SKIP_SYNC_TIME="1800"
 	fi
 
-	if [ ${DINNER_USE_CCACHE} ] && [[ "${DINNER_USE_CCACHE}" =~ "^{0,1}$" ]]; then
-		export USE_CCACHE=${DINNER_USE_CCACHE}
-	fi
+	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
 
-	if [ ${DINNER_CCACHE_DIR} ]; then
-		export CCACHE_DIR=${DINNER_CCACHE_PATH}
-	fi
+	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_PATH}
 
 	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
 		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}" "_e_error \"There was an error while setting ccache size, take a look into the logs.\""
@@ -185,9 +181,7 @@ function _check_variables () {
 		CLEANUP_OLDER_THAN=""
 	fi
 
-	if [ "${TARGET_DIR}" ]; then
-		TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
-	fi
+	[[ ${TARGET_DIR} ]] && TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 }
 
 function _sync_repo () {
@@ -478,6 +472,11 @@ function _cleanup () {
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
 		fi
 	done
+
+	for ENV_VAR in ${BACKUP_ENV[@]}; do
+		eval "export ${ENV_VAR}"
+	done
+
 	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_general* -type f -exec rm {} \;"
 	eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
 }

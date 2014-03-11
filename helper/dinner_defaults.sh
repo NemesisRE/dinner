@@ -1,8 +1,8 @@
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
-export LANGUAGE="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
-export LANG="en_US.UTF-8"
-export TZ="/usr/share/zoneinfo/UTC"
+BACKUP_ENV[0]="LANGUAGE=\"${LANGUAGE}\"" && export LANGUAGE="en_US.UTF-8"
+BACKUP_ENV[1]="LC_ALL=\"${LC_ALL}\"" && export LC_ALL="en_US.UTF-8"
+BACKUP_ENV[2]="LANG=\"${LANG}\"" && export LANG="en_US.UTF-8"
+BACKUP_ENV[3]="TZ=\"${TZ}\"" && export TZ="/usr/share/zoneinfo/UTC"
 
 CONFIG_DIR="${DINNER_DIR}/config.d"
 DINNER_LOG_DIR="${DINNER_DIR}/logs"
