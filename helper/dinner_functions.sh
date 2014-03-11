@@ -243,7 +243,8 @@ function _brunch_device () {
 			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 		fi
 	else
-		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}, see logfile for more information"
+		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_error "See logfiles for more information" "NULL" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
 	fi
 }
 

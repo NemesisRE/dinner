@@ -162,7 +162,7 @@ case $cmd in
 					_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					exit 0
 				else
-					_e_error "=== DAMN something went wrong ===" "NULL" "See combined log for mor information:" "${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}" "Or only Error log:" "${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
+					_e_error "=== DAMN something went wrong ==="
 					if [ "${FAILED_CONFIGS}" ]; then
 						_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
 					fi
