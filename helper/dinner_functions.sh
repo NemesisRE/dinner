@@ -173,14 +173,14 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${SKIP_SYNC} && [ -f "${LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
+	if ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ! ${SKIP_SYNC}; then
 			_exec_command "${REPO_BIN} sync" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
-				echo $(date +%s) > "${LASTSYNC_MEM}"
+				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
 			fi
 		else
 			_e_pending_skipped "Skipping repo sync..."
