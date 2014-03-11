@@ -133,7 +133,6 @@ function _set_current_variables () {
 	CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 	CURRENT_SEND_MAIL_EXIT_CODE=0
-	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=0
 
 	#Set current config Variables
 	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
@@ -197,7 +196,7 @@ function _sync_repo () {
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
-			_exec_command "${REPO_BIN} sync -q -d -j100" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS:-'-q -d -j100'}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
@@ -224,13 +223,10 @@ function _repo_pick () {
 
 function _get_breakfast_variables () {
 	_e_pending "Breakfast and getting its variables..."
-	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while getting breakfast variables\"" "_e_pending_success \"Breakfast finished\""
-	CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE=${?}
-	if [ "${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE}" == 0 ]; then
-		for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)'); do
-			eval "${VARIABLE}"
-		done
-	fi
+	for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)'); do
+		eval "${VARIABLE}"
+	done
+	_e_pending_success "Breakfast finished"
 }
 
 function _brunch_device () {
@@ -393,7 +389,6 @@ function _dinner_make {
 function _check_current_config () {
 	CURRENT_CONFIG_EXIT_CODE=$(( \
 		${SYNC_REPO_EXIT_CODE} \
-		+${CURRENT_GET_BREAKFAST_VARIABLES_EXIT_CODE} \
 		+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
 		+${CURRENT_MOVE_BUILD_EXIT_CODE} \
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \

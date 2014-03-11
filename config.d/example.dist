@@ -25,9 +25,10 @@ BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 
 
 ############################################
-## Overrides for Defaults
+## Overrides for Dinner Defaults
 ##
 #SKIP_SYNC_TIME=''										# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
+#SYNC_PARAMS=''											# Override syn parameters (Default: '-q -d -j100' )
 #DINNER_USE_CCACHE=''									# Use ccache or not 1/0 (Default: 1)
 #DINNER_CCACHE_DIR=''									# Change ccache directory (Default: $HOME/.ccache)
 #DINNER_CCACHE_SIZE=''									# Change ccache max cache size in gigabytes (Default: ccache defaults)
@@ -38,7 +39,7 @@ BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 ##
 #MAIL='john+i9300@gmail.com'							# set this if you want always an email
 #ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with build logs)
-#TARGET_DIR="/var/www/${DEVICE}/omni"				# set this if you want always move your build to the given directory
+#TARGET_DIR="/var/www/${DEVICE}/omni"					# set this if you want always move your build to the given directory
 #CLEANUP_OLDER_THAN='7'									# set this if you want always automatic cleanup
 #DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want always a download link
 #PRE_BUILD_COMMAND=''									# set this if you want always run a command before brunch is started
