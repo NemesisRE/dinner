@@ -41,6 +41,7 @@ trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" INT SIGINT
 exit_status=$EX_SUCCESS
 
 test -x $(which repo) && REPO_BIN=$(which repo) || _e_fatal "repo not found in path" $EX_SOFTWARE
+test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "md5sum not found in path" $EX_SOFTWARE
 test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "Mutt not found, will not send E-Mails..."
 test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal " not found in path" $EX_SOFTWARE
 

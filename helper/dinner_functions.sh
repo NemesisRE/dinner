@@ -64,6 +64,23 @@ function _generate_admin_message () {
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
+function _generate_local_manifest () {
+	if [ "${#LOCAL_MANIFEST[@]}" != 0 ]; then
+		local CURRENT_LOCAL_MANIFEST=${REPO_DIR}/.repo/local_manifests/${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		_e_pending "Generating Local Manifest..."
+		echo '<?xml version="1.0" encoding="UTF-8"?>' > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		echo '<manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		for LINE in "${LOCAL_MANIFEST[@]}; do
+			echo ${LINE} >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		done
+		echo '</manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		if [ ! -e ${CURRENT_LOCAL_MANIFEST} ] || [ "$(${MD5_BIN} ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml)" != "$($MD5_BIN ${CURRENT_LOCAL_MANIFEST})" ]; then
+			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
+			FORCE_SYNC=true
+		fi
+	fi
+}
+
 function _check_prerequisites () {
 	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
@@ -174,10 +191,10 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
+	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
-		if ! ${SKIP_SYNC}; then
+		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
 			_exec_command "${REPO_BIN} sync" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
@@ -465,6 +482,7 @@ function _cleanup () {
 		fi
 	done
 	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_general* -type f -exec rm {} \;"
+	eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
 }
 
 function _clear_logs () {
@@ -513,6 +531,8 @@ function _run_config () {
 	_check_prerequisites
 
 	_dinner_make
+
+	_generate_local_manifest
 
 	_sync_repo
 
