@@ -16,7 +16,7 @@ function _e {
 	local STATUS_NAME=${2}
 	local STATUS_MESSAGE=${3}
 	shift 3
-	if ! ${DINNER_CRON}; then
+	if ! ${DINNER_CRON:-"false"}; then
 		printf "${STATUS_COLOR}%10b:\t%b\n${txtdef}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
 		printf "%13b:\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 
@@ -30,7 +30,7 @@ function _e {
 pending_status=''
 pending_message=''
 function _e_pending {
-	if ! ${DINNER_CRON}; then
+	if ! ${DINNER_CRON:-"false"}; then
 		[[ ${1} ]] && pending_message=${1}
 		printf "${bldcyn}%10b:\t%b${txtdef}" "RUNNING" "$pending_message"
 		printf "%13b:\t%b\n" "RUNNING" "$pending_message"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )

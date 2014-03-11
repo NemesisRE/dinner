@@ -16,7 +16,7 @@ function _exec_command () {
 	local COMMAND=${1}
 	[[ ${2} ]] && local FAIL=${2} || local FAIL="NOTSET"
 	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
-	if ${SHOW_VERBOSE}; then
+	if ${SHOW_VERBOSE:-"false"}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		_e "\n${bldylw}" "COMMAND" "${COMMAND}"
 		eval "${COMMAND} &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})"
@@ -163,12 +163,12 @@ function _check_variables () {
 		_e_fatal "No Device given! Stopping..."
 	fi
 
-	if [ ! ${SKIP_SYNC_TIME} ] || [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
-		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (600)!"
+	if [ ! ${SKIP_SYNC_TIME:-"1800"} ] || [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
+		_e_error "SKIP_SYNC_TIME has no valid number or is not set, will use default (1800)!"
 		SKIP_SYNC_TIME="1800"
 	fi
 
-	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
+	[[ ${DINNER_USE_CCACHE:-"1"} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
 
 	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_PATH}
 
@@ -186,10 +186,10 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
-		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+	if ! ${FORCE_SYNC:-"false"} && ! ${SKIP_SYNC:-"false"} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME:-"1800"} ]; then
+		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME:-\"1800\"} seconds."
 	else
-		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
+		if ${FORCE_SYNC:-"false"} || ! ${SKIP_SYNC:-"false"}; then
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS:-"-q -d -j100"}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
