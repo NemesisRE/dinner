@@ -68,7 +68,7 @@ while [[ $# -gt 0 ]]; do
 			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
 			-v | --verbose) SHOW_VERBOSE=true  ; shift; continue ;;
-			-s | --skip)            SKIP=true  ; shift; continue ;;
+			-s | --skip)       SKIP_SYNC=true  ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
 	else
