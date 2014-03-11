@@ -52,7 +52,6 @@ function _dinner_update () {
 			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
-	_cleanup
 }
 
 
