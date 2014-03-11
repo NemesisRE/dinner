@@ -1,6 +1,8 @@
 # You can have a set of different configs in case you want to build for a different
 # device/rom or even if you want to make an other build with cherrypicks or so
 #
+# Use single quotes (') for everything except for those containing variables or
+# subshell commands those need double quotes (") the be proper interpreted
 #
 # !!!This is an example file and will be overwritten on each update please just copy it!!!
 
@@ -9,7 +11,7 @@
 ## Necessary Variables per config
 ##
 # Set Path to Rom repository
-REPO_DIR=''												# e.g. REPO_DIR='${HOME}/android/omni'
+REPO_DIR=""												# e.g. REPO_DIR="${HOME}/android/omni"
 BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 
 
@@ -36,7 +38,7 @@ BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 ##
 #MAIL='john+i9300@gmail.com'							# set this if you want always an email
 #ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with build logs)
-#TARGET_DIR='/var/www/${DEVICE}/[ROM_NAME]'				# set this if you want always move your build to the given directory
+#TARGET_DIR="/var/www/${DEVICE}/omni"				# set this if you want always move your build to the given directory
 #CLEANUP_OLDER_THAN='7'									# set this if you want always automatic cleanup
 #DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want always a download link
 #PRE_BUILD_COMMAND=''									# set this if you want always run a command before brunch is started
