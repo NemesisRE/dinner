@@ -68,11 +68,11 @@ function _generate_local_manifest () {
 		local CURRENT_LOCAL_MANIFEST=${REPO_DIR}/.repo/local_manifests/dinner_${CURRENT_CONFIG}.xml
 		_e_pending "Generating Local Manifest..."
 		printf "%s\n" '<?xml version="1.0" encoding="UTF-8"?>' > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
-		printf "\t%s\n" '<manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		printf "%s\n" '<manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
 		for LINE in "${LOCAL_MANIFEST[@]}"; do
-			printf "\t\t%s\n" "${LINE}" >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+			printf "\t%s\n" "${LINE}" >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
 		done
-		printf "\t%s\n" '</manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
+		printf "%s\n" '</manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
 		if [ ! -e ${CURRENT_LOCAL_MANIFEST} ] || [ "$(${MD5_BIN} ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml)" != "$($MD5_BIN ${CURRENT_LOCAL_MANIFEST})" ]; then
 			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
 			FORCE_SYNC=true
