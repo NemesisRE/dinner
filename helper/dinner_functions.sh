@@ -117,7 +117,7 @@ function _set_current_variables () {
 
 	#Set current config Variables
 	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
-	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/$(echo ${CURRENT_REPO_NAME} | sed 's/\///g').mem"
+	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/${CURRENT_REPO_NAME}.mem"
 	eval CURRENT_REPOPICK="\"${REPOPICK}\""
 	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
