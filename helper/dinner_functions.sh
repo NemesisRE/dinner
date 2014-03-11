@@ -462,13 +462,14 @@ function _cleanup () {
 			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
 		fi
 	done
+	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name %s ') ! -name .empty -type f -exec rm {} \;"
 }
 
 function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	_exec_command "find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN} -exec rm -f {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
+	_exec_command "find ${DINNER_LOG_DIR} -name \"*${CONFIG}*.log\" -type f ${OLDER_THAN} -exec rm {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
 }
 
 function _list_configs {
@@ -480,9 +481,10 @@ function _list_configs {
 }
 
 function _print_configs {
+	[[ ${1} ]] && local ARGS="${1}" || local ARGS="%b\n"
 	while IFS= read -d $'\0' -r configpath ; do
 		local config=$(basename "${configpath}")
-		printf "$config\n"
+		printf "${ARGS}" "$config"
 	done < <(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z)
 	return $EX_SUCCESS
 }
