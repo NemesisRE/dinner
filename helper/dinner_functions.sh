@@ -210,10 +210,10 @@ function _sync_repo () {
 }
 
 function _repo_pick () {
-	if [ "${CURRENT_REPOPICK}" ]; then
+	if [ "${#CURRENT_REPOPICK[@]}" ]; then
 		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
 			export ANDROID_BUILD_TOP=${REPO_DIR}
-			for CHANGE in ${CURRENT_REPOPICK}; do
+			for CHANGE in ${CURRENT_REPOPICK[@]}; do
 				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}"
 			done
 		else

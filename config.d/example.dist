@@ -18,7 +18,8 @@ BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 ##
 #LOCAL_MANIFEST[0]=''									# Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
 #LOCAL_MANIFEST[1]=''									# Another Local manifest line, add as many as you want.
-#REPOPICK=''											# Space separeted list of gerrit change ID's which will be cherrypicked
+#REPOPICK[0]=''											# Space separeted list of gerrit change ID's which will be cherrypicked
+#REPOPICK[1]=''											# The same like manifest
 
 
 ############################################
