@@ -76,8 +76,10 @@ function _generate_local_manifest () {
 		if [ ! -e ${CURRENT_LOCAL_MANIFEST} ] || [ "$(${MD5_BIN} ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml)" != "$($MD5_BIN ${CURRENT_LOCAL_MANIFEST})" ]; then
 			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
 			FORCE_SYNC=true
+			_e_pending_success "Successfully generated Local Manifest."
+		else
+			_e_pending_success "Already newest, no changes needed."
 		fi
-		_e_pending_success "Successfully generated Local Manifest..."
 	fi
 }
 
