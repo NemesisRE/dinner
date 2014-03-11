@@ -6,6 +6,7 @@ export TZ="/usr/share/zoneinfo/UTC"
 
 CONFIG_DIR="${DINNER_DIR}/config.d"
 DINNER_LOG_DIR="${DINNER_DIR}/logs"
+DINNER_MEM_DIR="${DINNER_DIR}/memory"
 DINNER_TEMP_DIR="${DINNER_DIR}/tmp"
 
 DINNER_USE_CCACHE="1"

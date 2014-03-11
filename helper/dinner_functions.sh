@@ -117,6 +117,7 @@ function _set_current_variables () {
 
 	#Set current config Variables
 	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
+	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/$(echo ${CURRENT_REPO_NAME} | sed 's/\///g').mem"
 	eval CURRENT_REPOPICK="\"${REPOPICK}\""
 	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
@@ -172,14 +173,14 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${SKIP_SYNC} && [ -f "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt" ] && [ $(($(date +%s)-$(cat "${DINNER_TEMP_DIR}/lastsync_$(echo ${CURRENT_REPO_NAME} | sed 's/\//_/g').txt"))) -lt ${SKIP_SYNC_TIME} ]; then
+	if ! ${SKIP_SYNC} && [ -f "${LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ! ${SKIP_SYNC}; then
 			_exec_command "${REPO_BIN} sync" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
-				echo $(date +%s) > "${DINNER_TEMP_DIR}/lastsync_${CURRENT_REPO_NAME}.txt"
+				echo $(date +%s) > "${LASTSYNC_MEM}"
 			fi
 		else
 			_e_pending_skipped "Skipping repo sync..."
