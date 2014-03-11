@@ -77,6 +77,7 @@ function _generate_local_manifest () {
 			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
 			FORCE_SYNC=true
 		fi
+		_e_pending_success "Successfully generated Local Manifest..."
 	fi
 }
 
