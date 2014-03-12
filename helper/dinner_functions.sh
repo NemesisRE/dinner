@@ -78,7 +78,7 @@ function _generate_local_manifest () {
 			FORCE_SYNC=true
 			_e_pending_success "Successfully generated Local Manifest."
 		else
-			_e_pending_success "Already newest, no changes needed."
+			_e_pending_success "Manifest is current, no changes needed."
 		fi
 	fi
 }
@@ -93,6 +93,14 @@ function _check_prerequisites () {
 		_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
 	else
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
+	fi
+	
+	if [[ $(which javac) ]] && [[ $(which java) ]]; then
+		javac_version=$("$(which javac)" -version 2>&1 | awk '{print $2}')
+		java_version=$("$(which java)" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+		if [[ "$javac_version" > "1.6" ]] && [[ "$javac_version" < "1.6" ]] && [[ "$java_version" > "1.6" ]] && [[ "$java_version" < "1.6" ]]; then
+		    _e_fatal "Your java and/or javac is not 1.6.x!"
+		fi
 	fi
 
 	_check_variables
@@ -143,7 +151,7 @@ function _set_current_variables () {
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
 	eval CURRENT_CLEANUP_OLDER_THAN="${CLEANUP_OLDER_THAN}"
-	eval CURRENT_MAIL="${MAIL}"
+	eval CURRENT_MAIL="${USER_MAIL}"
 	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 	eval CURRENT_STATUS="failed"
@@ -312,8 +320,8 @@ function _send_mail () {
 				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 			fi
 
-			if [ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]; then
-				_generate_user_message "$($(which cat) ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt)"
+			if [ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]; then
+				_generate_user_message "$($(which cat) ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem)"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
@@ -342,13 +350,13 @@ function _send_mail () {
 
 		_generate_user_message "\e[21m"
 
-		if [ "${CURRENT_MAIL}" ]; then
+		if [ ${CURRENT_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
 		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
-		if [ "${CURRENT_ADMIN_MAIL}" ]; then
+		if [ ${CURRENT_ADMIN_MAIL} ]; then
 			_e_pending "Sending Admin E-Mail..."
 			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
@@ -410,16 +418,16 @@ function _check_current_config () {
 }
 
 function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt
+	echo $(date +%m/%d/%Y) > ${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem
 }
 
 function _get_changelog () {
 	_e_pending "Gathering Changes since last successfull build..."
-	if [ -f "${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt" ]; then
-		LASTBUILD=$($(which cat) ${DINNER_TEMP_DIR}/lastbuild_${CURRENT_CONFIG}.txt)
+	if [ -f "${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem" ]; then
+		LASTBUILD=$($(which cat) ${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem)
 
-		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
-		echo -e "=====================================================\n"  >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
+		echo -e "=====================================================\n"  >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
 			cd $line
@@ -438,21 +446,23 @@ function _get_changelog () {
 						proj_credit="OmniROM"
 				fi
 
-				echo "$proj_credit Project name: $project" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+				echo "$proj_credit Project name: $project" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
 
 				echo "$log" | while read line
 				do
-					echo "  .$line" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+					echo "  .$line" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
 				done
 
-				echo "" >> ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt
+				echo "" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
 			fi
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_pending_success "Showing changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_pending_error "No Changelog found"
+			[[ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]] && _e_pending_success "Showing changelog:" && cat ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
+		else
+			_e_pending_success "Successfully gathered changes."
 		fi
 	else
 		_e_pending_warn "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
@@ -460,7 +470,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt ]] && _e_pending_success "Showing last changelog:" && cat ${DINNER_TEMP_DIR}/changes_${CURRENT_CONFIG}.txt || _e_pending_error "No Changelog found"
+			[[ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]] && _e_pending_success "Showing last changelog:" && cat ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
 		fi
@@ -469,12 +479,7 @@ function _get_changelog () {
 }
 
 function _cleanup () {
-	local TEMPFILES="mail_admin_message.txt mail_user_message.txt dinner_update.log dinner_update.err dinner_${CURRENT_CONFIG}.log dinner_${CURRENT_CONFIG}_error.log"
-	for TEMPFILE in ${TEMPFILES}; do
-		if [ -e ${DINNER_TEMP_DIR}/${TEMPFILE} ]; then
-			rm ${DINNER_TEMP_DIR}/${TEMPFILE}
-		fi
-	done
+	rm ${DINNER_TEMP_DIR}/*
 
 	for ENV_VAR in ${BACKUP_ENV[@]}; do
 		eval "export ${ENV_VAR}"
@@ -529,6 +534,8 @@ function _run_config () {
 
 	_check_prerequisites
 
+	_get_breakfast_variables
+
 	_dinner_make
 
 	_generate_local_manifest
@@ -538,8 +545,6 @@ function _run_config () {
 	_repo_pick
 
 	_get_changelog
-
-	_get_breakfast_variables
 
 	_pre_build_command
 

@@ -37,7 +37,7 @@ BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
 ############################################
 ## Variables that are not necessary.
 ##
-#MAIL='john+i9300@gmail.com'							# set this if you want always an email
+#USER_MAIL='john+i9300@gmail.com'							# set this if you want always an email
 #ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want always an email (with build logs)
 #TARGET_DIR="/var/www/${DEVICE}/omni"					# set this if you want always move your build to the given directory
 #CLEANUP_OLDER_THAN='7'									# set this if you want always automatic cleanup
