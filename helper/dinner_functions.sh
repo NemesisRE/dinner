@@ -227,7 +227,7 @@ function _brunch_device () {
 	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_ERRLOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" 2> /dev/null)
+	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" 2> /dev/null)
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${CURRENT_ERRLOG} | grep "real" | awk '{print $2}' | tr -d ' ' 2> /dev/null)
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 		_e_pending_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
@@ -325,14 +325,16 @@ function _send_mail () {
 			if [ -f ${CURRENT_LOG} ]; then
 				_generate_admin_message "Logfile attached"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
-				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log\""
+				tar -zcvhf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
+				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
 				_generate_admin_message "Error Logfile attached"
 				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
-				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log\""
+				tar -zcvhf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
+				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
 			else
 				_generate_admin_message "ERROR: Error Logfile not found"
 			fi
@@ -358,7 +360,7 @@ function _send_mail () {
 
 function _check_build () {
 	if [ -f "${CURRENT_OUTPUT_FILE}" ]; then
-		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} ) seconds" +%s)
+		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} 2>/dev/null ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
 		else
