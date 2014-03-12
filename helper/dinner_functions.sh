@@ -224,10 +224,10 @@ function _get_breakfast_variables () {
 }
 
 function _brunch_device () {
-	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE}) with version ${PLATFORM_VERSION}..."
+	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE})..."
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
-	CURRENT_OUTPUT_FILE=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" 2> /dev/null)
+	CURRENT_OUTPUT_FILEPATH=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" 2> /dev/null)
 	CURRENT_BRUNCH_RUN_TIME=$(tail ${CURRENT_ERRLOG} | grep "real" | awk '{print $2}' | tr -d ' ' 2> /dev/null)
 	if [ "${CURRENT_BRUNCH_DEVICE_EXIT_CODE}" == 0 ]; then
 		_e_pending_success "Brunch of config ${CURRENT_CONFIG} finished after ${CURRENT_BRUNCH_RUN_TIME}"
@@ -252,7 +252,7 @@ function _move_build () {
 	if [ "${CURRENT_TARGET_DIR}" ]; then
 		if [ -d "${CURRENT_TARGET_DIR}/" ]; then
 			_e_notice "Moving files to target directory..."
-			_exec_command "mv ${CURRENT_OUTPUT_FILE}* ${CURRENT_TARGET_DIR}/" "_e_warning \"Something went wrong while moving the build\""
+			_exec_command "mv ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_warning \"Something went wrong while moving the build\""
 			CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		else
 			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
@@ -286,9 +286,9 @@ function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			_exec_command "CURRENT_CLEANED_FILES=\"$(find ${CURRENT_TARGET_DIR}/ -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
+			_exec_command "CURRENT_CLEANED_FILES=\"$(find ${CURRENT_TARGET_DIR}/ -name "omni-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
 		else
-			_exec_command "CURRENT_CLEANED_FILES=\"$(find `dirname ${CURRENT_OUTPUT_FILE}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
+			_exec_command "CURRENT_CLEANED_FILES=\"$(find `dirname ${CURRENT_OUTPUT_FILEPATH}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
 		fi
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
@@ -359,8 +359,8 @@ function _send_mail () {
 }
 
 function _check_build () {
-	if [ -f "${CURRENT_OUTPUT_FILE}" ]; then
-		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILE} 2>/dev/null ) seconds" +%s)
+	if [ -f "${CURRENT_OUTPUT_FILEPATH}" ]; then
+		CURRENT_OUT_FILE_SECONDS_SINCE_CREATION=$(/bin/date -d "now - $( /usr/bin/stat -c "%Y" ${CURRENT_OUTPUT_FILEPATH} 2>/dev/null ) seconds" +%s)
 		if [ "${CURRENT_OUT_FILE_SECONDS_SINCE_CREATION}" -lt "120" ] ; then
 			CURRENT_BUILD_STATUS=true
 		else
