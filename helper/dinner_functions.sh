@@ -325,7 +325,7 @@ function _send_mail () {
 			if [ -f ${CURRENT_LOG} ]; then
 				_generate_admin_message "Logfile attached"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
-				tar -zcvhf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
+				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz dinner_${CURRENT_CONFIG}.log"
 				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
 			else
 				_generate_admin_message "ERROR: Logfile not found"
@@ -333,7 +333,7 @@ function _send_mail () {
 			if [ -f ${CURRENT_ERRLOG} ]; then
 				_generate_admin_message "Error Logfile attached"
 				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
-				tar -zcvhf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
+				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz dinner_${CURRENT_CONFIG}_error.log"
 				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
 			else
 				_generate_admin_message "ERROR: Error Logfile not found"
