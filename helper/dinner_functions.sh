@@ -56,8 +56,14 @@ function _add_device_config () {
 	if [ -f ${DEVICE_CONFIG_NAME} ]; then
 		_e_pending "Adding config..."
 		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
+			if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
+				_e_pending_warn "Config with the same name already existing, overwrite it? (y/N): "
+				read -n1 ANSWER
+				[[ ${ANSWER} != [yY] ]] && _e_skipped "Will not overwrite existing config"; exit 0
+			fi
 			_exec_command "cp ${1} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
-			exit ${?}
+			printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
+			exit 0
 		else
 			_e_pending_error "${DEVICE_CONFIG_NAME} is not a valid dinner config."
 			exit 1
