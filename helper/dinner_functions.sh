@@ -81,11 +81,11 @@ function _add_device_config () {
 				_e_pending_skipped "Will not overwrite existing config"
 				exit 0
 			fi
-			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')"
+			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\"$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\""
 		else
 			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\"$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\""
 		fi
-		printf "${DINNER_CONFIG_HEADER}" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		printf "${DINNER_CONFIG_HEADER}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
 		IFS=$'\n'
 		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
@@ -98,7 +98,7 @@ function _add_device_config () {
 				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDWHT}" "0"
 				read UVY
 			done
-			[[ ${USERVALUE} ]] && eval "${VARIABLE}=\"${USERVALUE}\"" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+			[[ ${USERVALUE} ]] && printf "${VARIABLE}=\"${USERVALUE}\"\n" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
 		IFS=$old_IFS
 		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
