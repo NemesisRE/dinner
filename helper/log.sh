@@ -30,11 +30,14 @@ function _e {
 
 function _e_pending {
 	if ! ${DINNER_CRON:-"false"}; then
-		unset PENDING_MESSAGE
+		unset PENDING_MESSAGE PENDING_STATUS PENDING_COLOR PENDING_SLEEP
 		[[ ${1} ]] && local PENDING_MESSAGE=${1}
-		printf "${BLDCYN}%10b:\t%b${TXTDEF}" "RUNNING" "$PENDING_MESSAGE"
-		printf "%13b:\t%b\n" "RUNNING" "$PENDING_MESSAGE"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
-		sleep 3
+		[[ ${2} ]] && local PENDING_STATUS=${2} || local PENDING_STATUS="RUNNING"
+		[[ ${3} ]] && local PENDING_COLOR=${3} || local PENDING_COLOR="${BLDCYN}"
+		[[ ${4} ]] && local PENDING_SLEEP=${4} || local PENDING_SLEEP="3"
+		printf "${PENDING_COLOR}%10b:\t%b${TXTDEF}" "${PENDING_STATUS}" "${PENDING_MESSAGE}"
+		printf "%13b:\t%b\n" "${PENDING_STATUS}" "${PENDING_MESSAGE}"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
+		sleep ${PENDING_SLEEP}
 	fi
 }
 
