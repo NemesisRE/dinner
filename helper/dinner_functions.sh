@@ -92,10 +92,14 @@ function _add_device_config () {
 		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F% '{ print $2 }')"
-			_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available} (Dinnerdefault: ${!VARIABLE:-none})"
-			_e_pending " " "VALUE" "${BLDWHT}" "0"
-			read USERVALUE
-			[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+			_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available}"
+			until [[ "${UVY}" =~ [yY] ]]; do
+				_e_pending " " "VALUE" "${BLDWHT}" "0"
+				read USERVALUE
+				_e_pending "Is \"${USERVALUE}\" correct? (y/N): " " " "${BLDWHT}" "0"
+				read UVY
+			done
+			[[ ${USERVALUE} ]] && eval "${VARIABLE}=\"${USERVALUE}\"" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
 		IFS=$old_IFS
 		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"

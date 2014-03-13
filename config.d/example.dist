@@ -10,8 +10,10 @@
 #############################################
 ### Necessary Variables per config
 ###
+#REPO_URL=""											#% Repository URL (e.g. "https://github.com/omnirom/android.git")
+#BRANCH=""												#% The branch of the repository (e.g. "android-4.4")
 #REPO_DIR=""											#% Path to repository (e.g. "${HOME}/android/omni")
-#BRUNCH_DEVICE=""									#% Device to build for (e.g. "i9300")
+#BRUNCH_DEVICE=""										#% Device to build for (e.g. "i9300")
 
 
 #############################################
