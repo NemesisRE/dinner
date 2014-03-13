@@ -87,6 +87,7 @@ function _check_prerequisites () {
 			_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
 		else
 			_e_fatal "${CURRENT_CONFIG} is not a valid dinner config."
+		fi
 	else
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
 	fi
