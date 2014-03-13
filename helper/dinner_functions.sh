@@ -81,9 +81,9 @@ function _add_device_config () {
 				_e_pending_skipped "Will not overwrite existing config"
 				exit 0
 			fi
-			_e_pending_notice "Creating config ${DEVICE_CONFIG_NAME}"
+			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		else
-			_e_notice "Creating config ${DEVICE_CONFIG_NAME}"
+			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		fi
 		head -5  ${DINNER_CONF_DIR}/example.dist
 		printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
@@ -91,7 +91,7 @@ function _add_device_config () {
 		IFS=$'\n'
 		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
-			VARIABLE_DESC="$(echo ${LINE} | awk -F# '{ print $2 }')"
+			VARIABLE_DESC="$(echo ${LINE} | awk -F% '{ print $2 }')"
 			_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available} (Dinnerdefault: ${!VARIABLE:-none})"
 			_e_pending " " "VALUE" "${BLDWHT}" "0"
 			read USERVALUE
@@ -174,7 +174,7 @@ function _set_current_variables () {
 	eval CURRENT_CHANGELOG="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_changelog.mem"
 	eval CURRENT_LASTBUILD_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_lastbuild.mem"
 	eval CURRENT_REPOPICK="\"${REPOPICK}\""
-	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
+	eval CURRENT_DEVICE="${BRUNCH_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
@@ -195,7 +195,7 @@ function _check_variables () {
 
 	if [ ! "${REPO_DIR}" ]; then
 		_e_fatal "REPO_DIR is not set!"
-	elif [ ! ${BUILD_FOR_DEVICE} ]; then
+	elif [ ! ${BRUNCH_DEVICE} ]; then
 		_e_fatal "No Device given! Stopping..."
 	fi
 

@@ -1,46 +1,46 @@
-## You can have a set of different configs in case you want to build for a different
-## device/rom or even if you want to make an other build with cherrypicks or so
-##
-## Use single quotes (') for everything except for those containing variables or
-## subshell commands those need double quotes (") the be proper interpreted
-##
-## !!!This is an example file and will be overwritten on each update please just copy it!!!
+### You can have a set of different configs in case you want to build for a different
+### device/rom or even if you want to make an other build with cherrypicks or so
+###
+### Use single quotes (') for everything except for those containing variables or
+### subshell commands those need double quotes (") the be proper interpreted
+###
+### !!!This is an example file and will be overwritten on each update please just copy it!!!
 
 
-############################################
-## Necessary Variables per config
-##
-REPO_DIR=""												# Path to repository (e.g. REPO_DIR="${HOME}/android/omni")
-BUILD_FOR_DEVICE=''										# Device to build for (e.g. BUILD_FOR_DEVICE='i9300')
+#############################################
+### Necessary Variables per config
+###
+#REPO_DIR=""											#% Path to repository (e.g. "${HOME}/android/omni")
+#BRUNCH_DEVICE=""									#% Device to build for (e.g. "i9300")
 
 
-############################################
-## Repository sync settings
-##
-#LOCAL_MANIFEST[0]=''									# Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
-#LOCAL_MANIFEST[1]=''									# Another Local manifest line, add as many as you want.
-#REPOPICK[0]=''											# Space separeted list of gerrit change ID's which will be cherrypicked
-#REPOPICK[1]=''											# The same like manifest
+#############################################
+### Repository sync settings
+###
+##LOCAL_MANIFEST[0]=''									#% Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
+##LOCAL_MANIFEST[1]=''									#% Another Local manifest line, add as many as you want.
+##REPOPICK[0]=''										#% Space separeted list of gerrit change ID's which will be cherrypicked
+##REPOPICK[1]=''										#% The same like manifest
 
 
-############################################
-## Overrides for Dinner Defaults
-##
-#SKIP_SYNC_TIME=''										# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
-#SYNC_PARAMS=''											# Override syn parameters (Default: '-q -d -j100' )
-#DINNER_USE_CCACHE=''									# Use ccache or not 1/0 (Default: 1)
-#DINNER_CCACHE_DIR=''									# Change ccache directory (Default: ${CCACHE_DIR:-"$HOME/.ccache"})
-#DINNER_CCACHE_SIZE=''									# Change ccache max cache size in gigabytes recomended are 25G (Default: ccache default=1G )
+#############################################
+### Overrides for Dinner Defaults
+###
+##SKIP_SYNC_TIME=''										#% if synced in the last given seconds set skip sync true %(Default: "1800")
+##SYNC_PARAMS=''										#% Override syn parameters %(Default: '-q -d -j100' )
+##DINNER_USE_CCACHE=''									#% Use ccache or not 1/0 %(Default: 1)
+##DINNER_CCACHE_DIR=''									#% Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
+##DINNER_CCACHE_SIZE=''									#% Change ccache max cache size in gigabytes recomended are 25G %(Default: ccache default=1G )
 
 
-############################################
-## Variables that are not necessary.
-##
-#USER_MAIL='john+i9300@gmail.com'						# set this if you want an email when new build is ready
-#ADMIN_MAIL='doe+i9300@gmail.com'						# set this if you want an email for succefull and failed builds (failed reports are with build logs)
-#TARGET_DIR="/var/www/${DEVICE}/omni"					# move your builds output file to the given directory
-#CLEANUP_OLDER_THAN='7'									# set the number of days after output files should be removed leave empty for no cleanup
-#DOWNLOAD_LINK='http://example.com/download/i9300'		# set this if you want a download link in the email
-#PRE_BUILD_COMMAND=''									# define a command before brunch is started
-#POST_BUILD_COMMAND=''									# define a command after a build was successful and before it is moved
+#############################################
+### Variables that are not necessary.
+###
+##USER_MAIL='john+i9300@gmail.com'						#% set this if you want an email when new build is ready
+##ADMIN_MAIL='doe+i9300@gmail.com'						#% set this if you want an email for succefull and failed builds (failed reports are with build logs)
+##TARGET_DIR="/var/www/${DEVICE}/omni"					#% move your builds output file to the given directory
+##CLEANUP_OLDER_THAN='7'								#% set the number of days after output files should be removed leave empty for no cleanup
+##DOWNLOAD_LINK='http://example.com/download/i9300'		#% set this if you want a download link in the email
+##PRE_BUILD_COMMAND=''									#% define a command before brunch is started
+##POST_BUILD_COMMAND=''									#% define a command after a build was successful and before it is moved
 

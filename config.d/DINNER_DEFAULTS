@@ -9,6 +9,7 @@ DINNER_EXIT_CODE=0
 FORCE_SYNC=false
 SKIP_SYNC=false
 SKIP_SYNC_TIME="1800"
+SYNC_PARAMS='-q -d -j100'
 PASTE_LOG=false
 PASTE_URL="http://paste.omnirom.org/api/create"
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
@@ -20,13 +21,13 @@ BACKUP_ENV[3]="TZ=\"${TZ}\"" && export TZ="/usr/share/zoneinfo/UTC"
 ###############
 ## Userconfig
 REPO_DIR=""
-BUILD_FOR_DEVICE=''
+BRUNCH_DEVICE=''
 LOCAL_MANIFEST[0]=''									# Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
 REPOPICK[0]=''											# Space separeted list of gerrit change ID's which will be cherrypicked
 SKIP_SYNC_TIME=''										# if synced in the last given seconds set skip sync true (if empty or not a number "1800" is used)
 SYNC_PARAMS=''											# Override syn parameters (Default: '-q -d -j100' )
 DINNER_USE_CCACHE='1'									# Use ccache or not 1/0 (Default: 1)
-DINNER_CCACHE_DIR=${CCACHE_DIR:-"${HOME}/.ccache"}		# Change ccache directory (Default: ${CCACHE_DIR:-"$HOME/.ccache"})
+DINNER_CCACHE_DIR="${CCACHE_DIR:-"${HOME}/.ccache"}"	# Change ccache directory (Default: ${CCACHE_DIR:-"$HOME/.ccache"})
 DINNER_CCACHE_SIZE=''									# Change ccache max cache size in gigabytes recomended are 25G (Default: ccache default=1G )
 USER_MAIL=''
 ADMIN_MAIL=''
