@@ -27,19 +27,12 @@
 #set -x
 
 DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
-DINNER_VERSION="2.0"
-eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
-#For compatibility set Language to en_US.UTF8 and timezone to UTC
-BACKUP_ENV[0]="LANGUAGE=\"${LANGUAGE}\"" && export LANGUAGE="en_US.UTF-8"
-BACKUP_ENV[1]="LC_ALL=\"${LC_ALL}\"" && export LC_ALL="en_US.UTF-8"
-BACKUP_ENV[2]="LANG=\"${LANG}\"" && export LANG="en_US.UTF-8"
-BACKUP_ENV[3]="TZ=\"${TZ}\"" && export TZ="/usr/share/zoneinfo/UTC"
-
-CONFIG_DIR="${DINNER_DIR}/config.d"
+DINNER_CONF_DIR="${DINNER_DIR}/config.d"
 DINNER_LOG_DIR="${DINNER_DIR}/logs"
 DINNER_MEM_DIR="${DINNER_DIR}/memory"
 DINNER_TEMP_DIR="${DINNER_DIR}/tmp"
 
+source ${DINNER_DIR}/${DINNER_CONF_DIR}/DINNER_DEFAULTS
 source ${DINNER_DIR}/helper/dinner_functions.sh
 source ${DINNER_DIR}/helper/log.sh
 source ${DINNER_DIR}/helper/help.sh
@@ -67,8 +60,8 @@ while [[ $# -gt 0 ]]; do
 		case $1 in
 			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
-			-v | --verbose) SHOW_VERBOSE=true  ; shift; continue ;;
-			-s | --skip)       SKIP_SYNC=true  ; shift; continue ;;
+			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
+			-s | --skip)        SKIP_SYNC=true ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
 	else
@@ -141,7 +134,7 @@ if [[ ! $params ]]; then
 fi
 
 case $cmd in
-	list)   _list_configs  ;;
+	list)   _print_configs "\t\t%s\n" ;;
 	update) _dinner_update ;;
 	help)   help $help_cmd ;;
 	*)
@@ -158,8 +151,8 @@ case $cmd in
 			*)
 				echo " "
 				if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-					_e "${bldgrn}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="
-					_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+					_e "${BLDGRN}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="
+					_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					exit 0
 				else
 					_e_error "=== DAMN something went wrong ==="
@@ -170,7 +163,7 @@ case $cmd in
 						_e_error "These configs had warnings:" "NULL" "${WARNING_CONFIGS}"
 					fi
 					if [ "${SUCCESS_CONFIGS}" ]; then
-						_e "${bldgrn}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+						_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					fi
 					_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
 				fi
@@ -179,4 +172,4 @@ case $cmd in
 		;;
 esac
 
-exit $exit_status
+exit ${OVERALL_EXIT_CODE}

@@ -1,4 +1,7 @@
 #!bash
+##################################################
+#
+# vim: ai:ts=4:sw=4:noet:sts=4:ft=sh
 #
 ###############################################################################
 #
@@ -38,9 +41,9 @@ _dinner_basename()
 }
 
 _dinner_configs() {
-	local CONFIG_DIR=${HOME}/.dinner/config.d
-	for config in $(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist | sort -z); do
-		_dinner_basename ${config}
+	local DINNER_CONF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)/config.d"
+	for CONFIG in $(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name *example.dist | sort -z); do
+		_dinner_basename ${CONFIG}
 	done
 }
 

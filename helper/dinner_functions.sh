@@ -4,37 +4,6 @@
 # vim: ai:ts=4:sw=4:noet:sts=4:ft=sh
 #
 
-
-##
-# _exec_command
-#
-# param1 = command
-# param2 = Fail command
-# param3 = Success command
-#
-function _exec_command () {
-	local COMMAND=${1}
-	[[ ${2} ]] && local FAIL=${2} || local FAIL="NOTSET"
-	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
-	if ${SHOW_VERBOSE:-"false"}; then
-		# log STDOUT and STDERR, send both to STDOUT
-		_e "\n${bldylw}" "COMMAND" "${COMMAND}"
-		eval "${COMMAND} &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})"
-	else
-		# log STDOUT and STDERR but send only STDERR to STDOUT
-		printf "%13b:\t%b\n" "COMMAND" "${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
-		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
-	fi
-	local EXIT_CODE=${?}
-	printf "%13b:\t%b\n" "EXIT CODE" "${EXIT_CODE}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
-	if [ "${EXIT_CODE}" != 0 ] && [ "${FAIL}" != "NOTSET" ]; then
-		eval ${FAIL} ${EXIT_CODE}
-	elif [ "${SUCCESS}" != "NOTSET" ]; then
-		eval ${SUCCESS}
-	fi
-	return ${EXIT_CODE}
-}
-
 function _dinner_update () {
 	_e_pending "Checking for updates"
 	eval "cd ${DINNER_DIR}"
@@ -49,11 +18,10 @@ function _dinner_update () {
 	else
 		_e_pending_error "while Dinner update, see details below:\n"
 		while read -r LINE; do
-			printf "${bldred}%11b\t%b${txtdef}" " " "${LINE}\n"
+			printf "${BLDRED}%11b\t%b${TXTDEF}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
 }
-
 
 function _generate_user_message () {
 	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
@@ -83,6 +51,10 @@ function _generate_local_manifest () {
 	fi
 }
 
+function _generate_dinner_config () {
+
+}
+
 function _check_prerequisites () {
 	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
@@ -94,11 +66,11 @@ function _check_prerequisites () {
 	else
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
 	fi
-	
+
 	if [[ $(which javac) ]] && [[ $(which java) ]]; then
 		javac_version=$("$(which javac)" -version 2>&1 | awk '{print $2}')
 		java_version=$("$(which java)" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-		if [[ "$javac_version" > "1.6" ]] && [[ "$javac_version" < "1.6" ]] && [[ "$java_version" > "1.6" ]] && [[ "$java_version" < "1.6" ]]; then
+		if [[ "$javac_version" > "${DINNER_USE_JAVA}" ]] && [[ "$javac_version" < "${DINNER_USE_JAVA}" ]] && [[ "$java_version" > "${DINNER_USE_JAVA}" ]] && [[ "$java_version" < "${DINNER_USE_JAVA}" ]]; then
 		    _e_fatal "Your java and/or javac is not 1.6.x!"
 		fi
 	fi
@@ -130,7 +102,6 @@ function _source_envsetup () {
 
 function _set_current_variables () {
 	#Set initial exitcodes
-	OVERALL_EXIT_CODE=0
 	CURRENT_BUILD_SKIPPED=false
 	CURRENT_SYNC_REPO_EXIT_CODE=0
 	CURRENT_BUILD_STATUS=false
@@ -228,6 +199,9 @@ function _get_breakfast_variables () {
 	for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)' &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})); do
 		eval "${VARIABLE}"
 	done
+
+	DINNER_DEVICE_PATH="${REPO_DIR}/device/$(echo $TARGET_PRODUCT | awk -F_ '{ print $2 }')"
+
 	_e_pending_success "Breakfast finished"
 }
 
@@ -496,20 +470,12 @@ function _clear_logs () {
 	_exec_command "find ${DINNER_LOG_DIR} -name \"*${CONFIG}*.log\" -type f ${OLDER_THAN} -exec rm {} \;" "_e_pending_error \"Something went wrong will cleaning logs for ${CONFIG}\"" "_e_pending_success \"Successfull cleaned logs for ${CONFIG}\""
 }
 
-function _list_configs {
-	printf "${bldwht}%s${txtdef}\n" "Available Configs:"
-	while IFS= read -d $'\n' -r config ; do
-		printf "\t\t%s\n" "$config"
-	done < <(_print_configs)
-	exit $EX_SUCCESS
-}
-
 function _print_configs {
-	[[ ${1} ]] && local ARGS="${1}" || local ARGS="%b\n"
+	[[ ${1} ]] && local ARGS="${1}" && printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:"
 	while IFS= read -d $'\0' -r configpath ; do
 		local config=$(basename "${configpath}")
-		printf "${ARGS}" "$config"
-	done < <(find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name *example.dist -print0 | sort -z)
+		printf "${ARGS:-%b\n}" "$config"
+done < <(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name *example.dist -print0 | sort -z)
 	return $EX_SUCCESS
 }
 
