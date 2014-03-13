@@ -149,6 +149,9 @@ case $cmd in
 		case $cmd in
 			clearlogs) exit 0;;
 			*)
+				if ${CURRENT_CHANGELOG_ONLY}; then
+					exit 0
+				fi
 				echo " "
 				if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 					_e "${BLDGRN}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="

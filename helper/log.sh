@@ -65,7 +65,7 @@ function _e_pending_warn () {
 
 function _e_pending_error () {
 	unset PENDING_ERROR_MESSAGE EXIT_CODE
-	[[ ${1} ]] && PENDING_MESSAGE=${1}
+[[ ${1} ]] && PENDING_ERROR_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})"
 	_e "\r\033[K${BLDRED}" "ERROR" "${PENDING_ERROR_MESSAGE} ${EXIT_CODE}"
 }

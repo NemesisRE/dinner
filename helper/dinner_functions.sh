@@ -455,7 +455,6 @@ function _get_changelog () {
 			_e_pending "Searching last changelog..."
 			sleep 3
 			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_error "No Changelog found"
-			_check_current_config
 			continue
 		fi
 	fi
