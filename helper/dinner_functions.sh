@@ -57,9 +57,9 @@ function _add_device_config () {
 		_e_pending "Adding config..."
 		source ${DEVICE_CONFIG_NAME} &>/dev/null
 		if [ ! "${REPO_DIR}" ]; then
-			_e_fatal "REPO_DIR is not set, this is not a valid dinner config!"
+			_e_pending_fatal "REPO_DIR is not set, this is not a valid dinner config!"
 		elif [ ! ${BUILD_FOR_DEVICE} ]; then
-			_e_fatal "BUILD_FOR_DEVICE is not set, this is not a valid dinner config!"
+			_e_pending_fatal "BUILD_FOR_DEVICE is not set, this is not a valid dinner config!"
 		fi
 		_exec_command "cp ${1} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
 		exit 0
