@@ -130,11 +130,11 @@ function _exec_command () {
 	if ${SHOW_VERBOSE:-"false"}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		_e "\n${BLDYLW}" "COMMAND" "${COMMAND}"
-		eval "${COMMAND} &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log})"
+		eval "${COMMAND} 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}) &>>(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log})"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
 		printf "%13b:\t%b\n" "COMMAND" "${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
-		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log}"
+		eval "${COMMAND} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log}"
 	fi
 	local EXIT_CODE=${?}
 	printf "%13b:\t%b\n" "EXIT CODE" "${EXIT_CODE}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
