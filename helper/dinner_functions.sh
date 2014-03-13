@@ -87,6 +87,8 @@ function _add_device_config () {
 		fi
 		head -5  ${DINNER_CONF_DIR}/example.dist
 		printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		old_IFS=$IFS
+		IFS=$'\n'
 		for LINE in "$(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' )"; do
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F# '{ print $2 }')"
@@ -95,6 +97,7 @@ function _add_device_config () {
 			read USERVALUE
 			[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
+		IFS=$old_IFS
 		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
 		_exec_command "cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
 		exit ${?}
