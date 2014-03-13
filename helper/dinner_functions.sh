@@ -482,7 +482,7 @@ function _clear_logs () {
 }
 
 function _print_configs {
-	[[ ${1} ]] && local ARGS="${1}" && printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:"
+	[[ ${1} ]] && local ARGS="${1}"
 	while IFS= read -d $'\0' -r configpath ; do
 		local config=$(basename "${configpath}")
 		printf "${ARGS:-%b\n}" "$config"

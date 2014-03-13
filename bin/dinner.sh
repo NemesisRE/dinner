@@ -134,7 +134,7 @@ if [[ ! $params ]]; then
 fi
 
 case $cmd in
-	list)   _print_configs "\t\t%s\n" ;;
+	list)   printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
 	update) _dinner_update ;;
 	help)   help $help_cmd ;;
 	*)
