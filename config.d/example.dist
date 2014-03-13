@@ -1,18 +1,17 @@
-# You can have a set of different configs in case you want to build for a different
-# device/rom or even if you want to make an other build with cherrypicks or so
-#
-# Use single quotes (') for everything except for those containing variables or
-# subshell commands those need double quotes (") the be proper interpreted
-#
-# !!!This is an example file and will be overwritten on each update please just copy it!!!
+## You can have a set of different configs in case you want to build for a different
+## device/rom or even if you want to make an other build with cherrypicks or so
+##
+## Use single quotes (') for everything except for those containing variables or
+## subshell commands those need double quotes (") the be proper interpreted
+##
+## !!!This is an example file and will be overwritten on each update please just copy it!!!
 
 
 ############################################
 ## Necessary Variables per config
 ##
-# Set Path to Rom repository
-REPO_DIR=""												# e.g. REPO_DIR="${HOME}/android/omni"
-BUILD_FOR_DEVICE=''										# e.g. BUILD_FOR_DEVICE='i9300'
+REPO_DIR=""												# Path to repository (e.g. REPO_DIR="${HOME}/android/omni")
+BUILD_FOR_DEVICE=''										# Device to build for (e.g. BUILD_FOR_DEVICE='i9300')
 
 
 ############################################

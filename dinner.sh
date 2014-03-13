@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ${HOME}/.dinner/helper/dinner_completion.sh
+source $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/helper/dinner_completion.sh
 
 function dinner() {
-	${HOME}/.dinner/bin/dinner.sh "$@"
+	$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/bin/dinner.sh "$@"
 }

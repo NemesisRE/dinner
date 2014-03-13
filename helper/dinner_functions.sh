@@ -52,7 +52,15 @@ function _generate_local_manifest () {
 }
 
 function _generate_dinner_config () {
-
+	_exec_command "head -5  ${DINNER_CONF_DIR}/example.dist"
+	printf "${BLDWHT}%s${TXTDEF}" "Please enter a config name (e.g. clean_omni_i9300): "
+	read NEW_CONFIG_NAME
+	for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
+		printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none}"
+		read USERVALUE
+		[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${NEW_CONFIG_NAME}
+	done
+	_exec_command "cat ${DINNER_CONF_DIR}/${NEW_CONFIG_NAME}"
 }
 
 function _check_prerequisites () {
