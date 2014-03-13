@@ -73,7 +73,7 @@ function _add_device_config () {
 			exit 1
 		fi
 	else
-		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
+		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
 			_e_warn "Config with the same name already existing"
 			_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
 			read -n1 ANSWER
