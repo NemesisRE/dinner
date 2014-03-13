@@ -73,10 +73,23 @@ function _add_device_config () {
 			exit 1
 		fi
 	else
+		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
+			_e_warn "Config with the same name already existing"
+			_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
+			read -n1 ANSWER
+			if ! [[ "${ANSWER}" =~ [yY] ]]; then
+				_e_pending_skipped "Will not overwrite existing config"
+				exit 0
+			fi
+			_e_pending_notice "Creating config ${DEVICE_CONFIG_NAME}"
+		else
+			_e_notice "Creating config ${DEVICE_CONFIG_NAME}"
+		fi
 		head -5  ${DINNER_CONF_DIR}/example.dist
 		printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
-			printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none})"
+			_e "${BLDWHT} "DESCRIPTION" "${VARIABLE_DESC:-"No Description available"} (Dinnerdefault: ${!VARIABLE:-none})"
+			_e_pending " "  "${VARIABLE}" "${BLDWHT}" "0"
 			read USERVALUE
 			[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
