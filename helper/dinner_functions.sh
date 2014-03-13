@@ -52,20 +52,28 @@ function _generate_local_manifest () {
 }
 
 function _add_device_config () {
-	if [ ${1} ]; then
+	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
+	if [ -f ${DEVICE_CONFIG_NAME} ]; then
 		_e_pending "Adding config..."
+		source ${DEVICE_CONFIG_NAME}
+		if [ ! "${REPO_DIR}" ]; then
+			_e_fatal "REPO_DIR is not set, this is not a valid dinner config!"
+		elif [ ! ${BUILD_FOR_DEVICE} ]; then
+			_e_fatal "BUILD_FOR_DEVICE is not set, this is not a valid dinner config!"
+		fi
 		_exec_command "cp ${1} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
-	else
-		_exec_command "head -5  ${DINNER_CONF_DIR}/example.dist"
-		printf "${BLDWHT}%s${TXTDEF}" "Please enter a config name (e.g. clean_omni_i9300): "
-		read NEW_CONFIG_NAME
-		for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
-			printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none}"
-			read USERVALUE
-			[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${NEW_CONFIG_NAME}
-		done
-		_exec_command "cat ${DINNER_CONF_DIR}/${NEW_CONFIG_NAME}"
+		exit 0
 	fi
+
+	_exec_command "head -5  ${DINNER_CONF_DIR}/example.dist"
+
+	for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
+		printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none}"
+		read USERVALUE
+		[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+	done
+	_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
+	_exec_command "cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
 }
 
 function _check_prerequisites () {

@@ -10,6 +10,7 @@ printf "Dinner
 Usage: dinner [options] TASK
 
  Tasks:
+  dinner addconfig [EXISTING FILE]                   # Add an existing config from filesystem or create a new one
   dinner make [SUBTASK] [CONFIG ..]                  # Clean a menu
   dinner cook [CONFIG ..]                            # Clone URI as a menu for dinner
   dinner changelog [CONFIG ..]                       # Get changlog for config since last successfull build
@@ -19,7 +20,8 @@ Usage: dinner [options] TASK
   dinner help [TASK]                                 # Show usage of a task
 
  Runtime options:
-   -c, [--cron]       # No Ouput except errors
+   -c, [--clean]      # Run make clean before starting brunch
+   -q, [--quiet]      # Quiet no output except errors (for cron)
    -s, [--skip-sync]  # Skip sync
    -v, [--verbose]    # Show full output
 
@@ -37,6 +39,10 @@ function help_err {
 
 function extended_help {
 	case $1 in
+		addconfig)
+      printf "Add an existing config or create a new one \n"
+      printf "Usage:\n  dinner addconfig [EXISTING FILE or CONFIG NAME]"
+      ;;
 		make)
       printf "Triggers \"make clean\" or \"make installclean\" for the given config(s)\n"
       printf "Usage:\n  dinner make [MAKE COMMAND] [CONFIG ..]"

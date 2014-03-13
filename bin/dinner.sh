@@ -116,6 +116,9 @@ while [[ $# -gt 0 ]]; do
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		update) _e_fatal "The 'update' command does not take any arguments" $EX_USAGE;;
+		addconfig)
+			[[ ! ${NEW_CONFIG_NAME} ]] && NEW_CONFIG_NAME=$1
+			shift; continue;;
 		help)
 			[[ ! $help_cmd ]] && help_cmd=$1
 			shift; continue;;
@@ -131,14 +134,15 @@ if [[ ! $params ]]; then
 				params+=("$name")
 			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
-		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
+		make | addconfig) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
 case $cmd in
-	list)   printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
-	update) _dinner_update ;;
-	help)   help $help_cmd ;;
+	list)      printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
+	update)    _dinner_update ;;
+	help)      help $help_cmd ;;
+	addconfig) _add_device_config ${NEW_CONFIG_NAME} ;;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
@@ -146,7 +150,6 @@ case $cmd in
 				changelog)    _run_config $cmd "$params"                  ;;
 				cook)         _run_config $cmd "$params"                  ;;
 				clearlogs)    _clear_logs "$older_than" "$params"         ;;
-				addconfig)    _add_device_config "$params"                ;;
 			esac
 		done
 		case $cmd in

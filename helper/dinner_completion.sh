@@ -63,6 +63,7 @@ _dinner_complete()
 	fi
 
 	local -r cmds='
+		addconfig
 		make
 		changelog
 		clearlogs
@@ -114,6 +115,10 @@ _dinner_complete()
 	else
 		# Offer command argument completions.
 		case "$cmd" in
+			addconfig)
+				[ $_DINNER_HAS_COMPOPT ] && compopt -o default
+				# Let the default Readline filename completion take over.
+				COMPREPLY=()
 			cook)
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
