@@ -55,7 +55,7 @@ function _add_device_config () {
 	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
 	if [ -f ${DEVICE_CONFIG_NAME} ]; then
 		_e_pending "Adding config..."
-		source ${DEVICE_CONFIG_NAME}
+		source ${DEVICE_CONFIG_NAME} &>/dev/null
 		if [ ! "${REPO_DIR}" ]; then
 			_e_fatal "REPO_DIR is not set, this is not a valid dinner config!"
 		elif [ ! ${BUILD_FOR_DEVICE} ]; then
