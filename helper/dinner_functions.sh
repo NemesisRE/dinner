@@ -478,7 +478,7 @@ function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name \"*${CONFIG}*.log\" -type f ${OLDER_THAN})
+	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN})
 	if [ ${LOGFILE_RESULT} ]; then
 		for RMLOGFILE in ${LOGFILE_RESULT}; do
 			rm ${RMLOGFILE}
