@@ -58,8 +58,9 @@ while [[ $# -gt 0 ]]; do
 			unset param
 		fi
 		case $1 in
-			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
+			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
+			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
 			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
 			-s | --skip-sync)   SKIP_SYNC=true ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
@@ -94,8 +95,9 @@ while [[ $# -gt 0 ]]; do
 			unset param
 		fi
 		case $1 in
-			-c | --cron)      DINNER_CRON=true ; shift; continue ;;
+			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
+			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
 			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
 			-s | --skip-sync)   SKIP_SYNC=true ; shift; continue ;;
 			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
@@ -107,7 +109,7 @@ while [[ $# -gt 0 ]]; do
 			params+=("$1")
 			shift; continue ;;
 		make)
-			[[ ! ${dinner_make} ]] && dinner_make="$1" || params+=("$1")
+			[[ ! ${DINNER_MAKE} ]] && DINNER_MAKE="$1" || params+=("$1")
 			shift; continue ;;
 		clearlogs)
 			[[ ! ${older_than} ]] && older_than="$1" || params+=("$1")
@@ -140,20 +142,20 @@ case $cmd in
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
-				make)          _run_config $cmd "$dinner_make" "$params"  ;;
-				changelog)     _run_config $cmd "$params"                 ;;
-				cook)          _run_config $cmd "$params"                 ;;
-				clearlogs)     _clear_logs "$older_than" "$params"        ;;
+				make)         _run_config $cmd "${DINNER_MAKE}" "$params" ;;
+				changelog)    _run_config $cmd "$params"                  ;;
+				cook)         _run_config $cmd "$params"                  ;;
+				clearlogs)    _clear_logs "$older_than" "$params"         ;;
 			esac
 		done
 		case $cmd in
 			clearlogs) exit 0;;
 			*)
-				if ${CURRENT_CHANGELOG_ONLY}; then
+				if ${CURRENT_CHANGELOG_ONLY} || ; then
 					exit 0
 				fi
 				echo " "
-				if [ ${OVERALL_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
+				if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 					_e "${BLDGRN}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="
 					_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					exit 0
@@ -168,11 +170,11 @@ case $cmd in
 					if [ "${SUCCESS_CONFIGS}" ]; then
 						_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					fi
-					_e_fatal "Script will exit with overall exit code" "${OVERALL_EXIT_CODE}"
+					_e_fatal "Script will exit with overall exit code" "${DINNER_EXIT_CODE}"
 				fi
 			;;
 		esac
 		;;
 esac
 
-exit ${OVERALL_EXIT_CODE}
+exit ${DINNER_EXIT_CODE}

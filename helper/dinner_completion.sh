@@ -71,8 +71,8 @@ _dinner_complete()
 		update
 		help
 	'
-	local -r short_opts='-v    -s    -c'
-	local -r long_opts='--verbose --skip-sync --cron'
+	local -r short_opts='-v    -s    -c    -q'
+	local -r long_opts='--verbose --skip-sync --clean --quiet'
 	local -r make_opts='clean installclean'
 
 	# Scan through the command line and find the dinner command

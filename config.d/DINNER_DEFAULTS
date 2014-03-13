@@ -2,8 +2,10 @@
 ## Dinnerconfig
 DINNER_VERSION="2.0"
 DINNER_USE_JAVA="1.6"
-eval CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
-OVERALL_EXIT_CODE=0
+CURRENT_LOG_TIME="$(date +%Y%m%d-%H%M)"
+DINNER_EXIT_CODE=0
+FORCE_SYNC=false
+SKIP_SYNC=false
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
 BACKUP_ENV[0]="LANGUAGE=\"${LANGUAGE}\"" && export LANGUAGE="en_US.UTF-8"
 BACKUP_ENV[1]="LC_ALL=\"${LC_ALL}\"" && export LC_ALL="en_US.UTF-8"
