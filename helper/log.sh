@@ -36,7 +36,7 @@ function _e_pending {
 		[[ ${3} ]] && local PENDING_COLOR=${3} || local PENDING_COLOR="${BLDCYN}"
 		[[ ${4} ]] && local PENDING_SLEEP=${4} || local PENDING_SLEEP="3"
 		printf "${PENDING_COLOR}%10b:\t%b${TXTDEF}" "${PENDING_STATUS}" "${PENDING_MESSAGE}"
-		printf "%13b:\t%b\n" "${PENDING_STATUS}" "${PENDING_MESSAGE}"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
+		printf "%15b:\t%b\n" "${PENDING_STATUS}" "${PENDING_MESSAGE}"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
 		sleep ${PENDING_SLEEP}
 	fi
 }
