@@ -47,7 +47,6 @@ function _e_pending_notice () {
 function _e_pending_success () {
 	unset PENDING_SUCCESS_MESSAGE
 	[[ ${1} ]] && PENDING_SUCCESS_MESSAGE=${1} && shift 1
-	shift 1
 	_e "\r\033[K${BLDGRN}" "FINISHED" "${PENDING_SUCCESS_MESSAGE}" ${@}
 
 }

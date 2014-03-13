@@ -484,7 +484,7 @@ function _clear_logs () {
 		for RMLOGFILE in ${LOGFILE_RESULT}; do
 			rm ${RMLOGFILE}
 		done
-		_e_pending_success "Successfull cleaned logs following logs for ${CONFIG}:" "${LOGFILE_RESULT}"
+		_e_pending_success "Successfull cleaned following logs for ${CONFIG}:" "${LOGFILE_RESULT}"
 	else
 		_e_pending_skipped "Skipping cleaning logs for ${CONFIG}, nothing to do"
 	fi
