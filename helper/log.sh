@@ -12,6 +12,7 @@ BLDWHT="\e[1;37m" # White - notice
 
 
 function _e {
+	unset STATUS_COLOR STATUS_NAME STATUS_MESSAGE
 	local STATUS_COLOR=${1}
 	local STATUS_NAME=${2}
 	local STATUS_MESSAGE=${3}
@@ -35,6 +36,12 @@ function _e_pending {
 		printf "%13b:\t%b\n" "RUNNING" "$PENDING_MESSAGE"  | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner_general.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_general_error.log} )
 		sleep 3
 	fi
+}
+
+function _e_pending_notice () {
+	unset PENDING_SUCCESS_MESSAGE
+	[[ ${1} ]] && local PENDING_NOTICE_MESSAGE=${1}
+	_e "\r\033[K${BLDWHT}" "NOTICE" "${PENDING_NOTICE_MESSAGE}"
 }
 
 function _e_pending_success () {
@@ -72,17 +79,19 @@ function _e_pending_fatal () {
 }
 
 function _e_notice () {
+	unset NOTICE_MESSAGE
 	[[ ${1} ]] && local NOTICE_MESSAGE=${1}
 	_e "${BLDWHT}" "NOTICE" "${NOTICE_MESSAGE}"
 }
 
-function _e_pending_success () {
+function _e_success () {
+	unset SUCCESS_MESSAGE
 	[[ ${1} ]] && local SUCCESS_MESSAGE=${1}
 	_e "${BLDGRN}" "FINISHED" "${SUCCESS_MESSAGE}"
-
 }
 
-function _e_pending_warn () {
+function _e_warn () {
+	unset WARN_MESSAGE
 	[[ ${1} ]] && local WARN_MESSAGE=${1}
 	_e "{BLDYLW}" "WARNING" "${WARN_MESSAGE}"
 }
