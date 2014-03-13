@@ -469,6 +469,7 @@ function _cleanup () {
 		eval "export ${ENV_VAR}"
 	done
 
+	eval "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm {} \;"
 	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_general* -type f -exec rm {} \;"
 	eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
 }
