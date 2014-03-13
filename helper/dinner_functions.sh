@@ -89,7 +89,7 @@ function _add_device_config () {
 		printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
 		IFS=$'\n'
-		for LINE in "$(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' )"; do
+		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F# '{ print $2 }')"
 			_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available} (Dinnerdefault: ${!VARIABLE:-none})"
