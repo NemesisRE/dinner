@@ -81,7 +81,7 @@ function _add_device_config () {
 				_e_pending_skipped "Will not overwrite existing config"
 				exit 0
 			fi
-			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\"$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\""
+			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\'$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\'"
 		else
 			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\"$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\""
 		fi
@@ -89,21 +89,23 @@ function _add_device_config () {
 		old_IFS=$IFS
 		IFS=$'\n'
 		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
+			unset UVY
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F% '{ print $2 }')"
 			until [[ "${UVY}" =~ [yY] ]]; do
 				_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available}"
 				_e_pending " " "VALUE" "${BLDWHT}" "0"
 				read USERVALUE
-				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDWHT}" "0"
+				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
 				read UVY
 			done
-			[[ ${USERVALUE} ]] && printf "${VARIABLE}=\"${USERVALUE}\"\n" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+			[[ ${USERVALUE} ]] && printf "${VARIABLE}=\"${USERVALUE}\"\t\t\t\t\t#% ${VARIABLE_DESC:-No Description available}\n" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
 		IFS=$old_IFS
+		cat ${DINNER_CONF_DIR}/example.dist sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
-		_exec_command "cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
-		exit ${?}
+		cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
+		exit 0
 	fi
 }
 
