@@ -71,8 +71,9 @@ _dinner_complete()
 		update
 		help
 	'
-	local -r short_opts='-v      -s     -c'
-	local -r long_opts='--verbose --skip --cron'
+	local -r short_opts='-v    -s    -c'
+	local -r long_opts='--verbose --skip-sync --cron'
+	local -r make_opts='clean installclean'
 
 	# Scan through the command line and find the dinner command
 	# (if present), as well as its expected position.
@@ -123,14 +124,14 @@ _dinner_complete()
 				;;
 			make)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
-					COMPREPLY=(clean installclean)
+					COMPREPLY=($(compgen -W "$make_opts" -- $cur))
 				else
 					_dinner_complete_configs "$cur"
 				fi
 				;;
 			clearlogs)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
-					COMPREPLY=(all {0..9})
+					COMPREPLY=($(compgen -W "all {1..9}" -- $cur))
 				else
 					_dinner_complete_configs "$cur"
 				fi

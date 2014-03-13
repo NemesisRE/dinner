@@ -19,8 +19,9 @@ Usage: dinner [options] TASK
   dinner help [TASK]                                 # Show usage of a task
 
  Runtime options:
+   -c, [--cron]       # No Ouput except errors
+   -s, [--skip-sync]  # Skip sync
    -v, [--verbose]    # Show full output
-   -s, [--skip]       # Skip sync
 
  Note:
   To clean or cook all your menus
