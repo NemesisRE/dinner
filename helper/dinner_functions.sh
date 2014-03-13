@@ -83,8 +83,10 @@ function _check_prerequisites () {
 	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" &> ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}
 
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
-		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}"
-		_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
+		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}"]; then
+			_exec_command "source ${DINNER_DIR}/config.d/${CURRENT_CONFIG}"
+		else
+			_e_fatal "${CURRENT_CONFIG} is not a valid dinner config."
 	else
 		_e_fatal "Config \"${CURRENT_CONFIG}\" not found!"
 	fi
