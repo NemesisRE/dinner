@@ -11,7 +11,7 @@ function _dinner_update () {
 	if [ "${?}" == "0" ]; then
 		if [ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
 			_e_pending_success "Successfully updated"
-			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+			source ${DINNER_DIR}/dinner.sh
 		else
 			_e_pending_success "Already up-to-date."
 		fi

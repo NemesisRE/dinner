@@ -56,6 +56,7 @@ function _e_pending_success () {
 function _e_pending_skipped () {
 	unset PENDING_SKIPPED_MESSAGE
 	[[ ${1} ]] && PENDING_SKIPPED_MESSAGE=${1}
+	shift 1
 	_e "\r\033[K${BLDBLU}" "SKIPPED" "${PENDING_SKIPPED_MESSAGE}" "${@}"
 }
 
