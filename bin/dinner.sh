@@ -73,7 +73,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(make clearlogs changelog cook list update help)
+valid_commands=(addconfig make clearlogs changelog cook list update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -146,6 +146,7 @@ case $cmd in
 				changelog)    _run_config $cmd "$params"                  ;;
 				cook)         _run_config $cmd "$params"                  ;;
 				clearlogs)    _clear_logs "$older_than" "$params"         ;;
+				addconfig)    _add_device_config "$params"                ;;
 			esac
 		done
 		case $cmd in
