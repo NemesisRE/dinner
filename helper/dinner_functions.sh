@@ -91,11 +91,11 @@ function _add_device_config () {
 		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F% '{ print $2 }')"
-			_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available}"
 			until [[ "${UVY}" =~ [yY] ]]; do
+				_e "${BLDYLW}" "${VARIABLE}" "${VARIABLE_DESC:-No Description available}"
 				_e_pending " " "VALUE" "${BLDWHT}" "0"
 				read USERVALUE
-				_e_pending "Is \"${USERVALUE}\" correct? (y/N): " " " "${BLDWHT}" "0"
+				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDWHT}" "0"
 				read UVY
 			done
 			[[ ${USERVALUE} ]] && eval "${VARIABLE}=\"${USERVALUE}\"" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
