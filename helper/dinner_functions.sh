@@ -76,11 +76,13 @@ function _check_prerequisites () {
 	fi
 
 	if [[ $(which javac) ]] && [[ $(which java) ]]; then
-		javac_version=$("$(which javac)" -version 2>&1 | awk '{print $2}')
-		java_version=$("$(which java)" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-		if [[ "$javac_version" > "${DINNER_USE_JAVA}" ]] && [[ "$javac_version" < "${DINNER_USE_JAVA}" ]] && [[ "$java_version" > "${DINNER_USE_JAVA}" ]] && [[ "$java_version" < "${DINNER_USE_JAVA}" ]]; then
-		    _e_fatal "Your java and/or javac is not 1.6.x!"
+		javac_version=$($(which javac) -version 2>&1 | awk '{print $2}')
+		java_version=$($(which java) -version 2>&1 | awk -F '"' '/version/ {print $2}')
+		if [[ "${javac_version:0:3}" != "${DINNER_USE_JAVA}" || "${java_version:0:3}" > "${DINNER_USE_JAVA}" ]]; then
+		    _e_fatal "Your java and/or javac version is not ${DINNER_USE_JAVA}!"
 		fi
+	else
+		_e_fatal "Could not find Java"
 	fi
 
 	_check_variables
