@@ -72,18 +72,18 @@ function _add_device_config () {
 			_e_pending_error "${DEVICE_CONFIG_NAME} is not a valid dinner config."
 			exit 1
 		fi
+	else
+		head -5  ${DINNER_CONF_DIR}/example.dist
+		printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
+			printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none})"
+			read USERVALUE
+			[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		done
+		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
+		_exec_command "cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
+		exit ${?}
 	fi
-
-	_exec_command "head -5  ${DINNER_CONF_DIR}/example.dist"
-	printf "DINNER CONFIG FILE (Source: https://github.com/NemesisRE/dinner) developed by NemesisRE (https://nrecom.net)" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
-	for VARIABLE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' | awk -F= '{ print $1 }' ); do
-		printf "${BLDWHT}%s${TXTDEF}" "${VARIABLE_DESC} (Dinnerdefault: ${!VARIABLE:-none}"
-		read USERVALUE
-		[[ ${USERVALUE} ]] && eval "${VARIABLE}=${USERVALUE}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
-	done
-	_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
-	_exec_command "cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
-	exit ${?}
 }
 
 function _check_prerequisites () {
