@@ -123,7 +123,9 @@ function _set_current_variables () {
 
 	#Set current config Variables
 	eval CURRENT_REPO_NAME=$(echo ${REPO_DIR} | sed 's/\//_/g')
-	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}${CURRENT_REPO_NAME}.mem"
+	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_lastsync.mem"
+	eval CURRENT_CHANGELOG="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_changelog.mem"
+	eval CURRENT_LASTBUILD_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_lastbuild.mem"
 	eval CURRENT_REPOPICK="\"${REPOPICK}\""
 	eval CURRENT_DEVICE="${BUILD_FOR_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
@@ -302,8 +304,8 @@ function _send_mail () {
 				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
 			fi
 
-			if [ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]; then
-				_generate_user_message "$($(which cat) ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem)"
+			if [ -f ${CURRENT_CHANGELOG} ]; then
+				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
@@ -400,16 +402,16 @@ function _check_current_config () {
 }
 
 function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem
+	echo $(date +%m/%d/%Y) > ${CURRENT_LASTBUILD_MEM}
 }
 
 function _get_changelog () {
 	_e_pending "Gathering Changes since last successfull build..."
-	if [ -f "${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem" ]; then
-		LASTBUILD=$($(which cat) ${DINNER_MEM_DIR}/lastbuild_${CURRENT_CONFIG}.mem)
+	if [ -f "${CURRENT_LASTBUILD_MEM}" ]; then
+		LASTBUILD=$($(which cat) ${CURRENT_LASTBUILD_MEM})
 
-		echo -e "\nChanges since last build ${LASTBUILD}"  > ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
-		echo -e "=====================================================\n"  >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
+		echo -e "\nChanges since last build ${LASTBUILD}"  > ${CURRENT_CHANGELOG}
+		echo -e "=====================================================\n"  >> ${CURRENT_CHANGELOG}
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
 			cd $line
@@ -428,19 +430,19 @@ function _get_changelog () {
 						proj_credit="OmniROM"
 				fi
 
-				echo "$proj_credit Project name: $project" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
+				echo "$proj_credit Project name: $project" >> ${CURRENT_CHANGELOG}
 
 				echo "$log" | while read line
 				do
-					echo "  .$line" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
+					echo "  .$line" >> ${CURRENT_CHANGELOG}
 				done
 
-				echo "" >> ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem
+				echo "" >> ${CURRENT_CHANGELOG}
 			fi
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]] && _e_pending_success "Showing changelog:" && cat ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem || _e_pending_error "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
 		else
@@ -452,7 +454,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem ]] && _e_pending_success "Showing last changelog:" && cat ${DINNER_MEM_DIR}/changes_${CURRENT_CONFIG}.mem || _e_pending_error "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_error "No Changelog found"
 			_check_current_config
 			continue
 		fi
