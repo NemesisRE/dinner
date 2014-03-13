@@ -83,7 +83,7 @@ function _add_device_config () {
 			fi
 			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')"
 		else
-			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')"
+			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}" "\"$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^###//g')\""
 		fi
 		printf "${DINNER_CONFIG_HEADER}" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
