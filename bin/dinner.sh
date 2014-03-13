@@ -32,7 +32,7 @@ DINNER_LOG_DIR="${DINNER_DIR}/logs"
 DINNER_MEM_DIR="${DINNER_DIR}/memory"
 DINNER_TEMP_DIR="${DINNER_DIR}/tmp"
 
-source ${DINNER_DIR}/${DINNER_CONF_DIR}/DINNER_DEFAULTS
+source ${DINNER_CONF_DIR}/DINNER_DEFAULTS
 source ${DINNER_DIR}/helper/dinner_functions.sh
 source ${DINNER_DIR}/helper/log.sh
 source ${DINNER_DIR}/helper/help.sh
