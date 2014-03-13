@@ -59,7 +59,7 @@ function _e_pending_skipped () {
 
 function _e_pending_warn () {
 	unset PENDING_WARN_MESSAGE
-[[ ${1} ]] && PENDING_WARN_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && PENDING_WARN_MESSAGE=${1} && shift 1
 	_e "\r\033[K${BLDYLW}" "WARNING" "${PENDING_WARN_MESSAGE}" ${@}
 }
 
