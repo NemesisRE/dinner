@@ -46,33 +46,33 @@ function _e_pending_notice () {
 
 function _e_pending_success () {
 	unset PENDING_SUCCESS_MESSAGE
-	[[ ${1} ]] && PENDING_SUCCESS_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && local PENDING_SUCCESS_MESSAGE=${1} && shift 1
 	_e "\r\033[K${BLDGRN}" "FINISHED" "${PENDING_SUCCESS_MESSAGE}" ${@}
 
 }
 
 function _e_pending_skipped () {
 	unset PENDING_SKIPPED_MESSAGE
-	[[ ${1} ]] && PENDING_SKIPPED_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && local PENDING_SKIPPED_MESSAGE=${1} && shift 1
 	_e "\r\033[K${BLDBLU}" "SKIPPED" "${PENDING_SKIPPED_MESSAGE}" ${@}
 }
 
 function _e_pending_warn () {
 	unset PENDING_WARN_MESSAGE
-	[[ ${1} ]] && PENDING_WARN_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && local PENDING_WARN_MESSAGE=${1} && shift 1
 	_e "\r\033[K${BLDYLW}" "WARNING" "${PENDING_WARN_MESSAGE}" ${@}
 }
 
 function _e_pending_error () {
 	unset PENDING_ERROR_MESSAGE EXIT_CODE
-	[[ ${1} ]] && PENDING_ERROR_MESSAGE=${1}
+	[[ ${1} ]] && local PENDING_ERROR_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
 	_e "\r\033[K${BLDRED}" "ERROR" "${PENDING_ERROR_MESSAGE} ${EXIT_CODE}" ${@}
 }
 
 function _e_pending_fatal () {
 	unset PENDING_FATAL_MESSAGE EXIT_CODE
-	[[ ${1} ]] && PENDING_FATAL_MESSAGE=${1}
+	[[ ${1} ]] && local PENDING_FATAL_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
 	_e "\r\033[K${BLDPUR}" "ABORT" "${PENDING_FATAL_MESSAGE} ${EXIT_CODE}" "Stopping..." ${@}
 	exit ${2:-1}
@@ -88,6 +88,12 @@ function _e_success () {
 	unset SUCCESS_MESSAGE
 	[[ ${1} ]] && local SUCCESS_MESSAGE=${1} && shift 1
 	_e "${BLDGRN}" "FINISHED" "${SUCCESS_MESSAGE}" ${@}
+}
+
+function _e_skipped () {
+	unset SKIPPED_MESSAGE
+	[[ ${1} ]] && local SKIPPED_MESSAGE=${1} && shift 1
+	_e "${BLDBLU}" "SKIPPED" "${SKIPPED_MESSAGE}" ${@}
 }
 
 function _e_warn () {
