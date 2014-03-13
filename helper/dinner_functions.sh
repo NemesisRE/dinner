@@ -57,8 +57,10 @@ function _add_device_config () {
 		_e_pending "Adding config..."
 		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
 			if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
-				_e_pending_warn "Config with the same name already existing, overwrite it? (y/N): "
+				_e_pending_warn "Config with the same name already existing
+				printf "${BLDWHT}%10b:\t%b${TXTDEF}" "ACTION" "Do you want to overwrite it? (y/N): "
 				read -n1 ANSWER
+				echo " "
 				if ! [[ "${ANSWER}" =~ [yY] ]]; then
 					_e_skipped "Will not overwrite existing config"
 					exit 0
