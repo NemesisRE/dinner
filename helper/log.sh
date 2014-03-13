@@ -93,7 +93,7 @@ function _e_success () {
 function _e_warn () {
 	unset WARN_MESSAGE
 	[[ ${1} ]] && local WARN_MESSAGE=${1}
-	_e "{BLDYLW}" "WARNING" "${WARN_MESSAGE}"
+	_e "${BLDYLW}" "WARNING" "${WARN_MESSAGE}"
 }
 
 function _e_error () {
