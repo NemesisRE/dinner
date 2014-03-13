@@ -7,6 +7,7 @@
 #
 # Title:			dinner.sh
 # Author:			Steven "NemesisRE" Koeberich
+# Author URL:		https://nrecom.net
 # Contributors:		ToeiRei
 # Creation Date:	20131117
 # Version:			2.0
