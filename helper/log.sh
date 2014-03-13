@@ -18,7 +18,7 @@ function _e {
 	local STATUS_MESSAGE=${3}
 	shift 3
 	if ! ${DINNER_CRON:-"false"}; then
-		printf "${STATUS_COLOR}%10b:\t%b\n${TXTDEF}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
+		printf "${STATUS_COLOR}%15b:\t%b\n${TXTDEF}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
 		printf "%15b:\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
 
 		for LINE in "$@"; do
