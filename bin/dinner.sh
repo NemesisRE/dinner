@@ -134,7 +134,7 @@ if [[ ! $params ]]; then
 				params+=("$name")
 			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
-		make | addconfig) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
+		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
