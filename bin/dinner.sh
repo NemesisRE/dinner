@@ -151,7 +151,7 @@ case $cmd in
 		case $cmd in
 			clearlogs) exit 0;;
 			*)
-				if ${CURRENT_CHANGELOG_ONLY} || ; then
+				if ${CURRENT_CHANGELOG_ONLY} || ${CURRENT_MAKE_ONLY} ; then
 					exit 0
 				fi
 				echo " "
