@@ -235,7 +235,7 @@ function _sync_repo () {
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME:-\"1800\"} seconds."
 	else
 		if ${FORCE_SYNC:-"false"} || ! ${SKIP_SYNC:-"false"}; then
-			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS:-"-q -d -j100"}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
@@ -298,13 +298,13 @@ function _brunch_device () {
 
 function _move_build () {
 	if [ "${CURRENT_TARGET_DIR}" ]; then
+		_e_pending "Moving files to target directory..."
 		if [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			_e_pending "Moving files to target directory..."
 			_exec_command "mv ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_pending_error \"Something went wrong while moving the build\"" "_e_pending_success \"Successfully moved build to ${CURRENT_TARGET_DIR}/\""
 			CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		else
 			CURRENT_MOVE_BUILD_EXIT_CODE=1
-			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File." "${CURRENT_MOVE_BUILD_EXIT_CODE}"
+			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
 		fi
 	else
 		CURRENT_MOVE_BUILD_EXIT_CODE=0

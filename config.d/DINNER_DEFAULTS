@@ -10,7 +10,7 @@ DINNER_EXIT_CODE=0
 FORCE_SYNC=false
 SKIP_SYNC=false
 SKIP_SYNC_TIME="1800"
-SYNC_PARAMS='-q -d -j100'
+SYNC_PARAMS='-q -j100'
 PASTE_LOG=false
 PASTE_URL="http://paste.omnirom.org/api/create"
 #For compatibility set Language to en_US.UTF8 and timezone to UTC

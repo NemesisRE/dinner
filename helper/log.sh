@@ -107,8 +107,8 @@ function _e_warn () {
 
 function _e_error () {
 	unset EXIT_MESSAGE EXIT_CODE ERROR_MESSAGE
-	[[ ${1} ]] && local ERROR_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	[[ ${1} ]] && local ERROR_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${1})" && shift 1
 	_e "${BLDRED}" "ERROR" "${ERROR_MESSAGE} ${EXIT_MCODE}" "${@}"
 }
 
