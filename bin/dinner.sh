@@ -183,18 +183,18 @@ case $cmd in
 				fi
 				echo " "
 				if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-					_e "${BLDGRN}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="
-					_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+					_e_success "=== YEAH all configs finished sucessfull! ==="
+					_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
 				else
 					_e_error "=== DAMN something went wrong ==="
 					if [ "${FAILED_CONFIGS}" ]; then
-						_e_error "These configs failed:" "NULL" "${FAILED_CONFIGS}"
+						_e_error "These configs failed:" "${FAILED_CONFIGS}"
 					fi
 					if [ "${WARNING_CONFIGS}" ]; then
-						_e_error "These configs had warnings:" "NULL" "${WARNING_CONFIGS}"
+						_e_error "These configs had warnings:" "${WARNING_CONFIGS}"
 					fi
 					if [ "${SUCCESS_CONFIGS}" ]; then
-						_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
+						_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					fi
 				fi
 			;;

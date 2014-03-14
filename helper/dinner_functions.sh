@@ -340,7 +340,7 @@ function _clean_old_builds () {
 		if [ ! "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_skipped "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
-			_e_pending_success "Cleanup finished, removed the following files: ${CURRENT_CLEANED_FILES}"
+			_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
 		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
 			_e_pending_error "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
