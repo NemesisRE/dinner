@@ -80,7 +80,7 @@ function extended_help {
 				esac
 			else
 				printf "With this task you can do different things with your configs\n"
-				printf "Subtasks: add | list | show | edit \n"
+				printf "Subtasks: add | del | edit | list | show \n"
 				printf "Usage:\n  dinner config [SUBTASK]"
 			fi
 			;;

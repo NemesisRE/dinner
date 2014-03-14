@@ -151,8 +151,8 @@ if [[ ! $params ]]; then
 			case $sub_cmd in
 				add | del | edit | show)
 					help_cmd="$cmd $sub_cmd"; cmd="help"; exit_status=$EX_USAGE ;;
-				*) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
-			esac ;;
+			esac
+			;;
 		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
@@ -160,7 +160,7 @@ fi
 case $cmd in
 	config)
 		case $sub_cmd in
-			*list*) printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
+			list) printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
 			*)
 				for params in "${params[@]}"; do
 					case $sub_cmd in
