@@ -55,8 +55,8 @@ function _add_device_config () {
 	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
 	if [ -f ${DEVICE_CONFIG_NAME} ]; then
 		_e_pending "Adding config..."
-		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
-			[[ "$(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME})" != "${DINNER_CONFIG_VERSION}" ]] && _e_pending_fatal "Config version differs from current version" "Version of ${DEVICE_CONFIG_NAME}: $(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME} | awk -F_ '{print $3})" "Current version: $(echo ${DINNER_CONFIG_VERSION} | awk -F_ '{print $3})"
+		if [ "$(sed -n '1{p;q;}' ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
+			[[ "$(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME})" != "${DINNER_CONFIG_VERSION}" ]] && _e_pending_fatal "Config version differs from current version" "Version of ${DEVICE_CONFIG_NAME}: $(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME} | awk -F_ '{print $3}')" "Current version: $(echo ${DINNER_CONFIG_VERSION} | awk -F_ '{print $3}')"
 			if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
 				_e_pending_warn "Config with the same name already existing"
 				_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
