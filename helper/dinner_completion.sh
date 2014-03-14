@@ -63,18 +63,18 @@ _dinner_complete()
 	fi
 
 	local -r cmds='
-		addconfig
+		config
 		make
 		changelog
 		clearlogs
-		list
 		cook
 		update
 		help
 	'
 	local -r short_opts='-v    -s    -c    -q'
 	local -r long_opts='--verbose --skip-sync --clean --quiet'
-	local -r make_opts='clean installclean'
+	local -r make_subs='clean installclean'
+	local -r config_subs='add del edit list show'
 
 	# Scan through the command line and find the dinner command
 	# (if present), as well as its expected position.
@@ -115,10 +115,31 @@ _dinner_complete()
 	else
 		# Offer command argument completions.
 		case "$cmd" in
-			addconfig)
-				[ $_DINNER_HAS_COMPOPT ] && compopt -o default
-				# Let the default Readline filename completion take over.
-				COMPREPLY=()
+			config)
+				if (( $COMP_CWORD == $cmd_index + 1 )); then
+					COMPREPLY=($(compgen -W "$config_subs" -- $cur))
+				elif (( $COMP_CWORD == $cmd_index + 2 )); then
+					prev="${COMP_WORDS[COMP_CWORD-1]}"
+					case $prev in
+						add)
+							[ $_DINNER_HAS_COMPOPT ] && compopt -o default
+							COMPREPLY=()
+							;;
+						del)
+							_dinner_complete_configs "$cur"
+							;;
+						edit)
+							if (( $COMP_CWORD == $cmd_index + 3 )); then
+								COMPREPLY=($(_dinner_complete_configs "$cur"))
+							fi
+							;;
+						show)
+							if (( $COMP_CWORD == $cmd_index + 3 )); then
+								COMPREPLY=($(_dinner_complete_configs "$cur"))
+							fi
+							;;
+					esac
+				fi
 				;;
 			cook)
 				# Offer one or more config completions.

@@ -43,18 +43,23 @@ trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" INT SIGINT
 
 exit_status=$EX_SUCCESS
 
+test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_SOFTWARE
 if [ -x "${DINNER_DIR}/bin/repo" ]; then
 	REPO_BIN=${DINNER_DIR}/bin/repo
 elif [ -x "$(which repo)" ]; then
 	REPO_BIN="$(which repo)"
 else
-	curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo
-	chmod a+x "${DINNER_DIR}/bin/repo"
-	REPO_BIN="${DINNER_DIR}/bin/repo"
+	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
+	if [ -e "${DINNER_DIR}/bin/repo" ]; then
+		chmod a+x c
+		REPO_BIN="${DINNER_DIR}/bin/repo"
+	else
+		_e_fatal "\"repo\" not found in PATH" $EX_SOFTWARE
+	fi
 fi
-test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "md5sum not found in path" $EX_SOFTWARE
-test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "Mutt not found, will not send E-Mails..."
-test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal " not found in path" $EX_SOFTWARE
+test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "\"md5sum\" not found in PATH" $EX_SOFTWARE
+test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "\"mutt\" not found in PATH, will not send E-Mails..."
+test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal "${DINNER_DIR}/bin/dinner_ansi2html.sh not executable" $EX_SOFTWARE
 
 # Retrieve all the flags preceeding a subcommand
 while [[ $# -gt 0 ]]; do
