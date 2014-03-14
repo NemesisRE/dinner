@@ -85,7 +85,6 @@ function _add_device_config () {
 		else
 			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		fi
-		printf "${BLDWHT}              %s\t%s${TXTDEF}\n\n" "$(head -2  ${DINNER_CONF_DIR}/example.dist | sed 's/^### //g')"
 		printf "${DINNER_CONFIG_HEADER}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
 		IFS=$'\n'
