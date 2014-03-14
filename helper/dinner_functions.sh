@@ -334,10 +334,13 @@ function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			_exec_command "CURRENT_CLEANED_FILES=\"$(find ${CURRENT_TARGET_DIR}/ -name "omni-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
+			CURRENT_CLEANED_FILES=\"$(find ${CURRENT_TARGET_DIR}/ \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )\"
 		else
-			_exec_command "CURRENT_CLEANED_FILES=\"$(find `dirname ${CURRENT_OUTPUT_FILEPATH}` -name "omni-${PLATFORM_VERSION}-*-${CURRENT_DEVICE}-HOMEMADE.zip*" -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} -delete)\""
+			CURRENT_CLEANED_FILES=\"$(find `dirname ${CURRENT_OUTPUT_FILEPATH}` \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "    *.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )\"
 		fi
+		for OLDFILE in ${CURRENT_CLEANED_FILES}; do
+			_exec_command "rm ${OLDFILE}"
+		done
 		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
