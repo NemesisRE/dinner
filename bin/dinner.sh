@@ -197,7 +197,6 @@ case $cmd in
 					if [ "${SUCCESS_CONFIGS}" ]; then
 						_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					fi
-					_e_fatal "Script will exit with overall exit code" "${DINNER_EXIT_CODE}"
 				fi
 			;;
 		esac

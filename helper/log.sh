@@ -68,15 +68,15 @@ function _e_pending_warn () {
 
 function _e_pending_error () {
 	unset PENDING_ERROR_MESSAGE EXIT_CODE
-	[[ ${1} ]] && local PENDING_ERROR_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	[[ ${1} ]] && local PENDING_ERROR_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${1})" && shift 1
 	_e "\r\033[K${BLDRED}" "ERROR" "${PENDING_ERROR_MESSAGE} ${EXIT_MCODE}" "${@}"
 }
 
 function _e_pending_fatal () {
 	unset PENDING_FATAL_MESSAGE EXIT_CODE
-	[[ ${1} ]] && local PENDING_FATAL_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="${2}" && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	[[ ${1} ]] && local PENDING_FATAL_MESSAGE=${1} && shift 1
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local EXIT_CODE="${1}" && local EXIT_MCODE="(Exit Code ${1})" && shift 1
 	_e "\r\033[K${BLDPUR}" "ABORT" "${PENDING_FATAL_MESSAGE} ${EXIT_MCODE}" "Stopping..." "${@}"
 	exit ${EXIT_CODE:-1}
 }
@@ -138,7 +138,7 @@ function _exec_command () {
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
 		printf "%13b:\t%b\n" "COMMAND" "${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
-		eval "${COMMAND} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}"
+		eval "${COMMAND} &>>${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} 2>>${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 	fi
 	local EXIT_CODE=${?}
 	printf "%13b:\t%b\n" "EXIT CODE" "${EXIT_CODE}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )

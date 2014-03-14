@@ -292,7 +292,6 @@ function _brunch_device () {
 		fi
 	else
 		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
-		_paste_log
 	fi
 }
 
@@ -304,10 +303,8 @@ function _move_build () {
 			CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		else
 			CURRENT_MOVE_BUILD_EXIT_CODE=1
-			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
+			_e_pending_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
 		fi
-	else
-		CURRENT_MOVE_BUILD_EXIT_CODE=0
 	fi
 }
 
@@ -316,8 +313,6 @@ function _pre_build_command () {
 		_e_pending "pre build command..."
 		_exec_command "${CURRENT_PRE_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your pre build command\"" "_e_success \"Succesfully run pre build command\""
 		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=$?
-	else
-		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
 	fi
 }
 
@@ -326,8 +321,6 @@ function _post_build_command () {
 		_e_pending "post build command..."
 		_exec_command "${CURRENT_POST_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your post build command\"" "_e_success \"Succesfully run post build command\""
 		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=$?
-	else
-		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
 	fi
 }
 
@@ -344,15 +337,13 @@ function _clean_old_builds () {
 			_exec_command "rm ${OLDFILE}"
 			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
 		done
-		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
-			_e_pending_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
+		if [ ! "${CURRENT_CLEANED_FILES}" ]; then
+			_e_pending_skipped "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_success "Cleanup finished, removed the following files: ${CURRENT_CLEANED_FILES}"
 		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
 			_e_pending_error "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
-	else
-		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 	fi
 }
 
@@ -406,8 +397,6 @@ function _send_mail () {
 			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
-	else
-		CURRENT_SEND_MAIL_EXIT_CODE=0
 	fi
 }
 
@@ -611,6 +600,8 @@ function _run_config () {
 	_brunch_device
 
 	_check_current_config
+
+	_paste_log
 
 	_send_mail
 
