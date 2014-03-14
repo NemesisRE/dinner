@@ -299,11 +299,12 @@ function _brunch_device () {
 function _move_build () {
 	if [ "${CURRENT_TARGET_DIR}" ]; then
 		if [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			_e_notice "Moving files to target directory..."
-			_exec_command "mv ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_warning \"Something went wrong while moving the build\""
+			_e_pending "Moving files to target directory..."
+			_exec_command "mv ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_pending_error \"Something went wrong while moving the build\"" "_e_pending_success \"Successfully moved build to ${CURRENT_TARGET_DIR}/\""
 			CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		else
-			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
+			CURRENT_MOVE_BUILD_EXIT_CODE=1
+			_e_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File." "${CURRENT_MOVE_BUILD_EXIT_CODE}"
 		fi
 	else
 		CURRENT_MOVE_BUILD_EXIT_CODE=0
@@ -334,15 +335,15 @@ function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}" ]; then
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR} \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -maxdepth 0 -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
+			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR} -maxdepth 0 \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
 		else
 			CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_OUTPUT_PATH} \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -maxdepth 0 -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
+			CURRENT_CLEANED_FILES=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 0 \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
 		fi
 		for OLDFILE in ${CURRENT_CLEANED_FILES}; do
 			_exec_command "rm ${OLDFILE}"
+			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
 		done
-		CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$?
 		if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ] && [ ! "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_success "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
