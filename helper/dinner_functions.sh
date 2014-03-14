@@ -292,6 +292,7 @@ function _brunch_device () {
 		fi
 	else
 		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
+		_e_error "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 	fi
 }
 
@@ -532,9 +533,7 @@ function _paste_log () {
 		printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
 		printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
 		eval "$(which curl) --data-urlencode text@${DINNER_TMP_DIR}/paste.log ${PASTE_URL}"
-		rm ${DINNER_TMP_DIR}/paste.log
-	else
-		_e_error "See logfiles for more information" "NULL" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+		_cleanup
 	fi
 }
 
@@ -600,8 +599,6 @@ function _run_config () {
 	_brunch_device
 
 	_check_current_config
-
-	_paste_log
 
 	_send_mail
 
