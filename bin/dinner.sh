@@ -139,7 +139,7 @@ if [[ ! $params ]]; then
 			case $sub_cmd in
 				add | del | edit | show)
 					help_cmd="$cmd $sub_cmd"; cmd="help"; exit_status=$EX_USAGE ;;
-				*) _e_fatal "Unknown subcommand '$1'" $EX_USAGE ;;
+				*) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 			esac ;;
 		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
