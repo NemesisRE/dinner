@@ -74,7 +74,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(addconfig make clearlogs changelog cook list update help)
+valid_commands=(config make clearlogs changelog cook update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -117,8 +117,8 @@ while [[ $# -gt 0 ]]; do
 			shift; continue ;;
 		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		update) _e_fatal "The 'update' command does not take any arguments" $EX_USAGE;;
-		addconfig)
-			[[ ! ${NEW_CONFIG_NAME} ]] && NEW_CONFIG_NAME=$1
+		config)
+			[[ ! ${sub_cmd} ]] && sub_cmd=$1 || params+=("$1")
 			shift; continue;;
 		help)
 			[[ ! $help_cmd ]] && help_cmd=$1
@@ -135,12 +135,34 @@ if [[ ! $params ]]; then
 				params+=("$name")
 			done < <(_print_configs) ;;
 		# These commands require parameters, show the help message instead
+		config)
+			case $sub_cmd in
+				add | del | edit | show)
+					help_cmd="$cmd $sub_cmd"; cmd="help"; exit_status=$EX_USAGE ;;
+				*) _e_fatal "Unknown subcommand '$1'" $EX_USAGE ;;
+			esac ;;
 		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
 case $cmd in
-	list)      printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
+	config)
+		case $sub_cmd in
+			list) printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
+			*)
+				for params in "${params[@]}"; do
+					case $sub_cmd in
+						add)
+							_add_device_config "$params";;
+						del)
+							_del_device_config "$params";;
+						edit)
+							[[ $EDITOR ]] && $EDITOR "$params" || vi "$params";;
+						show)
+							_show_device_config "$params";;
+					esac
+				done ;;
+		esac ;;
 	update)    _dinner_update ;;
 	help)      help $help_cmd ;;
 	addconfig) _add_device_config ${NEW_CONFIG_NAME} ;;

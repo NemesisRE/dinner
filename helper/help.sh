@@ -1,16 +1,22 @@
 #!/bin/bash
 
 function help {
-	if [[ $1 ]]; then
-		extended_help $1
-		exit $EX_SUCCESS
-	fi
+    [[ ${1} ]] && local TASK=${1}
+    [[ ${2} ]] && local SUBTASK=${2}
+    if [[ ${SUBTASK} ]]; then
+        extended_help ${TASK} ${SUBTASK}
+        exit $EX_SUCCESS
+    elif [[ ${TASK} ]]; then
+        extended_help ${TASK}
+        exit $EX_SUCCESS
+    fi
+
 printf "Dinner
 
 Usage: dinner [options] TASK
 
  Tasks:
-  dinner addconfig [EXISTING FILE]                   # Add an existing config from filesystem or create a new one
+  dinner config [SUBTASK] [EXISTING FILE]                   # Add an existing config from filesystem or create a new one
   dinner make [SUBTASK] [CONFIG ..]                  # Clean a menu
   dinner cook [CONFIG ..]                            # Clone URI as a menu for dinner
   dinner changelog [CONFIG ..]                       # Get changlog for config since last successfull build
@@ -26,22 +32,44 @@ Usage: dinner [options] TASK
    -v, [--verbose]    # Show full output
 
  Note:
-  To clean or cook all your menus
-  simply omit the MENU argument
+  To clean or cook all your configs
+  simply omit the CONFIG argument
 
 "
 }
 
 function help_err {
-	extended_help $1
-	exit $EX_USAGE
+    [[ ${1} ]] && local TASK=${1}
+    [[ ${2} ]] && local SUBTASK=${2}
+    if [[ ${SUBTASK} ]]; then
+        extended_help ${TASK} ${SUBTASK}
+        exit $EX_SUCCESS
+    elif [[ ${TASK} ]]; then
+        extended_help ${TASK}
+        exit $EX_SUCCESS
+    fi
 }
 
 function extended_help {
-	case $1 in
-		addconfig)
-      printf "Add an existing config or create a new one \n"
-      printf "Usage:\n  dinner addconfig [EXISTING FILE or CONFIG NAME]"
+    [[ ${1} ]] && local TASK=${1}
+    [[ ${2} ]] && local SUBTASK=${2}
+    case ${TASK} in
+	config)
+	    if [[ ${SUBTASK} ]]; then
+		case ${SUBTASK} in
+		    add)
+			;;
+		    edit)
+			;;
+		    list)
+			;;
+		    show)
+			;;
+		esac
+	    fi
+      printf "With with this task you can do different things with your configs\n"
+      printf "Subtasks: add | list | show | edit \n"
+      printf "Usage:\n  dinner config [SUBTASK]"
       ;;
 		make)
       printf "Triggers \"make clean\" or \"make installclean\" for the given config(s)\n"
