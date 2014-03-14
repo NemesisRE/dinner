@@ -5,7 +5,7 @@
 #
 # Copyright 2013, Steven Koeberich (nemesissre@gmail.com)
 #
-# Title:			dinner.sh
+# Title:			Dinner
 # Author:			Steven "NemesisRE" Koeberich
 # Author URL:		https://nrecom.net
 # Contributors:		ToeiRei
@@ -24,7 +24,7 @@
 # GNU General Public License at (http://www.gnu.org/licenses/) for
 # more details.
 
-#set -e 	#do not enable otherwise brunch will fail
+
 #set -x
 
 DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
@@ -173,7 +173,7 @@ case $cmd in
 						edit)
 							[[ $EDITOR ]] && $EDITOR "$params" || vi "$params";;
 						show)
-							_show_device_config "$params";;
+							cat .dinner/config.d/clean_omni_d802 | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//' "$params";;
 					esac
 				done
 				;;

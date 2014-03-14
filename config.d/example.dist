@@ -22,9 +22,11 @@
 ### Repository sync settings
 ###
 ##LOCAL_MANIFEST[0]=''									#% Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
-##LOCAL_MANIFEST[1]=''									#% Another Local manifest line, add as many as you want.
-##REPOPICK[0]=''										#% Space separeted list of gerrit change ID's which will be cherrypicked
-##REPOPICK[1]=''										#% The same like manifest
+##LOCAL_MANIFEST[1]=''									#% Another Local manifest line, add as many as you need.
+##REPOPICK[0]=''										#% Gerrit change ID which will be cherrypicked
+##REPOPICK[1]=''										#% Another Gerrit change ID, add as many as you need.
+##CHERRYPICK[0]=''										#% No function at the moment, use REPOPICK
+##CHERRYPICK[1]=''										#%
 
 
 #############################################

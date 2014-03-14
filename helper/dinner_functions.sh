@@ -3,6 +3,28 @@
 #
 # vim: ai:ts=4:sw=4:noet:sts=4:ft=sh
 #
+# Copyright 2013, Steven Koeberich (nemesissre@gmail.com)
+#
+# Title:			Dinner
+# Author:			Steven "NemesisRE" Koeberich
+# Author URL:		https://nrecom.net
+# Source URL:		https://github.com/NemesisRE/dinner
+# Contributors:		ToeiRei
+# Creation Date:	20131117
+# Version:			2.0
+# Description:		Builds Roms automatically
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License at (http://www.gnu.org/licenses/) for
+# more details.
+
 
 function _dinner_update () {
 	_e_pending "Checking for updates"
@@ -58,6 +80,7 @@ function _add_device_config () {
 		if [ "$(sed -n '1{p;q;}' ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
 			[[ "$(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME})" != "${DINNER_CONFIG_VERSION}" ]] && _e_pending_fatal "Config version differs from current version" "Version of ${DEVICE_CONFIG_NAME}: $(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME} | awk -F_ '{print $3}')" "Current version: $(echo ${DINNER_CONFIG_VERSION} | awk -F_ '{print $3}')"
 			if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
+				unset ANSWER
 				_e_pending_warn "Config with the same name already existing"
 				_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
 				read -n1 ANSWER
@@ -75,6 +98,7 @@ function _add_device_config () {
 		fi
 	else
 		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
+			unset ANSWER
 			_e_warn "Config with the same name already existing"
 			_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
 			read -n1 ANSWER
@@ -110,6 +134,24 @@ function _add_device_config () {
 		printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
 		exit 0
 	fi
+}
+
+function _del_device_config () {
+	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
+	if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
+		unset ANSWER
+		_e_pending "Are you sure you want to remove config \"${DEVICE_CONFIG_NAME}\"? (y/N): "  "ACTION" "${BLYLW}" "0"
+		read -n1 ANSWER
+		if ! [[ "${ANSWER}" =~ [yY] ]]; then
+			_e_pending_skipped "Did not remove config \"${DEVICE_CONFIG_NAME}\""
+		else
+			rm ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+			_e_pending_success "Successfully removed config \"${DEVICE_CONFIG_NAME}\""
+		fi
+	else
+		_e_warn "Config \"${DEVICE_CONFIG_NAME}\" does not exist."
+	fi
+	exit 0
 }
 
 function _check_prerequisites () {
