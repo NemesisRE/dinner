@@ -198,10 +198,6 @@ function _set_current_variables () {
 
 function _check_variables () {
 	# Check essentials
-	if [ ! ${REPO_BIN} ] || [ ! -x ${REPO_BIN} ]; then
-		_e_fatal "Repo binary (${REPO_BIN}) is not found or not executable!"
-	fi
-
 	if [ ! "${REPO_DIR}" ]; then
 		_e_fatal "REPO_DIR is not set!"
 	elif [ ! ${BRUNCH_DEVICE} ]; then

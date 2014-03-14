@@ -43,7 +43,15 @@ trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" INT SIGINT
 
 exit_status=$EX_SUCCESS
 
-test -x $(which repo) && REPO_BIN=$(which repo) || _e_fatal "repo not found in path" $EX_SOFTWARE
+if [ -x ${DINNER_DIR}/bin/repo ]; then
+	REPO_BIN=${DINNER_DIR}/bin/repo
+elif [ -x $(which repo) ]; then
+	REPO_BIN=$(which repo)
+else
+	curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo
+	chmod a+x ${DINNER_DIR}/bin/repo
+	REPO_BIN=${DINNER_DIR}/bin/repo
+fi
 test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "md5sum not found in path" $EX_SOFTWARE
 test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "Mutt not found, will not send E-Mails..."
 test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal " not found in path" $EX_SOFTWARE
