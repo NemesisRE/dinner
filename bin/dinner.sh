@@ -128,7 +128,6 @@ while [[ $# -gt 0 ]]; do
 		clearlogs)
 			[[ ! ${older_than} ]] && older_than="$1" || params+=("$1")
 			shift; continue ;;
-		list) _e_fatal "The 'list' command does not take any arguments" $EX_USAGE;;
 		update) _e_fatal "The 'update' command does not take any arguments" $EX_USAGE;;
 		config)
 			[[ ! ${sub_cmd} ]] && sub_cmd=$1 || params+=("$1")
@@ -161,7 +160,7 @@ fi
 case $cmd in
 	config)
 		case $sub_cmd in
-			list) printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
+			*list*) printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n" ;;
 			*)
 				for params in "${params[@]}"; do
 					case $sub_cmd in
@@ -174,8 +173,10 @@ case $cmd in
 						show)
 							_show_device_config "$params";;
 					esac
-				done ;;
-		esac ;;
+				done
+				;;
+		esac
+		;;
 	update)    _dinner_update ;;
 	help)      help $help_cmd ;;
 	addconfig) _add_device_config ${NEW_CONFIG_NAME} ;;
