@@ -13,7 +13,7 @@
 ### Necessary Variables per config
 ###
 #REPO_URL=""											#% Repository URL (e.g. "https://github.com/omnirom/android.git")
-#BRANCH=""												#% The branch of the repository (e.g. "android-4.4")
+#REPO_BRANCH=""												#% The branch of the repository (e.g. "android-4.4")
 #REPO_DIR=""											#% Path to repository (e.g. "${HOME}/android/omni")
 #BRUNCH_DEVICE=""										#% Device to build for (e.g. "i9300")
 
@@ -34,9 +34,10 @@
 ###
 ##SKIP_SYNC_TIME=''										#% if synced in the last given seconds set skip sync true %(Default: "1800")
 ##SYNC_PARAMS=''										#% Override syn parameters %(Default: '-q -j100' )
-##DINNER_USE_CCACHE=''									#% Use ccache or not 1/0 %(Default: 1)
+##DINNER_USE_JAVA=""									#% Will check for the right java version and abort if it's not %(Default: "1.6")
+##DINNER_USE_CCACHE=''									#% Use ccache or not 1(YES)/0(NO) %(Default: "1")
 ##DINNER_CCACHE_DIR=''									#% Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
-##DINNER_CCACHE_SIZE=''									#% Change ccache max cache size in gigabytes recomended are 25G %(Default: ccache default=1G )
+##DINNER_CCACHE_SIZE=''									#% Change ccache max cache size in gigabytes recomended are min. 25G %(Default: ccache default=1G )
 
 
 #############################################

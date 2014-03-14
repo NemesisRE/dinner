@@ -183,7 +183,22 @@ function _check_prerequisites () {
 
 	_check_variables
 
+	if [ ! -d ${REPO_DIR} ] || [ ! -d ${REPO_DIR}/.repo ]; then
+		if [ ${REPO_BRANCH} ] && [ ${REPO_URL} ];then
+			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
+			_exec_command "repo init -u ${REPO_URL} -b ${REPO_BRANCH}"
+			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_fatal \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+		else
+			_e_fatal "${REPO_DIR} is not a Repo, REPO_URL/REPO_BRANCH not given can't init repo."
+		fi
+	fi
+
 	_source_envsetup
+
+	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
+		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}" "_e_error \"There was an error while setting ccache size, take a look into the logs.\""
+	fi
 
 	if [ -x ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
 		_exec_command "${REPO_DIR}/vendor/cm/get-prebuilts"
@@ -194,6 +209,35 @@ function _check_prerequisites () {
 	_exec_command "cd \"${REPO_DIR}\""
 
 	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
+}
+
+function _check_variables () {
+	# Check essentials
+	if [ ! "${REPO_DIR}" ]; then
+		_e_fatal "REPO_DIR is not set!"
+	elif [ ! ${BRUNCH_DEVICE} ]; then
+		_e_fatal "No BRUNCH_DEVICE given!"
+	elif [ ! ${REPO_BRANCH} ]; then
+		_e_warn "No REPO_BRANCH given, dinner won't be able to init the repo!"
+	elif [ ! ${REPO_URL} ]; then
+		_e_warn "No REPO_URL given, dinner won't be able to init the repo!"
+	fi
+
+	if [ ${SKIP_SYNC_TIME} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
+		_e_error "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
+		SKIP_SYNC_TIME="1800"
+	fi
+
+	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
+
+	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_DIR}
+
+	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
+		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
+		CLEANUP_OLDER_THAN=""
+	fi
+
+	[[ ${TARGET_DIR} ]] && TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 }
 
 function _source_envsetup () {
@@ -236,35 +280,6 @@ function _set_current_variables () {
 	eval CURRENT_STATUS="failed"
 	[[ ${CURRENT_CHANGELOG_ONLY} ]] && CURRENT_CHANGELOG_ONLY="true" || CURRENT_CHANGELOG_ONLY="false"
 	[[ ${CURRENT_MAKE_ONLY} ]] && CURRENT_MAKE_ONLY="true" || CURRENT_MAKE_ONLY="false"
-}
-
-function _check_variables () {
-	# Check essentials
-	if [ ! "${REPO_DIR}" ]; then
-		_e_fatal "REPO_DIR is not set!"
-	elif [ ! ${BRUNCH_DEVICE} ]; then
-		_e_fatal "No Device given! Stopping..."
-	fi
-
-	if [ ${SKIP_SYNC_TIME} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
-		_e_error "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
-		SKIP_SYNC_TIME="1800"
-	fi
-
-	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
-
-	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_DIR}
-
-	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
-		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}" "_e_error \"There was an error while setting ccache size, take a look into the logs.\""
-	fi
-
-	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
-		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
-		CLEANUP_OLDER_THAN=""
-	fi
-
-	[[ ${TARGET_DIR} ]] && TARGET_DIR=$(echo "${TARGET_DIR}"|sed 's/\/$//g')
 }
 
 function _sync_repo () {

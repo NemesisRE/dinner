@@ -141,7 +141,7 @@ function _e_fatal () {
 	unset EXIT_MESSAGE EXIT_CODE
 	[[ ${1} ]] && local FATAL_MESSAGE=${1}
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="${2}" && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "${BLDPUR}" "ABORT" "${FATAL_MESSAGE} ${EXIT_MCODE}" "Stopping..." "${@}"
+	_e "${BLDPUR}" "ABORT" "${FATAL_MESSAGE} ${EXIT_MCODE}" "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}" "Stopping..." "${@}"
 	exit ${EXIT_CODE:-1}
 }
 
