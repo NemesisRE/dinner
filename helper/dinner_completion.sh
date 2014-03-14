@@ -116,10 +116,10 @@ _dinner_complete()
 		# Offer command argument completions.
 		case "$cmd" in
 			config)
-				if (( $COMP_CWORD == $cmd_index + 1 )); then
+				prev="${COMP_WORDS[COMP_CWORD-1]}"
+				if [ "$prev" = "config" ]; then
 					COMPREPLY=($(compgen -W "$config_subs" -- $cur))
-				elif (( $COMP_CWORD == $cmd_index + 2 )); then
-					prev="${COMP_WORDS[COMP_CWORD-1]}"
+				else
 					case $prev in
 						add)
 							[ $_DINNER_HAS_COMPOPT ] && compopt -o default
