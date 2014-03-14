@@ -17,7 +17,7 @@ function _e {
 	local STATUS_NAME=${2}
 	local STATUS_MESSAGE=${3}
 	shift 3
-	if ! ${DINNER_CRON:-"false"}; then
+	if ! ${DINNER_CRON}; then
 		printf "${STATUS_COLOR}%${HALIGN}b:\t%b\n${TXTDEF}" "${STATUS_NAME}" "${STATUS_MESSAGE}"
 		printf "%${HALIGN}b:\t%b\n" "${STATUS_NAME}" "${STATUS_MESSAGE}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
 
@@ -29,7 +29,7 @@ function _e {
 }
 
 function _e_pending {
-	if ! ${DINNER_CRON:-"false"}; then
+	if ! ${DINNER_CRON}; then
 		unset PENDING_MESSAGE PENDING_STATUS PENDING_COLOR PENDING_SLEEP
 		[[ ${1} ]] && local PENDING_MESSAGE=${1}
 		[[ ${2} ]] && local PENDING_STATUS=${2} || local PENDING_STATUS="RUNNING"
@@ -131,10 +131,10 @@ function _exec_command () {
 	local COMMAND=${1}
 	[[ ${2} ]] && local FAIL=${2} || local FAIL="NOTSET"
 	[[ ${3} ]] && local SUCCESS=${3} || local SUCCESS="NOTSET"
-	if ${SHOW_VERBOSE:-"false"}; then
+	if ${SHOW_VERBOSE}; then
 		# log STDOUT and STDERR, send both to STDOUT
 		_e "\n${BLDYLW}" "COMMAND" "${COMMAND}"
-		eval "${COMMAND} 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}) &>>(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log})"
+		eval "${COMMAND} &> >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ) 2> >( tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )"
 	else
 		# log STDOUT and STDERR but send only STDERR to STDOUT
 		printf "%13b:\t%b\n" "COMMAND" "${COMMAND}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
