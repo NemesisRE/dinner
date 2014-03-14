@@ -190,7 +190,7 @@ case $cmd in
 							_e_error "These configs failed:" "${FAILED_CONFIGS}"
 						fi
 						if [ "${WARNING_CONFIGS}" ]; then
-							_e_error "These configs had warnings:" "${WARNING_CONFIGS}"
+							_e_warn "These configs had warnings:" "${WARNING_CONFIGS}"
 						fi
 						if [ "${SUCCESS_CONFIGS}" ]; then
 							_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"

@@ -231,10 +231,10 @@ function _check_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${FORCE_SYNC:-"false"} && ! ${SKIP_SYNC:-"false"} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME:-"1800"} ]; then
-		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME:-\"1800\"} seconds."
+	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]; then
+		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
-		if ${FORCE_SYNC:-"false"} || ! ${SKIP_SYNC:-"false"}; then
+		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
@@ -242,7 +242,6 @@ function _sync_repo () {
 			fi
 		else
 			_e_pending_skipped "Skipping repo sync..."
-			CURRENT_SYNC_REPO_EXIT_CODE=0
 		fi
 	fi
 }
@@ -255,7 +254,7 @@ function _repo_pick () {
 				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}"
 			done
 		else
-			_e_error "Could not find repopick.py, cannot make a repopick."
+			_e_warn "Could not find repopick.py, cannot make a repopick."
 		fi
 	fi
 }
@@ -265,9 +264,6 @@ function _get_breakfast_variables () {
 	for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)' &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log})); do
 		eval "${VARIABLE}"
 	done
-
-	DINNER_DEVICE_PATH="${REPO_DIR}/device/$(echo $TARGET_PRODUCT | awk -F_ '{ print $2 }')"
-
 	_e_pending_success "Breakfast finished"
 }
 
@@ -285,10 +281,6 @@ function _brunch_device () {
 			_post_build_command
 			_move_build
 			_clean_old_builds
-		else
-			CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
-			CURRENT_MOVE_BUILD_EXIT_CODE=0
-			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
 		fi
 	else
 		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
@@ -304,7 +296,7 @@ function _move_build () {
 			CURRENT_MOVE_BUILD_EXIT_CODE=$?
 		else
 			CURRENT_MOVE_BUILD_EXIT_CODE=1
-			_e_pending_error "${CURRENT_TARGET_DIR}/ is not a Directory. Will not move the File."
+			_e_pending_warn "${CURRENT_TARGET_DIR}/ is not a Directory."
 		fi
 	fi
 }
@@ -312,7 +304,7 @@ function _move_build () {
 function _pre_build_command () {
 	if [ ${CURRENT_PRE_BUILD_COMMAND} ]; then
 		_e_pending "pre build command..."
-		_exec_command "${CURRENT_PRE_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your pre build command\"" "_e_success \"Succesfully run pre build command\""
+		_exec_command "${CURRENT_PRE_BUILD_COMMAND}" "_e_warn \"Something went wrong while running your pre build command\"" "_e_success \"Succesfully run pre build command\""
 		CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=$?
 	fi
 }
@@ -320,7 +312,7 @@ function _pre_build_command () {
 function _post_build_command () {
 	if [ ${CURRENT_POST_BUILD_COMMAND} ]; then
 		_e_pending "post build command..."
-		_exec_command "${CURRENT_POST_BUILD_COMMAND}" "_e_warning \"Something went wrong while running your post build command\"" "_e_success \"Succesfully run post build command\""
+		_exec_command "${CURRENT_POST_BUILD_COMMAND}" "_e_warn \"Something went wrong while running your post build command\"" "_e_success \"Succesfully run post build command\""
 		CURRENT_POST_BUILD_COMMAND_EXIT_CODE=$?
 	fi
 }
@@ -343,7 +335,7 @@ function _clean_old_builds () {
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
 		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-			_e_pending_error "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
+			_e_pending_warn "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
 	fi
 }
