@@ -185,7 +185,6 @@ case $cmd in
 				if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 					_e "${BLDGRN}" "SUCCESS" "=== YEAH all configs finished sucessfull! ==="
 					_e "${BLDGRN}" "SUCCESS" "These configs were successfull:" "${SUCCESS_CONFIGS}"
-					exit 0
 				else
 					_e_error "=== DAMN something went wrong ==="
 					if [ "${FAILED_CONFIGS}" ]; then
