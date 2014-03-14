@@ -69,16 +69,16 @@ function _e_pending_warn () {
 function _e_pending_error () {
 	unset PENDING_ERROR_MESSAGE EXIT_CODE
 	[[ ${1} ]] && local PENDING_ERROR_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "\r\033[K${BLDRED}" "ERROR" "${PENDING_ERROR_MESSAGE} ${EXIT_CODE}" "${@}"
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	_e "\r\033[K${BLDRED}" "ERROR" "${PENDING_ERROR_MESSAGE} ${EXIT_MCODE}" "${@}"
 }
 
 function _e_pending_fatal () {
 	unset PENDING_FATAL_MESSAGE EXIT_CODE
 	[[ ${1} ]] && local PENDING_FATAL_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "\r\033[K${BLDPUR}" "ABORT" "${PENDING_FATAL_MESSAGE} ${EXIT_CODE}" "Stopping..." "${@}"
-	exit ${2:-1}
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="${2}" && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	_e "\r\033[K${BLDPUR}" "ABORT" "${PENDING_FATAL_MESSAGE} ${EXIT_MCODE}" "Stopping..." "${@}"
+	exit ${EXIT_CODE:-1}
 }
 
 function _e_notice () {
@@ -108,16 +108,16 @@ function _e_warn () {
 function _e_error () {
 	unset EXIT_MESSAGE EXIT_CODE ERROR_MESSAGE
 	[[ ${1} ]] && local ERROR_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "${BLDRED}" "ERROR" "${ERROR_MESSAGE} ${EXIT_CODE}" "${@}"
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	_e "${BLDRED}" "ERROR" "${ERROR_MESSAGE} ${EXIT_MCODE}" "${@}"
 }
 
 function _e_fatal () {
 	unset EXIT_MESSAGE EXIT_CODE
 	[[ ${1} ]] && local FATAL_MESSAGE=${1}
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="(Exit Code ${2})" && shift 2 || shift 1
-	_e "${BLDPUR}" "ABORT" "${FATAL_MESSAGE} ${EXIT_CODE}" "Stopping..." "${@}"
-	exit ${2:-1}
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && local EXIT_CODE="${2}" && local EXIT_MCODE="(Exit Code ${2})" && shift 2 || shift 1
+	_e "${BLDPUR}" "ABORT" "${FATAL_MESSAGE} ${EXIT_MCODE}" "Stopping..." "${@}"
+	exit ${EXIT_CODE:-1}
 }
 
 ##
