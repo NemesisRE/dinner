@@ -56,6 +56,7 @@ function _add_device_config () {
 	if [ -f ${DEVICE_CONFIG_NAME} ]; then
 		_e_pending "Adding config..."
 		if [ "$(head -1 ${DEVICE_CONFIG_NAME})" = "${DINNER_CONFIG_HEADER}" ]; then
+			[[ "$(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME})" != "${DINNER_CONFIG_VERSION}" ]] && _e_pending_fatal "Config version differs from current version" "Version of ${DEVICE_CONFIG_NAME}: $(sed -n '2{p;q;}' ${DEVICE_CONFIG_NAME})" "Current version: ${DINNER_CONFIG_VERSION}"
 			if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ] && $(diff ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} >/dev/null); then
 				_e_pending_warn "Config with the same name already existing"
 				_e_pending "Do you want to overwrite it? (y/N): "  "ACTION" "${BLDWHT}" "0"
@@ -86,6 +87,7 @@ function _add_device_config () {
 			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		fi
 		printf "${DINNER_CONFIG_HEADER}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		printf "${DINNER_CONFIG_VERSION}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
 		IFS=$'\n'
 		printf "${BLDWHT}%$((HALIGN+1))s\t%s${TXTDEF}\n" " " "Lets define the basic variables."
