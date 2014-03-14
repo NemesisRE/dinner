@@ -99,10 +99,10 @@ function _add_device_config () {
 				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
 				read UVY
 			done
-			[[ ${USERVALUE} ]] && printf "${VARIABLE}=\"${USERVALUE}\"\t\t\t\t\t#% ${VARIABLE_DESC:-No Description available}\n" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+			[[ ${USERVALUE} ]] && printf "%s\t\t\t\t\t%s\n" "${VARIABLE}=\"${USERVALUE}\"" "#% ${VARIABLE_DESC:-No Description available}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
 		IFS=$old_IFS
-		cat ${DINNER_CONF_DIR}/example.dist sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		cat ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Here is your new config (${DEVICE_CONFIG_NAME}):"
 		cat ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}"
 		exit 0
