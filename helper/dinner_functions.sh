@@ -105,7 +105,7 @@ function _add_device_config () {
 		IFS=$old_IFS
 		cat ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Succesfully created config \"${DEVICE_CONFIG_NAME}\""
-		printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
+		printf "${BLDWHT}%$((HALIGN+1))s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
 		exit 0
 	fi
 }
