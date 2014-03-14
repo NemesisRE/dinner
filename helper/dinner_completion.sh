@@ -71,8 +71,8 @@ _dinner_complete()
 		update
 		help
 	'
-	local -r short_opts='-v    -s    -c    -q'
-	local -r long_opts='--verbose --skip-sync --clean --quiet'
+	local -r short_opts='-d    -f    -v    -s    -c    -q'
+	local -r long_opts='--detach --force-sync --verbose --skip-sync --clean --quiet'
 	local -r make_subs='clean installclean'
 	local -r config_subs='add del edit list show'
 

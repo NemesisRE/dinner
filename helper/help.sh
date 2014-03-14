@@ -16,7 +16,7 @@ printf "Dinner
 Usage: dinner [options] TASK
 
 Tasks:
-dinner config [SUBTASK] [EXISTING FILE]                   # Add an existing config from filesystem or create a new one
+dinner config [SUBTASK] [EXISTING FILE]            # Add an existing config from filesystem or create a new one
 dinner make [SUBTASK] [CONFIG ..]                  # Clean a menu
 dinner cook [CONFIG ..]                            # Clone URI as a menu for dinner
 dinner changelog [CONFIG ..]                       # Get changlog for config since last successfull build
@@ -27,6 +27,8 @@ dinner help [TASK]                                 # Show usage of a task
 
 Runtime options:
 -c, [--clean]      # Run make clean before starting brunch
+-d, [--detach]     # Will add "-d" to SYNC_PARAMS of repo sync
+-f, [--force-sync] # Force repo sync
 -q, [--quiet]      # Quiet no output except errors (for cron)
 -s, [--skip-sync]  # Skip sync
 -v, [--verbose]    # Show full output
