@@ -58,6 +58,8 @@ function extended_help {
 	    if [[ ${SUBTASK} ]]; then
 		case ${SUBTASK} in
 		    add)
+			printf "With with this task you can add excisting or generate new configs\n"
+			printf "Usage:\n  dinner config add [CONFIGNAME ]"
 			;;
 		    edit)
 			;;
@@ -66,10 +68,11 @@ function extended_help {
 		    show)
 			;;
 		esac
+	    else
+		printf "With with this task you can do different things with your configs\n"
+		printf "Subtasks: add | list | show | edit \n"
+		printf "Usage:\n  dinner config [SUBTASK]"
 	    fi
-      printf "With with this task you can do different things with your configs\n"
-      printf "Subtasks: add | list | show | edit \n"
-      printf "Usage:\n  dinner config [SUBTASK]"
       ;;
 		make)
       printf "Triggers \"make clean\" or \"make installclean\" for the given config(s)\n"
