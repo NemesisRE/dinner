@@ -130,12 +130,12 @@ _dinner_complete()
 							;;
 						edit)
 							if (( $COMP_CWORD == $cmd_index + 3 )); then
-								COMPREPLY=($(_dinner_complete_configs "$cur"))
+								COMPREPLY=( _dinner_complete_configs "$cur" )
 							fi
 							;;
 						show)
 							if (( $COMP_CWORD == $cmd_index + 3 )); then
-								COMPREPLY=($(_dinner_complete_configs "$cur"))
+								COMPREPLY=( _dinner_complete_configs "$cur" )
 							fi
 							;;
 					esac
@@ -165,7 +165,12 @@ _dinner_complete()
 				;;
 			help)
 				# Offer exactly one command name completion.
-				if (( $COMP_CWORD == $cmd_index + 1 )); then
+				prev="${COMP_WORDS[COMP_CWORD-1]}"
+				if [ "$prev" = "config" ]; then
+					COMPREPLY=($(compgen -W "$config_subs" -- $cur))
+				elif [ "$prev" = "make" ]; then
+					COMPREPLY=($(compgen -W "$make_opts" -- $cur))
+				else
 					COMPREPLY=($(compgen -W "$cmds" -- "$cur"))
 				fi
 				;;
