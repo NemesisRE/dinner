@@ -524,7 +524,7 @@ function _check_current_config () {
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
-		_set_lastbuild
+		echo $(date +%m/%d/%Y) > ${CURRENT_LASTBUILD_MEM}
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		WARNING_CONFIGS="${WARNING_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
@@ -536,10 +536,6 @@ function _check_current_config () {
 		_e_warn "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
 	fi
 	DINNER_EXIT_CODE=$((${DINNER_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
-}
-
-function _set_lastbuild () {
-	echo $(date +%m/%d/%Y) > ${CURRENT_LASTBUILD_MEM}
 }
 
 function _get_changelog () {
@@ -596,7 +592,6 @@ function _get_changelog () {
 			continue
 		fi
 	fi
-
 }
 
 function _cleanup () {
@@ -621,7 +616,6 @@ function _cleanup () {
 	for ENV_VAR in ${BACKUP_ENV[@]}; do
 		_exec_command "export ${ENV_VAR}"
 	done
-
 }
 
 function _find_last_errlog () {
@@ -633,7 +627,7 @@ function _find_last_errlog () {
 	else
 		local CONFIG="dinner_*_error.log"
 	fi
-	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
+	_paste_log $(find ${DINNER_LOG_DIR}/ -mindepth 1 -maxdepth 1 -type f -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
 }
 
 function _paste_log () {
