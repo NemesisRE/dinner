@@ -194,7 +194,7 @@ case $cmd in
 		esac
 		;;
 	update)    _dinner_update ;;
-	help)      help $help_cmd $sub_cmd;;
+	help)      help $help_cmd ${params[@]} ;;
 	addconfig) _add_device_config ${NEW_CONFIG_NAME} ;;
 	*)
 		for params in "${params[@]}"; do
