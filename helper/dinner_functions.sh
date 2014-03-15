@@ -626,11 +626,10 @@ function _cleanup () {
 
 function _find_last_errlog () {
 	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
-		_paste_log
+		_paste_log ${DINNER_LOG_DIR}/dinner_error.log
 		continue
 	elif [[ ${1} ]]; then
 		local CONFIG="dinner_*${1}*_error.log"
-
 	else
 		local CONFIG="dinner_*_error.log"
 	fi
@@ -638,7 +637,7 @@ function _find_last_errlog () {
 }
 
 function _paste_log () {
-	[[ ${1} ]] && local PASTE_LOG="${1}" || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+	[[ ${1} ]] && local PASTE_LOG="${1}"
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && PASTE_LINES=${2}
 	if [ ${PASTE_LOG} ]; then
 		tail -${PASTE_LINES} ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
