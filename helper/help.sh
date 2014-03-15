@@ -104,6 +104,11 @@ function extended_help {
 						printf "This will print all declared variables in the given config\n"
 						printf "Usage:\n  dinner config show [CONFIGNAME]"
 						;;
+					*)
+						printf "\"${SUBTASK}\" is not a subcommand of ${TASK} \n"
+						printf "Subtasks: add | del | edit | list | show \n"
+						printf "Usage:\n  dinner config [SUBTASK]"
+						;;
 				esac
 			else
 				printf "With this task you can do different things with your configs\n"
