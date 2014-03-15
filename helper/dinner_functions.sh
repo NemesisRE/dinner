@@ -186,7 +186,8 @@ function _check_prerequisites () {
 	_check_variables
 
 	if [ ! -d ${REPO_DIR} ] || [ ! -d ${REPO_DIR}/.repo ]; then
-		if [ ${REPO_BRANCH} ] && [ ${REPO_URL} ];then
+		_exec_command "mkdir -p ${REPO_DIR}"
+		if [ -d ${REPO_DIR} ] && [ ${REPO_BRANCH} ] && [ ${REPO_URL} ];then
 			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
 			_exec_command "repo init -u ${REPO_URL} -b ${REPO_BRANCH}"
 			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
