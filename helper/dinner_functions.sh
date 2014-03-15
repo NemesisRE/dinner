@@ -100,10 +100,10 @@ function _add_device_config () {
 			[[ ${USERVALUE} ]] && $(which sed) -i "s/^REPO_DIR=\(\"\|\'\).*\(\"\|\'\)\(.*\)/REPO_DIR=\"${USERVALUE}\"\3/g" ${DEVICE_CONFIG_NAME}
 			_exec_command "cp ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
 			printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
-			exit 0
+			continue
 		else
 			_e_pending_error "${DEVICE_CONFIG_NAME} is not a valid dinner config."
-			exit 1
+			continue
 		fi
 	else
 		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
@@ -113,7 +113,7 @@ function _add_device_config () {
 			read -n1 ANSWER
 			if ! [[ "${ANSWER}" =~ [yY] ]]; then
 				_e_pending_skipped "Will not overwrite existing config"
-				exit 0
+				continue
 			fi
 			_e_pending_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		else
@@ -212,7 +212,7 @@ function _check_prerequisites () {
 	_source_envsetup
 
 	if [ ${DINNER_CCACHE_SIZE} ] && [ -z ${DINNER_CCACHE_SIZE##*[!0-9]*} ]; then
-		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}" "_e_error \"There was an error while setting ccache size, take a look into the logs.\""
+		_exec_command "${REPO_DIR}/prebuilts/misc/linux-x86/ccache/ccache -M ${DINNER_CCACHE_SIZE}" "_e_warn \"There was an error while setting ccache size, take a look into the logs.\""
 	fi
 
 	if [ -x ${REPO_DIR}/vendor/cm/get-prebuilts ]; then
@@ -243,7 +243,7 @@ function _check_variables () {
 	fi
 
 	if [ ${SKIP_SYNC_TIME} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
-		_e_error "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
+		_e_warn "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
 		SKIP_SYNC_TIME="1800"
 	fi
 
@@ -252,7 +252,7 @@ function _check_variables () {
 	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_DIR}
 
 	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
-		_e_error "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
+		_e_warn "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
 		CLEANUP_OLDER_THAN=""
 	fi
 
@@ -483,7 +483,7 @@ function _dinner_make {
 	if [ ${CURRENT_DINNER_MAKE} ]; then
 		CURRENT_BUILD_SKIPPED=true
 		_e_pending "make ${CURRENT_DINNER_MAKE}..."
-		_exec_command "make ${CURRENT_DINNER_MAKE}" '_e_pending_error "Failed"' '_e_pending_success "Done"'
+		_exec_command "make ${CURRENT_DINNER_MAKE}" '_e_pending_warn "make ${CURRENT_DINNER_MAKE} has failed"' '_e_pending_success "Successfully run make ${CURRENT_DINNER_MAKE}"'
 		if ${CURRENT_MAKE_ONLY}; then
 			_check_current_config
 			continue
@@ -507,12 +507,12 @@ function _check_current_config () {
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		WARNING_CONFIGS="${WARNING_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
-		_e_error "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
+		_e_warn "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ! ${CURRENT_BUILD_STATUS}; then
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
 	else
-		_e_error "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
+		_e_warn "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
 	fi
 	DINNER_EXIT_CODE=$((${DINNER_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
@@ -558,7 +558,7 @@ function _get_changelog () {
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_error "No Changelog found"
+[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 			continue
 		else
@@ -570,7 +570,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_error "No Changelog found"
+		[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 			continue
 		fi
