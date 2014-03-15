@@ -216,9 +216,11 @@ case $cmd in
 						_e_success "=== YEAH all configs finished sucessfull! ==="
 						_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					else
-						_e_error "=== DAMN something went wrong ==="
 						if [ "${FAILED_CONFIGS}" ]; then
+							_e_error "=== DAMN something went wrong ==="
 							_e_error "These configs failed:" "${FAILED_CONFIGS}"
+						else
+							_e_warn "=== DAMN something went wrong ==="
 						fi
 						if [ "${WARNING_CONFIGS}" ]; then
 							_e_warn "These configs had warnings:" "${WARNING_CONFIGS}"
