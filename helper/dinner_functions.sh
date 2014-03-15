@@ -620,7 +620,7 @@ function _cleanup () {
 
 function _find_last_errlog () {
 	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
-		_paste_log ${DINNER_LOG_DIR}/dinner_error.log
+		_paste_log ${DINNER_LOG_DIR}/dinner_error.log ${2}
 		continue
 	elif [[ ${1} ]]; then
 		local CONFIG="dinner_*${1}*_error.log"

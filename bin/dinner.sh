@@ -194,7 +194,7 @@ case $cmd in
 		;;
 	update)    _dinner_update ;;
 	help)      help $help_cmd ${params[@]} ;;
-	pastelog)     _find_last_errlog "$params" ;;
+	pastelog)     _find_last_errlog ${params[@]} ;;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
@@ -202,7 +202,6 @@ case $cmd in
 				changelog)    _run_config $cmd "$params"                  ;;
 				cook)         _run_config $cmd "$params"                  ;;
 				clearlogs)    _clear_logs "$older_than" "$params"         ;;
-				pastelog)     _find_last_errlog "$params"                 ;;
 			esac
 			echo " "
 		done
