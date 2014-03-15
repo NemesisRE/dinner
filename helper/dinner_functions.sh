@@ -607,8 +607,8 @@ function _cleanup () {
 		tail -100 ${DINNER_LOG_DIR}/remove_error.log > dinner_error.log
 	fi
 
-	_exec_command "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm -v {} \;"
-	_exec_command "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_error.log ! -name dinner.log -type f -exec rm -v {} \;"
+	_exec_command "find ${DINNER_MEM_DIR}/ $(_print_configs '! -name \"*%s*\" ') ! -name .empty -type f -exec rm -v {} \;"
+	_exec_command "find ${DINNER_LOG_DIR}/ $(_print_configs '! -name \"*%s*\" ') ! -name .empty ! -name dinner_error.log ! -name dinner.log -type f -exec rm -v {} \;"
 	if [ ${REPO_DIR} ]; then
 		_exec_command "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm -v {} \;"
 	fi
