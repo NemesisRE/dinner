@@ -585,6 +585,7 @@ function _cleanup () {
 function _find_last_errlog () {
 	[[ ${1} ]] && local CONFIG="\"dinner_*${1}*_error.log\"" && shift 1 || local CONFIG="\"dinner_*_error.log\""
 	_paste_log $(find ${DINNER_LOG_DIR}/ -name ${CONFIG} ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	_cleanup
 }
 
 function _paste_log () {

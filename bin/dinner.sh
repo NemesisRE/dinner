@@ -39,6 +39,8 @@ source ${DINNER_DIR}/helper/log.sh
 source ${DINNER_DIR}/helper/help.sh
 source ${DINNER_DIR}/helper/exit_status.sh
 
+rm ${DINNER_TEMP_DIR}/*
+
 trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" INT SIGINT SIGTERM
 
 exit_status=$EX_SUCCESS
