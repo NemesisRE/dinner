@@ -603,13 +603,16 @@ function _cleanup () {
 }
 
 function _find_last_errlog () {
-	[[ ${1} ]] && local CONFIG="dinner_*${1}*_error.log" && shift 1 || local CONFIG="dinner_*_error.log"
-	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
-	_cleanup
+	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
+		_paste_log
+	elif [[ ${1} ]] && local CONFIG="dinner_*${1}*_error.log" && shift 1 || local CONFIG="dinner_*_error.log"
+		_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+		_cleanup
+	fi
 }
 
 function _paste_log () {
-	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG}"
+	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 	if [ ${PASTE_LOG} ]; then
 		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log"
 		printf "\nJAVA_HOME=${JAVA_HOME}\n" >> "${DINNER_TEMP_DIR}/paste.log"
