@@ -173,9 +173,9 @@ case $cmd in
 						del)
 							_del_device_config "$params";;
 						edit)
-							[[ $EDITOR ]] && $EDITOR "$params" || vi "$params";;
+							[[ $EDITOR ]] && $EDITOR "${DINNER_CONF_DIR}/${params}" || vi "${DINNER_CONF_DIR}/${params}";;
 						show)
-							cat .dinner/config.d/clean_omni_d802 | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//' "$params";;
+							cat "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//';;
 					esac
 				done
 				;;
