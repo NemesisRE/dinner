@@ -616,7 +616,6 @@ function _cleanup () {
 function _find_last_errlog () {
 	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
 		_paste_log
-		_cleanup
 		continue
 	elif [[ ${1} ]]; then
 		local CONFIG="dinner_*${1}*_error.log"
@@ -625,7 +624,6 @@ function _find_last_errlog () {
 		local CONFIG="dinner_*_error.log"
 	fi
 	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
-	_cleanup
 }
 
 function _paste_log () {
@@ -704,6 +702,4 @@ function _run_config () {
 	_check_current_config
 
 	_send_mail
-
-	_cleanup
 }

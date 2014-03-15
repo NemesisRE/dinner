@@ -206,6 +206,9 @@ case $cmd in
 			esac
 			echo " "
 		done
+
+		_cleanup
+
 		case $cmd in
 			cook)
 				echo " "
