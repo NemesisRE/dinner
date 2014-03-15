@@ -120,7 +120,7 @@ function _add_device_config () {
 			_e_notice "Creating basic config ${DEVICE_CONFIG_NAME}"
 		fi
 		printf "${DINNER_CONFIG_HEADER}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
-		printf "${DINNER_CONFIG_VERSION}\n" > ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		printf "${DINNER_CONFIG_VERSION}\n" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		old_IFS=$IFS
 		IFS=$'\n'
 		printf "${BLDWHT}%$((HALIGN+1))s\t%s${TXTDEF}\n" " " "Lets define the basic variables."
@@ -134,6 +134,7 @@ function _add_device_config () {
 				read USERVALUE
 				_e_pending "Is ${VARIABLE}=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
 				read -n1 UVY
+				echo " "
 			done
 			[[ ${USERVALUE} ]] && printf "%s\t\t\t\t\t%s\n" "${VARIABLE}=\"${USERVALUE}\"" "#% ${VARIABLE_DESC:-No Description available}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
