@@ -190,6 +190,7 @@ function _check_prerequisites () {
 			_exec_command "mkdir -p ${REPO_DIR}" "_e_fatal \"Could not create repo directory (${REPO_DIR})\""
 		fi
 		if [ -d ${REPO_DIR} ] && [ ${REPO_BRANCH} ] && [ ${REPO_URL} ]; then
+			_exec_command "cd ${REPO_DIR}"
 			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
 			_exec_command "repo init -u ${REPO_URL} -b ${REPO_BRANCH}"
 			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
