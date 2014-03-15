@@ -86,7 +86,7 @@ function _add_device_config () {
 				read -n1 ANSWER
 				if ! [[ "${ANSWER}" =~ [yY] ]]; then
 					_e_pending_skipped "Will not overwrite existing config"
-					exit 0
+					continue
 				fi
 			fi
 			until [[ "${UVY}" =~ [yY] ]]; do
@@ -141,8 +141,7 @@ function _add_device_config () {
 		IFS=$old_IFS
 		cat ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Succesfully created config \"${DEVICE_CONFIG_NAME}\""
-		printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
-		exit 0
+		continue
 	fi
 }
 
@@ -161,7 +160,7 @@ function _del_device_config () {
 	else
 		_e_warn "Config \"${DEVICE_CONFIG_NAME}\" does not exist."
 	fi
-	exit 0
+	continue
 }
 
 function _check_prerequisites () {

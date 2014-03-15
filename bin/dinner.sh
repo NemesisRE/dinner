@@ -208,26 +208,23 @@ case $cmd in
 			echo " "
 		done
 		case $cmd in
-			clearlogs) exit 0;;
-			*)
-				if ! ${CURRENT_CHANGELOG_ONLY} || ! ${CURRENT_MAKE_ONLY} ; then
-					echo " "
-					if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
-						_e_success "=== YEAH all configs finished sucessfull! ==="
-						_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
+			cook)
+				echo " "
+				if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
+					_e_success "=== YEAH all configs finished sucessfull! ==="
+					_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
+				else
+					if [ "${FAILED_CONFIGS}" ]; then
+						_e_error "=== DAMN something went wrong ==="
+						_e_error "These configs failed:" "${FAILED_CONFIGS}"
 					else
-						if [ "${FAILED_CONFIGS}" ]; then
-							_e_error "=== DAMN something went wrong ==="
-							_e_error "These configs failed:" "${FAILED_CONFIGS}"
-						else
-							_e_warn "=== DAMN something went wrong ==="
-						fi
-						if [ "${WARNING_CONFIGS}" ]; then
-							_e_warn "These configs had warnings:" "${WARNING_CONFIGS}"
-						fi
-						if [ "${SUCCESS_CONFIGS}" ]; then
-							_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
-						fi
+						_e_warn "=== DAMN something went wrong ==="
+					fi
+					if [ "${WARNING_CONFIGS}" ]; then
+						_e_warn "These configs had warnings:" "${WARNING_CONFIGS}"
+					fi
+					if [ "${SUCCESS_CONFIGS}" ]; then
+						_e_success "These configs were successfull:" "${SUCCESS_CONFIGS}"
 					fi
 				fi
 			;;
