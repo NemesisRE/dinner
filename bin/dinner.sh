@@ -41,7 +41,7 @@ source ${DINNER_DIR}/helper/exit_status.sh
 
 rm -f ${DINNER_TEMP_DIR}/*
 
-trap "echo ""; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}" INT SIGINT SIGTERM
+trap "echo " "; _e_fatal \"Received SIGINT or SIGTERM\; _cleanup" ${EX_SIGTERM}" INT SIGINT SIGTERM
 
 exit_status=$EX_SUCCESS
 
