@@ -170,6 +170,7 @@ function _show_device_config () {
 		cat "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//'
 	else
 		_e_error "Can not show config ${DEVICE_CONFIG_NAME}, config does not exist!"
+	fi
 	continue
 }
 
