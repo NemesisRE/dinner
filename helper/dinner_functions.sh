@@ -232,6 +232,7 @@ function _check_prerequisites () {
 		else
 			_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${CURRENT_DEVICE}\""
 		fi
+	else
 		_e_pending_success "Successfully breakfast ${CURRENT_DEVICE}"
 	fi
 }
