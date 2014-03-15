@@ -595,7 +595,7 @@ function _get_changelog () {
 }
 
 function _cleanup () {
-	rm -f ${DINNER_TEMP_DIR}/*
+	_exec_command "rm -vf ${DINNER_TEMP_DIR}/*"
 
 	if [ $(find ${DINNER_LOG_DIR} -name dinner.log -size +20M -type f) ]; then
 		mv ${DINNER_LOG_DIR}/dinner.log ${DINNER_LOG_DIR}/remove.log
@@ -607,10 +607,10 @@ function _cleanup () {
 		tail -100 ${DINNER_LOG_DIR}/remove_error.log > dinner_error.log
 	fi
 
-	eval "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm {} \;"
-	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_error.log ! -name dinner.log -type f -exec rm {} \;"
+	_exec_command "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm -v {} \;"
+	_exec_command "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_error.log ! -name dinner.log -type f -exec rm -v {} \;"
 	if [ ${REPO_DIR} ]; then
-		eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
+		_exec_command "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm -v {} \;"
 	fi
 
 	for ENV_VAR in ${BACKUP_ENV[@]}; do
@@ -628,6 +628,7 @@ function _find_last_errlog () {
 		local CONFIG="dinner_*_error.log"
 	fi
 	_paste_log $(find ${DINNER_LOG_DIR}/ -mindepth 1 -maxdepth 1 -type f -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
+	continue
 }
 
 function _paste_log () {
