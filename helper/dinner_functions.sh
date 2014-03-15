@@ -590,8 +590,19 @@ function _get_changelog () {
 
 function _cleanup () {
 	rm -f ${DINNER_TEMP_DIR}/*
+
+	if [ $(find ${DINNER_LOG_DIR} -name dinner.log -size +20M -type f) ]; then
+		mv ${DINNER_LOG_DIR}/dinner.log ${DINNER_LOG_DIR}/remove.log
+		tail -100 ${DINNER_LOG_DIR}/remove.log > dinner.log
+	fi
+
+	if [ $(find ${DINNER_LOG_DIR} -name dinner_error.log -size +20M -type f) ]; then
+		mv ${DINNER_LOG_DIR}/dinner_error.log ${DINNER_LOG_DIR}/remove_error.log
+		tail -100 ${DINNER_LOG_DIR}/remove_error.log > dinner_error.log
+	fi
+
 	eval "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm {} \;"
-	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner* -type f -exec rm {} \;"
+	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner_error.log ! -name dinner.log -type f -exec rm {} \;"
 	if [ ${REPO_DIR} ]; then
 		eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
 	fi
@@ -634,9 +645,9 @@ function _paste_log () {
 
 function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="! -mtime ${1}" || local OLDER_THAN=""
-	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
+	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG="*"
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN} | sort)
+	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name "dinner_${CONFIG}_*.log" -type f ${OLDER_THAN} | sort)
 	if [ "${LOGFILE_RESULT}" ]; then
 		for RMLOGFILE in ${LOGFILE_RESULT}; do
 			rm ${RMLOGFILE}
