@@ -12,42 +12,42 @@
 #############################################
 ### Necessary Variables per config
 ###
-#REPO_URL=""											#% Repository URL (e.g. "https://github.com/omnirom/android.git")
-#REPO_BRANCH=""											#% The branch of the repository (e.g. "android-4.4")
-#REPO_DIR=""											#% Path to repository (e.g. "${HOME}/android/omni")
-#BRUNCH_DEVICE=""										#% Device to build for (e.g. "i9300")
+#REPO_URL=""											#%Repository URL (e.g. "https://github.com/omnirom/android.git")
+#REPO_BRANCH=""											#%The branch of the repository (e.g. "android-4.4")
+#REPO_DIR=""											#%Path to repository (e.g. "${HOME}/android/omni")
+#BRUNCH_DEVICE=""										#%Device to build for (e.g. "i9300")
 
 
 #############################################
 ### Repository sync settings
 ###
-##LOCAL_MANIFEST[0]=''									#% Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
-##LOCAL_MANIFEST[1]=''									#% Another Local manifest line, add as many as you need.
-##REPOPICK[0]=''										#% Gerrit change ID which will be cherrypicked
-##REPOPICK[1]=''										#% Another Gerrit change ID, add as many as you need.
-##CHERRYPICK[0]=''										#% No function at the moment, use REPOPICK
+##LOCAL_MANIFEST[0]=''									#%Local manifest line. The manifest will be at ${REPO_DIR}./repo/local_manifest/dinner_${CONFIGNAME}.xml
+##LOCAL_MANIFEST[1]=''									#%Another Local manifest line, add as many as you need.
+##REPOPICK[0]=''										#%Gerrit change ID which will be cherrypicked
+##REPOPICK[1]=''										#%Another Gerrit change ID, add as many as you need.
+##CHERRYPICK[0]=''										#%No function at the moment, use REPOPICK
 ##CHERRYPICK[1]=''										#%
 
 
 #############################################
 ### Overrides for Dinner Defaults
 ###
-##SKIP_SYNC_TIME=''										#% if synced in the last given seconds set skip sync true %(Default: "1800")
-##SYNC_PARAMS=''										#% Override syn parameters %(Default: '-q -j100' )
-##DINNER_USE_JAVA=""									#% Will check for the right java version and abort if it's not %(Default: "1.6")
-##DINNER_USE_CCACHE=''									#% Use ccache or not 1(YES)/0(NO) %(Default: "1")
-##DINNER_CCACHE_DIR=''									#% Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
-##DINNER_CCACHE_SIZE=''									#% Change ccache max cache size in gigabytes recomended are min. 25G %(Default: ccache default=1G )
+##SKIP_SYNC_TIME=''										#%if synced in the last given seconds set skip sync true %(Default: "1800")
+##SYNC_PARAMS=''										#%Override syn parameters %(Default: '-q -j100' )
+##DINNER_USE_JAVA=""									#%Will check for the right java version and abort if it's not %(Default: "1.6")
+##DINNER_USE_CCACHE=''									#%Use ccache or not 1(YES)/0(NO) %(Default: "1")
+##DINNER_CCACHE_DIR=''									#%Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
+##DINNER_CCACHE_SIZE=''									#%Change ccache max cache size in gigabytes recomended are min. 25G %(Default: ccache default=1G )
 
 
 #############################################
 ### Variables that are not necessary.
 ###
-##USER_MAIL='john+i9300@gmail.com'						#% set this if you want an email when new build is ready
-##ADMIN_MAIL='doe+i9300@gmail.com'						#% set this if you want an email for succefull and failed builds (failed reports are with build logs)
-##TARGET_DIR="/var/www/${DEVICE}/omni"					#% move your builds output file to the given directory
-##CLEANUP_OLDER_THAN='7'								#% set the number of days after output files should be removed leave empty for no cleanup
-##DOWNLOAD_LINK='http://example.com/download/i9300'		#% set this if you want a download link in the email
-##PRE_BUILD_COMMAND=''									#% define a command before brunch is started
-##POST_BUILD_COMMAND=''									#% define a command after a build was successful and before it is moved
+##USER_MAIL='john+i9300@gmail.com'						#%set this if you want an email when new build is ready
+##ADMIN_MAIL='doe+i9300@gmail.com'						#%set this if you want an email for succefull and failed builds (failed reports are with build logs)
+##TARGET_DIR="/var/www/${DEVICE}/omni"					#%move your builds output file to the given directory
+##CLEANUP_OLDER_THAN='7'								#%set the number of days after output files should be removed leave empty for no cleanup
+##DOWNLOAD_LINK='http://example.com/download/i9300'		#%set this if you want a download link in the email
+##PRE_BUILD_COMMAND=''									#%define a command before brunch is started
+##POST_BUILD_COMMAND=''									#%define a command after a build was successful and before it is moved
 
