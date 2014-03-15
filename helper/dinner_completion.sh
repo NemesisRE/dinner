@@ -152,14 +152,10 @@ _dinner_complete()
 							_dinner_complete_configs "$cur"
 							;;
 						edit)
-							if (( $COMP_CWORD == $cmd_index + 3 )); then
-								COMPREPLY=( _dinner_complete_configs "$cur" )
-							fi
+							_dinner_complete_configs "$cur"
 							;;
 						show)
-							if (( $COMP_CWORD == $cmd_index + 3 )); then
-								COMPREPLY=( _dinner_complete_configs "$cur" )
-							fi
+							_dinner_complete_configs "$cur"
 							;;
 					esac
 				fi
