@@ -224,7 +224,16 @@ function _check_prerequisites () {
 	_exec_command "cd \"${REPO_DIR}\""
 
 	_e_pending "Breakfast ${CURRENT_DEVICE}"
-	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${CURRENT_DEVICE}\""
+	_exec_command "breakfast ${CURRENT_DEVICE}"
+	if [ ${?} != 0 ]; then
+		_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}"
+		if [ ${?} != 0 ]; then
+			_e_pending_fatal "Something went wrong while running breakfast"
+		else
+			_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${CURRENT_DEVICE}\""
+		fi
+		_e_pending_success "Successfully breakfast ${CURRENT_DEVICE}"
+	fi
 }
 
 function _check_variables () {
