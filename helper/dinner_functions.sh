@@ -631,7 +631,7 @@ function _find_last_errlog () {
 }
 
 function _paste_log () {
-	[[ ${1} ]] && local PASTE_LOG="${1}"
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="${1}"
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && PASTE_LINES=${2}
 	if [ ${PASTE_LOG} ]; then
 		tail -${PASTE_LINES} ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
