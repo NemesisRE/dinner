@@ -589,12 +589,12 @@ function _find_last_errlog () {
 }
 
 function _paste_log () {
-	tail -300 ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} > ${DINNER_TMP_DIR}/paste.log
-	printf "JAVA_HOME=${JAVA_HOME}" >> ${DINNER_TMP_DIR}/paste.log
-	printf "JAVAC_VERSION=${JAVAC_VERSION}" >> ${DINNER_TMP_DIR}/paste.log
-	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
-	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
-	PASTE_TEXT=$(cat ${DINNER_TMP_DIR}/paste.log)
+	tail -300 ${CURRENT_ERRLOG} > "${DINNER_TMP_DIR}/paste.log"
+	printf "JAVA_HOME=${JAVA_HOME}" >> "${DINNER_TMP_DIR}/paste.log"
+	printf "JAVAC_VERSION=${JAVAC_VERSION}" >> "${DINNER_TMP_DIR}/paste.log"
+	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TMP_DIR}/paste.log"
+	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TMP_DIR}/paste.log"
+	PASTE_TEXT=$(cat "${DINNER_TMP_DIR}/paste.log")
 	CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/document | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
 	_e_pending_error "Your error Log is available: ${CURRENT_PASTE_URL}"
 }
