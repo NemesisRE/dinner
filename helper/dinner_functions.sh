@@ -185,15 +185,17 @@ function _check_prerequisites () {
 
 	_check_variables
 
-	if [ ! -d ${REPO_DIR} ] || [ ! -d ${REPO_DIR}/.repo ]; then
-		_exec_command "mkdir -p ${REPO_DIR}"
-		if [ -d ${REPO_DIR} ] && [ ${REPO_BRANCH} ] && [ ${REPO_URL} ];then
+	if [ ! -d ${REPO_DIR}/.repo ]; then
+		if [ ! -d ${REPO_DIR} ]; then
+			_exec_command "mkdir -p ${REPO_DIR}" "_e_fatal \"Could not create repo directory (${REPO_DIR})\""
+		fi
+		if [ -d ${REPO_DIR} ] && [ ${REPO_BRANCH} ] && [ ${REPO_URL} ]; then
 			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
 			_exec_command "repo init -u ${REPO_URL} -b ${REPO_BRANCH}"
 			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_fatal \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 		else
-			_e_fatal "${REPO_DIR} is not a Repo, REPO_URL/REPO_BRANCH not given can't init repo."
+			_e_fatal "${REPO_DIR} is not a Repo and REPO_URL/REPO_BRANCH not given can't init repo."
 		fi
 	fi
 
