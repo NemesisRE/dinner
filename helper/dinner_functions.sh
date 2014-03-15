@@ -194,7 +194,7 @@ function _check_prerequisites () {
 			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
 			_exec_command "${REPO_BIN} init -u ${REPO_URL} -b ${REPO_BRANCH}" "_e_pending_fatal \"Something went wrong  while initiating repo\""
 			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
-			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_fatal \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS} -f --no-clone-bundle" "_e_pending_fatal \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 		else
 			_e_fatal "${REPO_DIR} is not a Repo and REPO_URL/REPO_BRANCH not given can't init repo."
 		fi
