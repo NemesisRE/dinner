@@ -89,7 +89,16 @@ function _add_device_config () {
 					exit 0
 				fi
 			fi
-			_exec_command "cp ${1} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
+			until [[ "${UVY}" =~ [yY] ]]; do
+				unset UVY USERVALUE
+				_e "${BLDYLW}" "REPO_DIR" "Path to repository (e.g. \"${HOME}/android/omni\")"
+				_e_pending " " "VALUE" "${BLDWHT}" "0"
+				read USERVALUE
+				_e_pending "Is REPO_DIR=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
+				read UVY
+			done
+			[[ ${USERVALUE} ]] && $(which sed) -i "s/^REPO_DIR=\(\"\|\'\).*\(\"\|\'\)\(.*\)/REPO_DIR=\"${USERVALUE}\"\3/g" ${DEVICE_CONFIG_NAME}
+			_exec_command "cp ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
 			printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
 			exit 0
 		else
