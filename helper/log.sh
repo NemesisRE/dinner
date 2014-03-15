@@ -56,7 +56,7 @@ function _e {
 function _e_pending {
 	if ! ${DINNER_CRON}; then
 		unset PENDING_MESSAGE PENDING_STATUS PENDING_COLOR PENDING_SLEEP
-		[[ ${1} ]] && [[ "${1}" = " "]] && local PENDING_MESSAGE="" || local PENDING_MESSAGE=${1}
+		[[ ${1} ]] && [[ "${1}" = " " ]] && local PENDING_MESSAGE="" || local PENDING_MESSAGE=${1}
 		[[ ${2} ]] && local PENDING_STATUS=${2} || local PENDING_STATUS="RUNNING"
 		[[ ${3} ]] && local PENDING_COLOR=${3} || local PENDING_COLOR="${BLDCYN}"
 		[[ ${4} ]] && local PENDING_SLEEP=${4} || local PENDING_SLEEP="3"
