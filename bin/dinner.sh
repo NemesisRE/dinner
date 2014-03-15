@@ -47,7 +47,7 @@ fi
 rm -f ${DINNER_TEMP_DIR}/*
 rm -f "${DINNER_LOG_DIR}/dinner.log" "${DINNER_LOG_DIR}/dinner_error.log"
 
-trap "echo " "; _e_fatal \"Received SIGINT or SIGTERM\"; _cleanup" ${EX_SIGTERM}" INT SIGINT SIGTERM
+trap "echo \" \"; _e_fatal \"Received SIGINT or SIGTERM\"; _cleanup" ${EX_SIGTERM}" INT SIGINT SIGTERM
 
 exit_status=$EX_SUCCESS
 
