@@ -222,6 +222,9 @@ function _check_prerequisites () {
 	_set_current_variables
 
 	_exec_command "cd \"${REPO_DIR}\""
+
+	_e_pending "Breakfast ${DEVICE}"
+	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_fatal_error \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${DEVICE}\""
 }
 
 function _check_variables () {
@@ -304,7 +307,7 @@ function _sync_repo () {
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
-			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
+			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
 				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
@@ -326,14 +329,6 @@ function _repo_pick () {
 			_e_warn "Could not find repopick.py, cannot make a repopick."
 		fi
 	fi
-}
-
-function _get_breakfast_variables () {
-	_e_pending "Breakfast and getting its variables..."
-	for VARIABLE in $(breakfast ${CURRENT_DEVICE} | sed -e 's/^=.*//' -e 's/[ ^I]*$//' -e '/^$/d' | grep -E '^[A-Z_]+=(.*)' &> >(tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}) 2> >(tee -a ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log})); do
-		eval "${VARIABLE}"
-	done
-	_e_pending_success "Breakfast finished"
 }
 
 function _brunch_device () {
@@ -662,8 +657,6 @@ function _run_config () {
 	esac
 
 	_check_prerequisites
-
-	_get_breakfast_variables
 
 	_dinner_make
 
