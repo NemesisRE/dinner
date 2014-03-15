@@ -594,8 +594,8 @@ function _paste_log () {
 	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG}"
 	if [ ${PASTE_LOG} ]; then
 		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log"
-		printf "JAVA_HOME=${JAVA_HOME}" >> "${DINNER_TEMP_DIR}/paste.log"
-		printf "JAVAC_VERSION=${JAVAC_VERSION}" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\nJAVA_HOME=${JAVA_HOME}\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "JAVAC_VERSION=${JAVAC_VERSION}\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
