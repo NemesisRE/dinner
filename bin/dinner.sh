@@ -207,8 +207,6 @@ case $cmd in
 			echo " "
 		done
 
-		_cleanup
-
 		case $cmd in
 			cook)
 				echo " "
@@ -233,5 +231,7 @@ case $cmd in
 		esac
 		;;
 esac
+
+_cleanup
 
 exit ${DINNER_EXIT_CODE}
