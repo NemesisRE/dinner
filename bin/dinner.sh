@@ -149,7 +149,7 @@ while [[ $# -gt 0 ]]; do
 			[[ ! ${sub_cmd} ]] && sub_cmd=$1 || params+=("$1")
 			shift; continue;;
 		help)
-			[[ ! $help_cmd ]] && help_cmd=$1
+			[[ ! $help_cmd ]] && help_cmd=$1 || params+=("$1")
 			shift; continue;;
 		*) _e_fatal "Unknown command '$1'" $EX_USAGE;;
 	esac
