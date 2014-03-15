@@ -605,6 +605,7 @@ function _cleanup () {
 function _find_last_errlog () {
 	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
 		_paste_log
+		_cleanup
 		continue
 	elif [[ ${1} ]]; then
 		local CONFIG="dinner_*${1}*_error.log"
@@ -619,7 +620,7 @@ function _find_last_errlog () {
 function _paste_log () {
 	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 	if [ ${PASTE_LOG} ]; then
-		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log"
+		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 		printf "\nJAVA_HOME=${JAVA_HOME}\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "JAVAC_VERSION=${JAVAC_VERSION}\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
@@ -632,10 +633,10 @@ function _paste_log () {
 }
 
 function _clear_logs () {
-	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="-mtime ${1}" || local OLDER_THAN=""
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="! -mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG=""
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN})
+	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR} -name "*${CONFIG}*.log" -type f ${OLDER_THAN} | sort)
 	if [ "${LOGFILE_RESULT}" ]; then
 		for RMLOGFILE in ${LOGFILE_RESULT}; do
 			rm ${RMLOGFILE}
@@ -651,7 +652,7 @@ function _print_configs {
 	while IFS= read -d $'\0' -r configpath ; do
 		local config=$(basename "${configpath}")
 		printf "${ARGS:-%b\n}" "$config"
-done < <(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name *example.dist -print0 | sort -z)
+	done < <(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name *example.dist -print0 | sort -z)
 	return $EX_SUCCESS
 }
 

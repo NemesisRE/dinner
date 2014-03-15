@@ -45,7 +45,6 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 rm -f ${DINNER_TEMP_DIR}/*
-rm -f "${DINNER_LOG_DIR}/dinner.log" "${DINNER_LOG_DIR}/dinner_error.log"
 
 trap "echo \" \"; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}; _cleanup" INT SIGINT SIGTERM
 
