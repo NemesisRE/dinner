@@ -192,7 +192,7 @@ function _check_prerequisites () {
 		if [ -d ${REPO_DIR} ] && [ ${REPO_BRANCH} ] && [ ${REPO_URL} ]; then
 			_exec_command "cd ${REPO_DIR}"
 			_e_notice "Init repo \"${REPO_URL}\" at \"${REPO_DIR}\""
-			_exec_command "repo init -u ${REPO_URL} -b ${REPO_BRANCH}" "_e_pending_fatal \"Something went wrong  while initiating repo\""
+			_exec_command "${REPO_BIN} init -u ${REPO_URL} -b ${REPO_BRANCH}" "_e_pending_fatal \"Something went wrong  while initiating repo\""
 			_e_pending "Running initial repo sync, this will take a while (go get some coffee)..."
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_fatal \"Something went wrong  while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 		else
