@@ -90,7 +90,7 @@ _dinner_complete()
 		make
 		changelog
 		clearlogs
-		pastelogs
+		pastelog
 		cook
 		update
 		help
