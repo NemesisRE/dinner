@@ -52,7 +52,7 @@ dinner help [TASK]                                 # Show usage of a task
 
 Runtime options:
 -c, [--clean]      # Run make clean before starting brunch
--d,                # Will add "-d" to SYNC_PARAMS of repo sync
+-d, [--discard]    # Will add "-d" to SYNC_PARAMS of repo sync
 -f, [--force-sync] # Force repo sync
 -q, [--quiet]      # Quiet no output except errors (for cron)
 -s, [--skip-sync]  # Skip sync

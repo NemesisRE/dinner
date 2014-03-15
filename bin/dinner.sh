@@ -85,7 +85,7 @@ while [[ $# -gt 0 ]]; do
 		fi
 		case $1 in
 			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
-			-d)             SYNC_PARAMS+=" -d" ; shift; continue ;;
+			-d | --discard) SYNC_PARAMS+=" -d" ; shift; continue ;;
 			-f | --force-sync) FORCE_SYNC=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
 			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
@@ -124,7 +124,7 @@ while [[ $# -gt 0 ]]; do
 		fi
 		case $1 in
 			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
-			-d)             SYNC_PARAMS+=" -d" ; shift; continue ;;
+			-d | --discard) SYNC_PARAMS+=" -d" ; shift; continue ;;
 			-f | --force-sync) FORCE_SYNC=true ; shift; continue ;;
 			-h | --help)            cmd="help" ; shift; continue ;;
 			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
