@@ -632,8 +632,7 @@ function _paste_log () {
 	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 	if [ ${PASTE_LOG} ]; then
 		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
-		printf "\nJAVA_HOME=${JAVA_HOME}\n" >> "${DINNER_TEMP_DIR}/paste.log"
-		printf "JAVAC_VERSION=${JAVAC_VERSION}\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "JAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
 		CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
