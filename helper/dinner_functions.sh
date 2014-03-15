@@ -594,8 +594,12 @@ function _paste_log () {
 	printf "JAVAC_VERSION=${JAVAC_VERSION}" >> ${DINNER_TMP_DIR}/paste.log
 	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
 	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
-	CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "$(cat ${DINNER_TMP_DIR}/paste.log)" ${HASTE_PASTE_URL}/document | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
+	CURRENT_PASTE_URL="$(_haste_paste)"
 	_e_pending_error "Your error Log is available: ${CURRENT_PASTE_URL}"
+}
+
+function _haste_paste () {
+	${CURL_BIN} -X POST -s -d "$(cat ${DINNER_TMP_DIR}/paste.log)" ${HASTE_PASTE_URL}/document | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}'
 }
 
 function _clear_logs () {
