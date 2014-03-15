@@ -215,11 +215,14 @@ function _check_variables () {
 	# Check essentials
 	if [ ! "${REPO_DIR}" ]; then
 		_e_fatal "REPO_DIR is not set!"
-	elif [ ! ${BRUNCH_DEVICE} ]; then
+	fi
+	if [ ! ${BRUNCH_DEVICE} ]; then
 		_e_fatal "No BRUNCH_DEVICE given!"
-	elif [ ! ${REPO_BRANCH} ]; then
+	fi
+	if [ ! ${REPO_BRANCH} ]; then
 		_e_warn "No REPO_BRANCH given, dinner won't be able to init the repo!"
-	elif [ ! ${REPO_URL} ]; then
+	fi
+	if [ ! ${REPO_URL} ]; then
 		_e_warn "No REPO_URL given, dinner won't be able to init the repo!"
 	fi
 
