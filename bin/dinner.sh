@@ -89,7 +89,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(config make clearlogs changelog cook update help)
+valid_commands=(config make pastelog clearlogs changelog cook update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -123,7 +123,7 @@ while [[ $# -gt 0 ]]; do
 	fi
 
 	case $cmd in
-		changelog | cook)
+		changelog | cook | pastelog)
 			params+=("$1")
 			shift; continue ;;
 		make)
@@ -146,7 +146,7 @@ done
 # If no additional arguments are given, run the subcommand for every config
 if [[ ! $params ]]; then
 	case $cmd in
-		changelog | cook | clearlogs)
+		changelog | cook | clearlogs | pastelog)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
 			done < <(_print_configs) ;;
@@ -191,6 +191,7 @@ case $cmd in
 				changelog)    _run_config $cmd "$params"                  ;;
 				cook)         _run_config $cmd "$params"                  ;;
 				clearlogs)    _clear_logs "$older_than" "$params"         ;;
+				pastelog)     _find_last_errlog "$params"                 ;;
 			esac
 			echo " "
 		done

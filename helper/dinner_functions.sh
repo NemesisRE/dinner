@@ -339,8 +339,17 @@ function _brunch_device () {
 			_clean_old_builds
 		fi
 	else
+		unset ANSWER
 		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
-		_e_error "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+		if ! ${DINNER_CRON}; then
+			_e_pending "Do you want to paste the error log to ${HASTE_PASTE_URL}? (y/N): " "ACTION" "${BLYLW}" "0"
+			read -t 120 -n1 ANSWER
+			if [[ "${ANSWER}" =~ [yY] ]]; then
+				_paste_log
+			else
+				_e_pending_error "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+			fi
+		fi
 	fi
 }
 
@@ -573,16 +582,20 @@ function _cleanup () {
 
 }
 
+function _find_last_errlog () {
+	[[ ${1} ]] && local CONFIG="-name \"dinner_*${1}*_error.log" && shift 1 || local CONFIG=""
+	CURRENT_ERRLOG=$(find ${DINNER_LOG_DIR}/ ${CONFIG} ! -name "dinner_gerneral*.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	_paste_log
+}
+
 function _paste_log () {
-	if ${PASTE_LOG} && ! ${DINNER_CRON}; then
-		tail -300 ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} > ${DINNER_TMP_DIR}/paste.log
-		printf "JAVA_HOME=${JAVA_HOME}" >> ${DINNER_TMP_DIR}/paste.log
-		printf "JAVAC_VERSION=${JAVAC_VERSION}" >> ${DINNER_TMP_DIR}/paste.log
-		printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
-		printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
-		eval "$(which curl) --data-urlencode text@${DINNER_TMP_DIR}/paste.log ${PASTE_URL}"
-		_cleanup
-	fi
+	tail -300 ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} > ${DINNER_TMP_DIR}/paste.log
+	printf "JAVA_HOME=${JAVA_HOME}" >> ${DINNER_TMP_DIR}/paste.log
+	printf "JAVAC_VERSION=${JAVAC_VERSION}" >> ${DINNER_TMP_DIR}/paste.log
+	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
+	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> ${DINNER_TMP_DIR}/paste.log
+	CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "$(cat ${DINNER_TMP_DIR}/paste.log)" ${HASTE_PASTE_URL}/document | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
+	_e_pending_error "Your error Log is available: ${CURRENT_PASTE_URL}"
 }
 
 function _clear_logs () {
