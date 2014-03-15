@@ -571,7 +571,7 @@ function _get_changelog () {
 }
 
 function _cleanup () {
-	rm ${DINNER_TEMP_DIR}/*
+	rm -f ${DINNER_TEMP_DIR}/*
 	eval "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm {} \;"
 	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner* -type f -exec rm {} \;"
 	if [ ${REPO_DIR} ]; then
