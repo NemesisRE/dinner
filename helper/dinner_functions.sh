@@ -585,21 +585,25 @@ function _cleanup () {
 }
 
 function _find_last_errlog () {
-	[[ ${1} ]] && local CONFIG="\"dinner_*${1}*_error.log\"" && shift 1 || local CONFIG="\"dinner_*_error.log\""
-	_paste_log $(find ${DINNER_LOG_DIR}/ -name ${CONFIG} ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	[[ ${1} ]] && local CONFIG="dinner_*${1}*_error.log" && shift 1 || local CONFIG="dinner_*_error.log"
+	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
 	_cleanup
 }
 
 function _paste_log () {
-	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
-	tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log"
-	printf "JAVA_HOME=${JAVA_HOME}" >> "${DINNER_TEMP_DIR}/paste.log"
-	printf "JAVAC_VERSION=${JAVAC_VERSION}" >> "${DINNER_TEMP_DIR}/paste.log"
-	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
-	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
-	PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
-	CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
-	_e_pending_notice "Your error Log is here available: ${CURRENT_PASTE_URL}"
+	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG}"
+	if [ ${PASTE_LOG} ]; then
+		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log"
+		printf "JAVA_HOME=${JAVA_HOME}" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "JAVAC_VERSION=${JAVAC_VERSION}" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
+		CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
+		_e_pending_notice "Your error Log is here available: ${CURRENT_PASTE_URL}"
+	else
+		_e_pending_warn "No log available."
+	fi
 }
 
 function _clear_logs () {
