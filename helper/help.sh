@@ -46,6 +46,7 @@ dinner make [SUBTASK] [CONFIG ..]                  # Clean a menu
 dinner cook [CONFIG ..]                            # Clone URI as a menu for dinner
 dinner changelog [CONFIG ..]                       # Get changlog for config since last successfull build
 dinner clearlogs [OLDER THAN x DAYS] [CONFIG ..]   # Clear logs
+dinner pastelog [CONFIG] [LAST x LINES]            # Pastes latest error log for given config (last 300 lines by default, override by parameter)
 dinner list                                        # List all menus
 dinner update                                      # Updates dinner
 dinner help [TASK]                                 # Show usage of a task
@@ -131,6 +132,10 @@ function extended_help {
 		clearlogs)
 			printf "Clears the logs for all give config(s) which are older the the given time in days or 'all' for alltime\n"
 			printf "Usage:\n  dinner clearlogs [ {0-9}+ | all ] [CONFIG ..]"
+			;;
+		pastelog)
+			printf "Pastes latest error log for given config on https://paste.nrecom.net (last 300 lines by default, override by parameter)\n"
+			printf "Usage:\n  dinner pastelog [CONFIG] [ NUMBER OF LINES ]"
 			;;
 		update)
 			printf "Updates dinner\n"

@@ -163,6 +163,16 @@ function _del_device_config () {
 	continue
 }
 
+function _show_device_config () {
+	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
+	if [ -f ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
+		head -2 "${DINNER_CONF_DIR}/${params}"
+		cat "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//'
+	else
+		_e_error "Can not show config ${DEVICE_CONFIG_NAME}, config does not exist!"
+	continue
+}
+
 function _check_prerequisites () {
 	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
@@ -253,8 +263,8 @@ function _check_variables () {
 	fi
 
 	if [ ${SKIP_SYNC_TIME} ] && [ -z ${SKIP_SYNC_TIME##*[!0-9]*} ]; then
-		_e_warn "SKIP_SYNC_TIME has no valid number, will use default (1800)!"
-		SKIP_SYNC_TIME="1800"
+		_e_warn "SKIP_SYNC_TIME has no valid number, will use default (30)!"
+		SKIP_SYNC_TIME="30"
 	fi
 
 	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
@@ -313,8 +323,8 @@ function _set_current_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [[ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt ${SKIP_SYNC_TIME} ]]; then
-		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} seconds."
+	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [[ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt $((SKIP_SYNC_TIME*60)) ]]; then
+		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} minutes."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
@@ -464,13 +474,13 @@ function _send_mail () {
 
 		if [ ${CURRENT_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ ${CURRENT_ADMIN_MAIL} ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${ANSI2HTML_BIN} | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	fi
@@ -568,7 +578,7 @@ function _get_changelog () {
 		done
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 			continue
 		else
@@ -580,7 +590,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-		[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 			continue
 		fi
@@ -623,13 +633,14 @@ function _find_last_errlog () {
 	else
 		local CONFIG="dinner_*_error.log"
 	fi
-	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ")
+	_paste_log $(find ${DINNER_LOG_DIR}/ -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
 }
 
 function _paste_log () {
-	[[ ${1} ]] && local PASTE_LOG="${1}" && shift 1 || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+	[[ ${1} ]] && local PASTE_LOG="${1}" || PASTE_LOG="${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
+	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && PASTE_LINES=${2}
 	if [ ${PASTE_LOG} ]; then
-		tail -300 ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
+		tail -${PASTE_LINES} ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 		printf "JAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")

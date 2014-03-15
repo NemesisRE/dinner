@@ -32,7 +32,7 @@
 #############################################
 ### Overrides for Dinner Defaults
 ###
-##SKIP_SYNC_TIME=''										#%if synced in the last given seconds set skip sync true %(Default: "1800")
+##SKIP_SYNC_TIME=''										#%if synced in the last given minutes set skip sync true %(Default: "30")
 ##SYNC_PARAMS=''										#%Override syn parameters %(Default: '-q -j100' )
 ##DINNER_USE_JAVA=""									#%Will check for the right java version and abort if it's not %(Default: "1.6")
 ##DINNER_USE_CCACHE=''									#%Use ccache or not 1(YES)/0(NO) %(Default: "1")

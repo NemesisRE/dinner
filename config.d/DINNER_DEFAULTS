@@ -13,9 +13,9 @@ DINNER_CRON=false
 SHOW_VERBOSE=false
 FORCE_SYNC=false
 SKIP_SYNC=false
-SKIP_SYNC_TIME="1800"
+SKIP_SYNC_TIME="30"
 SYNC_PARAMS='-q -j100'
-PASTE_LOG=false
+PASTE_LINES="300"
 HASTE_PASTE_URL="https://paste.nrecom.net"
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
 BACKUP_ENV[0]="LANGUAGE=\"${LANGUAGE}\"" && export LANGUAGE="en_US.UTF-8"

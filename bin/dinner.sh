@@ -70,7 +70,6 @@ else
 fi
 test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "\"md5sum\" not found in PATH" $EX_NOTFOUND
 test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "\"mutt\" not found in PATH, will not send E-Mails..."
-test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal "${DINNER_DIR}/bin/dinner_ansi2html.sh not executable" $EX_NOTFOUND
 
 # Retrieve all the flags preceeding a subcommand
 while [[ $# -gt 0 ]]; do
@@ -157,7 +156,7 @@ done
 # If no additional arguments are given, run the subcommand for every config
 if [[ ! $params ]]; then
 	case $cmd in
-		changelog | cook | clearlogs | pastelog)
+		changelog | cook | clearlogs)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
 			done < <(_print_configs) ;;
@@ -169,6 +168,7 @@ if [[ ! $params ]]; then
 			esac
 			;;
 		make) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
+		pastelog) help_cmd=$cmd; cmd="help"; exit_status=$EX_USAGE ;;
 	esac
 fi
 
@@ -186,7 +186,7 @@ case $cmd in
 						edit)
 							[[ $EDITOR ]] && $EDITOR "${DINNER_CONF_DIR}/${params}" || vi "${DINNER_CONF_DIR}/${params}";;
 						show)
-							cat "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//';;
+							_show_device_config "$params";;
 					esac
 				done
 				;;
@@ -194,7 +194,7 @@ case $cmd in
 		;;
 	update)    _dinner_update ;;
 	help)      help $help_cmd ${params[@]} ;;
-	addconfig) _add_device_config ${NEW_CONFIG_NAME} ;;
+	pastelog)     _find_last_errlog "$params" ;;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
