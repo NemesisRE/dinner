@@ -223,8 +223,8 @@ function _check_prerequisites () {
 
 	_exec_command "cd \"${REPO_DIR}\""
 
-	_e_pending "Breakfast ${DEVICE}"
-	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_fatal_error \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${DEVICE}\""
+	_e_pending "Breakfast ${CURRENT_DEVICE}"
+	_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${CURRENT_DEVICE}\""
 }
 
 function _check_variables () {
