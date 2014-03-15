@@ -596,7 +596,7 @@ function _paste_log () {
 	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 	PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
 	CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
-	_e_pending_notice "Your error Log is available: ${CURRENT_PASTE_URL}"
+	_e_pending_notice "Your error Log is here available: ${CURRENT_PASTE_URL}"
 }
 
 function _clear_logs () {

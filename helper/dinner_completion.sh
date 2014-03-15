@@ -90,6 +90,7 @@ _dinner_complete()
 		make
 		changelog
 		clearlogs
+		pastelogs
 		cook
 		update
 		help
@@ -160,11 +161,7 @@ _dinner_complete()
 					esac
 				fi
 				;;
-			cook)
-				# Offer one or more config completions.
-				_dinner_complete_configs "$cur"
-				;;
-			changelog)
+			cook | changelog | pastelog)
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
 				;;
