@@ -574,7 +574,9 @@ function _cleanup () {
 	rm ${DINNER_TEMP_DIR}/*
 	eval "find ${DINNER_MEM_DIR} $(_print_configs '! -name *%s* ') ! -name .empty -type f -exec rm {} \;"
 	eval "find ${DINNER_LOG_DIR} $(_print_configs '! -name *%s* ') ! -name .empty ! -name dinner* -type f -exec rm {} \;"
-	eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
+	if [ ${REPO_DIR} ]; then
+		eval "find ${REPO_DIR}/.repo/local_manifests/ -name dinner* $(_print_configs '! -name *%s* ') -type f -exec rm {} \;"
+	fi
 
 	for ENV_VAR in ${BACKUP_ENV[@]}; do
 		_exec_command "export ${ENV_VAR}"
