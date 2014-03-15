@@ -160,6 +160,8 @@ function _check_prerequisites () {
 	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" &> ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}
 	printf "${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" &> ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}
 
+	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
+
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
 		if [ "$(sed -n '1{p;q;}' ${DINNER_DIR}/config.d/${CURRENT_CONFIG})" != "${DINNER_CONFIG_HEADER}" ] ; then
 			_e_fatal "${CURRENT_CONFIG} is not a valid dinner config."
@@ -207,8 +209,6 @@ function _check_prerequisites () {
 	_set_current_variables
 
 	_exec_command "cd \"${REPO_DIR}\""
-
-	_e_notice "Starting work on config \"${CURRENT_CONFIG}\"..."
 }
 
 function _check_variables () {
