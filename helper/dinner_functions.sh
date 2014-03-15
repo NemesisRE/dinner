@@ -97,7 +97,7 @@ function _add_device_config () {
 				_e_pending "Is REPO_DIR=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
 				read UVY
 			done
-			[[ ${USERVALUE} ]] && _exec_command "$(which sed) -i \"s/^REPO_DIR=\(\"\|\'\).*\(\"\|\'\)\(.*\)/REPO_DIR=\"${USERVALUE}\"\3/g\" ${DEVICE_CONFIG_NAME}" "_e_pending_fatal \"There was an error while adding config.\""
+			[[ ${USERVALUE} ]] && _exec_command "$(which sed) -i \"s¡^REPO_DIR=\(\"\|\'\).*\(\"\|\'\)\(.*\)¡REPO_DIR=\"${USERVALUE}\"\3¡g\" ${DEVICE_CONFIG_NAME}" "_e_pending_fatal \"There was an error while adding config.\""
 			_exec_command "cp ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
 			printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
 			continue
