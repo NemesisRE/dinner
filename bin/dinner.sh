@@ -39,6 +39,11 @@ source ${DINNER_DIR}/helper/log.sh
 source ${DINNER_DIR}/helper/help.sh
 source ${DINNER_DIR}/helper/exit_status.sh
 
+if [[ $EUID -eq 0 ]]; then
+	_e_fatal "For your own safety, do not run as root user!"
+	exit 1
+fi
+
 rm -f ${DINNER_TEMP_DIR}/*
 rm -f "${DINNER_LOG_DIR}/dinner.log" "${DINNER_LOG_DIR}/dinner_error.log"
 
@@ -46,7 +51,7 @@ trap "echo " "; _e_fatal \"Received SIGINT or SIGTERM\; _cleanup" ${EX_SIGTERM}"
 
 exit_status=$EX_SUCCESS
 
-test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_SOFTWARE
+test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_NOTFOUND
 if [ -x "${DINNER_DIR}/bin/repo" ]; then
 	REPO_BIN=${DINNER_DIR}/bin/repo
 elif [ -x "$(which repo)" ]; then
@@ -55,14 +60,18 @@ else
 	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
 	if [ -e "${DINNER_DIR}/bin/repo" ]; then
 		chmod a+x c
-		REPO_BIN="${DINNER_DIR}/bin/repo"
+		if [ -x "${DINNER_DIR}/bin/repo" ]; then
+			REPO_BIN="${DINNER_DIR}/bin/repo"
+		else
+			_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
+		fi
 	else
-		_e_fatal "\"repo\" not found in PATH" $EX_SOFTWARE
+		_e_fatal "\"repo\" not found in PATH" $EX_NOTFOUND
 	fi
 fi
-test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "\"md5sum\" not found in PATH" $EX_SOFTWARE
+test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "\"md5sum\" not found in PATH" $EX_NOTFOUND
 test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "\"mutt\" not found in PATH, will not send E-Mails..."
-test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal "${DINNER_DIR}/bin/dinner_ansi2html.sh not executable" $EX_SOFTWARE
+test -x ${DINNER_DIR}/bin/dinner_ansi2html.sh && ANSI2HTML_BIN=${DINNER_DIR}/bin/dinner_ansi2html.sh || _e_fatal "${DINNER_DIR}/bin/dinner_ansi2html.sh not executable" $EX_NOTFOUND
 
 # Retrieve all the flags preceeding a subcommand
 while [[ $# -gt 0 ]]; do

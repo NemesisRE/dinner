@@ -164,7 +164,7 @@ function _check_prerequisites () {
 
 	if [ -f "${DINNER_DIR}/config.d/${CURRENT_CONFIG}" ]; then
 		if [ "$(sed -n '1{p;q;}' ${DINNER_DIR}/config.d/${CURRENT_CONFIG})" != "${DINNER_CONFIG_HEADER}" ] ; then
-			_e_fatal "${CURRENT_CONFIG} is not a valid dinner config."
+			_e_fatal "${CURRENT_CONFIG} is not a valid dinner config." $EX_CONFIG
 		elif [ "$(sed -n '2{p;q;}' ${DINNER_DIR}/config.d/${CURRENT_CONFIG})" != "${DINNER_CONFIG_VERSION}" ]; then
 			_e_warn "Config version differs from current version" "Version of ${DEVICE_CONFIG_NAME}: $(sed -n '2{p;q;}' ${DINNER_DIR}/config.d/${CURRENT_CONFIG} | awk -F_ '{print $3}')" "Current version: $(echo ${DINNER_CONFIG_VERSION} | awk -F_ '{print $3}')"
 		fi
