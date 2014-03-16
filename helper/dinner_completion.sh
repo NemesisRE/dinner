@@ -70,9 +70,21 @@ _dinner_configs() {
 	done
 }
 
+_dinner_logfiles() {
+	local DINNER_LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)/logs"
+	for LOGFILE in $(find "${DINNER_LOG_DIR}" -mindepth 1 -maxdepth 1 -type f | sort -z); do
+		_dinner_basename ${LOGFILE}
+	done
+}
+
 _dinner_complete_configs()
 {
 	COMPREPLY=($(compgen -W "$(_dinner_configs)" -- "$1"))
+}
+
+_dinner_complete_logfiles()
+{
+	COMPREPLY=($(compgen -W "$(_dinner_logfiles)" -- "$1"))
 }
 
 _dinner_complete()
@@ -161,9 +173,14 @@ _dinner_complete()
 					esac
 				fi
 				;;
-			cook | changelog | pastelog)
+			cook | changelog)
 				# Offer one or more config completions.
 				_dinner_complete_configs "$cur"
+				;;
+			pastelog)
+				if (( $COMP_CWORD == $cmd_index + 1 )); then
+					_dinner_complete_logfiles "$cur"
+				fi
 				;;
 			make)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
@@ -180,7 +197,6 @@ _dinner_complete()
 				fi
 				;;
 			help)
-				# Offer exactly one command name completion.
 				prev="${COMP_WORDS[COMP_CWORD-1]}"
 				if [ "$prev" = "config" ]; then
 					COMPREPLY=($(compgen -W "$config_subs" -- $cur))

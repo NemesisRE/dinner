@@ -374,7 +374,7 @@ function _brunch_device () {
 			_e_pending "Do you want to paste the error log to ${HASTE_PASTE_URL}? (y/N): " "ACTION" "${BLYLW}" "0"
 			read -t 120 -n1 ANSWER
 			if [[ "${ANSWER}" =~ [yY] ]]; then
-				_paste_log
+				_paste_log ${CURRENT_LOG}
 			else
 				_e_pending_error "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 			fi
@@ -618,23 +618,11 @@ function _cleanup () {
 	done
 }
 
-function _find_last_errlog () {
-	if [[ ${1} ]] && [[ ${1} = "dinner" ]]; then
-		_paste_log ${DINNER_LOG_DIR}/dinner_error.log ${2}
-		continue
-	elif [[ ${1} ]]; then
-		local CONFIG="dinner_*${1}*_error.log"
-	else
-		local CONFIG="dinner_*_error.log"
-	fi
-	_paste_log $(find ${DINNER_LOG_DIR}/ -mindepth 1 -maxdepth 1 -type f -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
-}
-
 function _paste_log () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="${1}"
 	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && PASTE_LINES=${2}
 	if [ ${PASTE_LOG} ]; then
-		tail -${PASTE_LINES} ${PASTE_LOG} > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
+		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 		printf "\n\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
