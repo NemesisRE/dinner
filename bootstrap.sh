@@ -44,11 +44,11 @@ fi
 
 until [[ "${UVY}" =~ [yY] ]]; do
 	unset UVY USERVALUE
-	printf "${BLDWHT}%${HALIGN}b:\t%b\n${TXTDEF}" "${INSTALL}" "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
+	printf "${BLDWHT}%${HALIGN}b:\t%b\n${TXTDEF}" " " "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
 	printf "${BLDWHT}%${HALIGN}b:\t${TXTDEF}" "PATH"
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
-	_e_pending "Is REPO_DIR=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
+	printf "${BLDBLU}%${HALIGN}b:\t${TXTDEF}" "Is REPO_DIR=\"${USERVALUE}\" correct? (y/N): "
 	read -n1 UVY
 done
 
