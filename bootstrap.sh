@@ -48,8 +48,9 @@ until [[ "${UVY}" =~ [yY] ]]; do
 	printf "${BLDWHT}%b${TXTDEF}" "PATH: "
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
-	printf "${BLDBLU}%b${TXTDEF}" "Is REPO_DIR=\"${DINNER_INSTALL_PATH}\" correct? (y/N): "
+	printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
 	read -n1 UVY
+	echo " "
 done
 
 ### Install dinner ###
