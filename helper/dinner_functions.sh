@@ -540,7 +540,7 @@ function _check_current_config () {
 
 function _get_changelog () {
 	_e_pending "Gathering Changes since last successfull build..."
-	if [ -f "${CURRENT_LASTBUILD_MEM}" ]; then
+	if [ -f "${CURRENT_LASTBUILD_MEM}" ] && [ $($(which cat) ${CURRENT_LASTBUILD_MEM}) ]; then
 		LASTBUILD=$($(which cat) ${CURRENT_LASTBUILD_MEM})
 
 		echo -e "\nChanges since last build ${LASTBUILD}"  > ${CURRENT_CHANGELOG}
