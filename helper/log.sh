@@ -145,6 +145,12 @@ function _e_fatal () {
 	exit ${EXIT_CODE:-1}
 }
 
+function _log_msg () {
+	unset LOG_MESSAGE
+	[[ ${1} ]] && local LOG_MESSAGE=${1} && shift 1
+	printf "%${HALIGN}b:\t%b\n" "LOGMESSAGE" "${LOG_MESSAGE}" &> /dev/null > >( tee -a ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log} ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log} )
+}
+
 ##
 # _exec_command
 #

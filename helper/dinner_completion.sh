@@ -167,7 +167,7 @@ _dinner_complete()
 				;;
 			make)
 				if (( $COMP_CWORD == $cmd_index + 1 )); then
-					COMPREPLY=($(compgen -W "$make_opts" -- $cur))
+					COMPREPLY=($(compgen -W "$make_subs" -- $cur))
 				else
 					_dinner_complete_configs "$cur"
 				fi
@@ -185,7 +185,7 @@ _dinner_complete()
 				if [ "$prev" = "config" ]; then
 					COMPREPLY=($(compgen -W "$config_subs" -- $cur))
 				elif [ "$prev" = "make" ]; then
-					COMPREPLY=($(compgen -W "$make_opts" -- $cur))
+					COMPREPLY=($(compgen -W "$make_subs" -- $cur))
 				else
 					COMPREPLY=($(compgen -W "$cmds" -- "$cur"))
 				fi

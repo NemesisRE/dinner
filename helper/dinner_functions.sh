@@ -595,6 +595,8 @@ function _get_changelog () {
 }
 
 function _cleanup () {
+	_log_msg "Running cleanup..."
+
 	_exec_command "rm -vf ${DINNER_TEMP_DIR}/*"
 
 	if [ $(find ${DINNER_LOG_DIR} -name dinner.log -size +20M -type f) ]; then
