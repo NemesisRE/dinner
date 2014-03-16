@@ -324,7 +324,7 @@ function _set_current_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [[ $(($(date +%s)-$(cat "${CURRENT_LASTSYNC_MEM}"))) -lt $((SKIP_SYNC_TIME*60)) ]]; then
+	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(cat "${CURRENT_LASTSYNC_MEM}") ] && [[ $(($(date +%s) - $(cat "${CURRENT_LASTSYNC_MEM}"))) -lt $((SKIP_SYNC_TIME*60)) ]]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} minutes."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
