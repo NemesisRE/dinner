@@ -33,7 +33,8 @@
 ### Overrides for Dinner Defaults
 ###
 ##SKIP_SYNC_TIME=''										#%if synced in the last given minutes set skip sync true %(Default: "30")
-##SYNC_PARAMS=''										#%Override syn parameters %(Default: '-q -j100' )
+##SYNC_PARAMS=''										#%Override sync parameters %(Default: '-q -j100' )
+##REPOPICK_PARAMS=''									#%Repopick parameters %(Default: '-q' )
 ##DINNER_USE_JAVA=""									#%Will check for the right java version and abort if it's not %(Default: "1.6")
 ##DINNER_USE_CCACHE=''									#%Use ccache or not 1(YES)/0(NO) %(Default: "1")
 ##DINNER_CCACHE_DIR=''									#%Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})

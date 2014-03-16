@@ -15,6 +15,7 @@ FORCE_SYNC=false
 SKIP_SYNC=false
 SKIP_SYNC_TIME="30"
 SYNC_PARAMS='-q -j100'
+REPOPICK_PARAMS='-q'
 PASTE_LINES="300"
 HASTE_PASTE_URL="https://paste.nrecom.net"
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
