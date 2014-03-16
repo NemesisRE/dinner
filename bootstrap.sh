@@ -23,6 +23,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License at (http://www.gnu.org/licenses/) for
 # more details.
+#
+#
+# Paste this into your shell
+# curl -sL https://raw.github.com/NemesisRE/dinner/master/bootstrap.sh | /bin/bash
 
 
 #set -x
@@ -49,7 +53,7 @@ until [[ "${UVY}" =~ [yY] ]]; do
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
 	if [ -e ${DINNER_INSTALL_PATH} ]; then
-		printf "${BLDYLW}%b\n${TXTDEF}" "Already exists, choose an other."
+		printf "${BLDYLW}%b\n${TXTDEF}" "Path:\"${DINNER_INSTALL_PATH}\" already exists, choose an other."
 	else
 		printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
 		read -n1 UVY
