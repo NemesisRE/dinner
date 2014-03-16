@@ -33,7 +33,7 @@ function _dinner_update () {
 	if [ "${?}" == "0" ]; then
 		if [ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
 			_e_pending_success "Successfully updated"
-			_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
+			#_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		else
 			_e_pending_success "Already up-to-date."
 		fi
@@ -437,10 +437,10 @@ function _clean_old_builds () {
 function _send_mail () {
 	if [ ${MAIL_BIN} ] && ([ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
-			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}\n"
-			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"\n"
+			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}<br>"
+			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}\n\n"
+				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}<br><br>"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ]; then
@@ -452,26 +452,24 @@ function _send_mail () {
 				_generate_admin_message "${CURRENT_CLEANED_FILES}"
 			fi
 		else
-			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.\n\n"
+			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.<br><br>"
 			if [ -f ${CURRENT_LOG} ]; then
-				_generate_admin_message "Logfile attached"
+				_generate_admin_message "Logfile attached<br>"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz dinner_${CURRENT_CONFIG}.log"
 				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
 			else
-				_generate_admin_message "ERROR: Logfile not found"
+				_generate_admin_message "ERROR: Logfile not found<br>"
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
-				_generate_admin_message "Error Logfile attached"
+				_generate_admin_message "Error Logfile attached<br>"
 				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz dinner_${CURRENT_CONFIG}_error.log"
 				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
 			else
-				_generate_admin_message "ERROR: Error Logfile not found"
+				_generate_admin_message "ERROR: Error Logfile not found<br>"
 			fi
 		fi
-
-		_generate_user_message "\e[21m"
 
 		if [ ${CURRENT_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
