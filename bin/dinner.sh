@@ -55,14 +55,16 @@ if [ -x "$(which repo)" ]; then
 	REPO_BIN="$(which repo)"
 elif [ -x "${DINNER_DIR}/bin/repo" ]; then
 	REPO_BIN=${DINNER_DIR}/bin/repo
-	export PATH=${REPO_BIN}:${PATH}
+	PATH=${PATH}:${REPO_BIN}
+	export PATH
 else
 	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
 	if [ -e "${DINNER_DIR}/bin/repo" ]; then
 		chmod a+x c
 		if [ -x "${DINNER_DIR}/bin/repo" ]; then
 			REPO_BIN="${DINNER_DIR}/bin/repo"
-			export PATH=${REPO_BIN}:${PATH}
+			PATH=${PATH}:${REPO_BIN}
+			export PATH
 		else
 			_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
 		fi
