@@ -36,10 +36,7 @@ BLDRED="\e[1;31m" # Red - error
 BLDGRN="\e[1;32m" # Green - success
 BLDYLW="\e[1;33m" # Yellow - warning
 BLDBLU="\e[1;34m" # Blue - no action/ignored
-BLDPUR="\e[1;35m" # Purple - fatal
-BLDCYN="\e[1;36m" # Cyan - pending
 BLDWHT="\e[1;37m" # White - notice
-HALIGN="13"
 
 if [[ ${EUID} -eq 0 ]]; then
 	printf "${BLDRED}%b\n${TXTDEF}" "For your own safety, do not run as root user!"
@@ -48,7 +45,7 @@ fi
 
 printf "${BLDWHT}%b\n${TXTDEF}" "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
 until [[ "${UVY}" =~ [yY] ]]; do
-	unset UVY USERVALUE
+	unset UVY DINNER_INSTALL_PATH
 	printf "${BLDWHT}%b${TXTDEF}" "PATH: "
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
