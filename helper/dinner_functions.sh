@@ -64,7 +64,7 @@ function _generate_local_manifest () {
 		done
 		printf "%s\n" '</manifest>' >> ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml
 		if [ ! -e ${CURRENT_LOCAL_MANIFEST} ] || [ "$(${MD5_BIN} ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml | awk '{ print $1 }')" != "$($MD5_BIN ${CURRENT_LOCAL_MANIFEST} | awk '{ print $1 }')" ]; then
-			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
+			_exec_command "mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}"
 			FORCE_SYNC=true
 			_e_pending_success "Successfully generated local manifest."
 		else
@@ -289,6 +289,7 @@ function _set_current_variables () {
 	#Set initial exitcodes
 	CURRENT_BUILD_SKIPPED=false
 	CURRENT_SYNC_REPO_EXIT_CODE=0
+	CURRENT_REPOPICK_EXIT_CODE=0
 	CURRENT_BUILD_STATUS=false
 	CURRENT_CONFIG_EXIT_CODE=0
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=0
@@ -309,7 +310,7 @@ function _set_current_variables () {
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
 	eval CURRENT_CLEANUP_OLDER_THAN="${CLEANUP_OLDER_THAN}"
-	eval CURRENT_MAIL="${USER_MAIL}"
+	eval CURRENT_USER_MAIL="${USER_MAIL}"
 	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
 	eval CURRENT_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 	eval CURRENT_STATUS="failed"
@@ -340,8 +341,10 @@ function _repo_pick () {
 			export ANDROID_BUILD_TOP=${REPO_DIR}
 			_e_pending "Picking Gerrit ID(s) $(echo ${CURRENT_REPOPICK[@]})..."
 			_exec_command "${REPO_DIR}/build/tools/repopick.py ${REPOPICK_PARAMS} $(echo ${CURRENT_REPOPICK[@]})" "_e_pending_error \"Something went wrong while picking change ${CHANGE}\"" "_e_pending_success \"Successfully picked change ${CHANGE}\""
+			CURRENT_REPOPICK_EXIT_CODE=${?}
 		else
 			_e_warn "Could not find repopick.py, cannot make a repopick."
+			CURRENT_REPOPICK_EXIT_CODE=1
 		fi
 	fi
 }
@@ -414,31 +417,36 @@ function _clean_old_builds () {
 			CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
 			CURRENT_CLEANED_FILES=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 0 \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
 		fi
-		for OLDFILE in ${CURRENT_CLEANED_FILES}; do
-			_exec_command "rm ${OLDFILE}"
-			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
-		done
-		if [ ! "${CURRENT_CLEANED_FILES}" ]; then
+		if [ "${CURRENT_CLEANED_FILES}" ]; then
+			for OLDFILE in ${CURRENT_CLEANED_FILES}; do
+				_exec_command "rm -v ${OLDFILE}"
+				CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
+			done
+			if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" = 0 ]; then
+				_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
+			else
+				_e_pending_warn "Something went wrong while cleaning builds for ${CURRENT_CONFIG}."
+			fi
+		else
 			_e_pending_skipped "Cleanup skipped, nothing to do for ${CURRENT_CONFIG}."
-		elif [ "${CURRENT_CLEANED_FILES}" ]; then
-			_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
-		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
-			_e_pending_warn "Something went wrong while cleaning builds for ${CURRENT_CONFIG}." "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}"
 		fi
 	fi
 }
 
 function _send_mail () {
-	if [ ${MAIL_BIN} ] && ([ "${CURRENT_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
+	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}<br>"
+			_generate_admin_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}<br>"
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
 				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}<br><br>"
+				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}<br><br>"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ]; then
 				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG} | sed 's/\n/<br>/g')"
+				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG} | sed 's/\n/<br>/g')"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
@@ -447,6 +455,7 @@ function _send_mail () {
 			fi
 		else
 			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.<br><br>"
+			_generate_admin_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.<br><br>"
 			if [ -f ${CURRENT_LOG} ]; then
 				_generate_admin_message "Logfile attached<br>"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
@@ -465,15 +474,15 @@ function _send_mail () {
 			fi
 		fi
 
-		if [ ${CURRENT_MAIL} ]; then
+		if [ ${CURRENT_USER_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully sent User E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_USER_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully sent User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ ${CURRENT_ADMIN_MAIL} ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully sent Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully sent Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	fi
@@ -506,6 +515,7 @@ function _dinner_make {
 function _check_current_config () {
 	CURRENT_CONFIG_EXIT_CODE=$(( \
 		${SYNC_REPO_EXIT_CODE} \
+		+${CURRENT_REPOPICK_EXIT_CODE}\
 		+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
 		+${CURRENT_MOVE_BUILD_EXIT_CODE} \
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \

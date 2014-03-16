@@ -39,6 +39,7 @@
 ##DINNER_USE_CCACHE=''									#%Use ccache or not 1(YES)/0(NO) %(Default: "1")
 ##DINNER_CCACHE_DIR=''									#%Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
 ##DINNER_CCACHE_SIZE=''									#%Change ccache max cache size in gigabytes recomended are min. 25G %(Default: ccache default=1G )
+##HASTE_PASTE_URL=""									#%Hostname for Haste (https://github.com/seejohnrun/haste-server) %(Default: "https://paste.nrecom.net" )
 
 
 #############################################
