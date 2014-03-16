@@ -40,6 +40,7 @@ else
 fi
 
 # Source .dinner in .bashrc
-grep -xq 'source "$HOME/.dinner/dinner.sh"' ${HOME}/.bashrc || printf '\nsource "$HOME/.dinner/dinner.sh"' >> ${HOME}/.bashrc
+grep -xq 'source ${HOME}/.dinner/helper/dinner_completion.sh' ${HOME}/.bashrc || printf '\nsource ${HOME}/.dinner/helper/dinner_completion.sh"' >> ${HOME}/.bashrc
+grep -xq 'export PATH=$PATH:${HOME}/.dinner/bin' ${HOME}/.bashrc || printf '\nexport PATH=$PATH:${HOME}/.dinner/bin' >> ${HOME}/.bashrc
 
 echo "Please relog or run \"source ${HOME}/.bashrc\" then you can start dinner by typing \"dinner\""
