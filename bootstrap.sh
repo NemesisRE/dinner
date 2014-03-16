@@ -49,13 +49,16 @@ until [[ "${UVY}" =~ [yY] ]]; do
 	printf "${BLDWHT}%b${TXTDEF}" "PATH: "
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
+	if ! [[ ${DINNER_INSTALL_PATH} =~ ^/.* ]]; then
+		DINNER_INSTALL_PATH=${HOME}/${DINNER_INSTALL_PATH}
+	fi
 	if [ -e ${DINNER_INSTALL_PATH} ]; then
 		printf "${BLDYLW}%b\n${TXTDEF}" "Path:\"${DINNER_INSTALL_PATH}\" already exists, choose an other."
-	else
-		printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
-		read -n1 UVY
-		echo " "
+		continue
 	fi
+	printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
+	read -n1 UVY
+	echo " "
 done
 
 ### Install dinner ###
