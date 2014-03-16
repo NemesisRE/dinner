@@ -100,10 +100,8 @@ function _add_device_config () {
 			[[ ${USERVALUE} ]] && _exec_command "$(which sed) -i \"s!^REPO_DIR=\(\\\"\|\'\).*\(\\\"\|\'\)\(.*\)!REPO_DIR=\\\"${USERVALUE}\\\"\\\3!g\" ${DEVICE_CONFIG_NAME}" "_e_pending_fatal \"There was an error while adding config.\""
 			_exec_command "cp ${DEVICE_CONFIG_NAME} ${DINNER_CONF_DIR}/" "_e_pending_error \"There was an error while adding config.\"" "_e_pending_success \"Successfully added config.\""
 			printf "${BLDWHT}%s${TXTDEF}\n" "Available Configs:" && _print_configs "\t\t%s\n"
-			continue
 		else
 			_e_pending_error "${DEVICE_CONFIG_NAME} is not a valid dinner config."
-			continue
 		fi
 	else
 		if [ -e ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
@@ -141,7 +139,6 @@ function _add_device_config () {
 		IFS=$old_IFS
 		cat ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Succesfully created config \"${DEVICE_CONFIG_NAME}\""
-		continue
 	fi
 }
 
@@ -160,7 +157,6 @@ function _del_device_config () {
 	else
 		_e_warn "Config \"${DEVICE_CONFIG_NAME}\" does not exist."
 	fi
-	continue
 }
 
 function _show_device_config () {
@@ -171,7 +167,6 @@ function _show_device_config () {
 	else
 		_e_error "Can not show config ${DEVICE_CONFIG_NAME}, config does not exist!"
 	fi
-	continue
 }
 
 function _check_prerequisites () {
@@ -505,7 +500,6 @@ function _dinner_make {
 		_exec_command "make ${CURRENT_DINNER_MAKE}" '_e_pending_warn "make ${CURRENT_DINNER_MAKE} has failed"' '_e_pending_success "Successfully run make ${CURRENT_DINNER_MAKE}"'
 		if ${CURRENT_MAKE_ONLY}; then
 			_check_current_config
-			continue
 		fi
 	fi
 }
@@ -575,7 +569,6 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
-			continue
 		else
 			_e_pending_success "Successfully gathered changes."
 		fi
@@ -587,7 +580,6 @@ function _get_changelog () {
 			sleep 3
 			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
-			continue
 		fi
 	fi
 }
