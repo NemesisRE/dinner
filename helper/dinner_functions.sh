@@ -444,7 +444,7 @@ function _send_mail () {
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ]; then
-				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
+				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG} | sed 's/\n/<br>/g')"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
