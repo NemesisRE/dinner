@@ -51,16 +51,18 @@ trap "echo \" \"; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}; _cleanu
 exit_status=$EX_SUCCESS
 
 test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_NOTFOUND
-if [ -x "${DINNER_DIR}/bin/repo" ]; then
-	REPO_BIN=${DINNER_DIR}/bin/repo
-elif [ -x "$(which repo)" ]; then
+if [ -x "$(which repo)" ]; then
 	REPO_BIN="$(which repo)"
+elif [ -x "${DINNER_DIR}/bin/repo" ]; then
+	REPO_BIN=${DINNER_DIR}/bin/repo
+	export PATH=${REPO_BIN}:${PATH}
 else
 	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
 	if [ -e "${DINNER_DIR}/bin/repo" ]; then
 		chmod a+x c
 		if [ -x "${DINNER_DIR}/bin/repo" ]; then
 			REPO_BIN="${DINNER_DIR}/bin/repo"
+			export PATH=${REPO_BIN}:${PATH}
 		else
 			_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
 		fi
