@@ -649,12 +649,12 @@ function _clear_logs () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] && local OLDER_THAN="! -mtime ${1}" || local OLDER_THAN=""
 	[[ ${2} ]] && local CONFIG="${2}" || local CONFIG="*"
 	_e_pending "Cleaning logfiles for ${CONFIG}..."
-	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR}/ -name "dinner_${CONFIG}_*.log" -type f ${OLDER_THAN} | sort)
+	LOGFILE_RESULT=$(find ${DINNER_LOG_DIR}/ -name "dinner_${CONFIG}_*.log" -type f ${OLDER_THAN} -printf '%s ')
 	if [ "${LOGFILE_RESULT}" ]; then
 		for RMLOGFILE in ${LOGFILE_RESULT}; do
 			_exec_command "rm -v ${RMLOGFILE}"
 		done
-		_e_pending_success "Successfull cleaned following logs for ${CONFIG}:" "${LOGFILE_RESULT}"
+		_e_pending_success "Successfull cleaned following logs for ${CONFIG}:" ${LOGFILE_RESULT}
 	else
 		_e_pending_skipped "Skipping cleaning logs for ${CONFIG}, nothing to do"
 	fi
