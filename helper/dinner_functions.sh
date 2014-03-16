@@ -622,9 +622,9 @@ function _paste_log () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="${1}"
 	[[ ${2} ]] && PASTE_LINES="${2}"
 
-	if [ ${PASTE_LOG}] && [[ ${PASTE_LINES} =~ ^[0-9]+$ ]]; then
+	if [ ${PASTE_LOG} ] && [[ ${PASTE_LINES} =~ ^[0-9]+$ ]]; then
 		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
-	elif [ ${PASTE_LOG}] && [[ "${PASTE_LINES}" = "full" ]]; then
+	elif [ ${PASTE_LOG} ] && [[ "${PASTE_LINES}" = "full" ]]; then
 		cat "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	else
 		_e_pending_warn "No log available."
