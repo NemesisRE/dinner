@@ -31,7 +31,7 @@
 #
 # To use, add this line (or equivalent) to your .bashrc:
 #
-#	source ~/.dinner/helper/dinner_completion.sh
+#	source [DINNER_INSTALL_PATH]/helper/dinner_completion.sh
 #
 ###############################################################################
 #

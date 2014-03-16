@@ -27,20 +27,40 @@
 
 #set -x
 
+TXTDEF="\e[0m"    # Revert to default
+BLDRED="\e[1;31m" # Red - error
+BLDGRN="\e[1;32m" # Green - success
+BLDYLW="\e[1;33m" # Yellow - warning
+BLDBLU="\e[1;34m" # Blue - no action/ignored
+BLDPUR="\e[1;35m" # Purple - fatal
+BLDCYN="\e[1;36m" # Cyan - pending
+BLDWHT="\e[1;37m" # White - notice
+HALIGN="13"
+
 if [[ ${EUID} -eq 0 ]]; then
 	echo "For your own safety, do not run as root user!"
 	exit 1
 fi
 
+until [[ "${UVY}" =~ [yY] ]]; do
+	unset UVY USERVALUE
+	printf "${BLDWHT}%${HALIGN}b:\t%b\n${TXTDEF}" "${INSTALL}" "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
+	printf "${BLDWHT}%${HALIGN}b:\t${TXTDEF}" "PATH"
+	read DINNER_INSTALL_PATH
+	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
+	_e_pending "Is REPO_DIR=\"${USERVALUE}\" correct? (y/N): " "ANSWER" "${BLDBLU}" "0"
+	read -n1 UVY
+done
+
 ### Install dinner ###
 if [ $(which git) ]; then
-	$(which git) clone https://github.com/NemesisRE/dinner.git ${HOME}/.dinner
+	$(which git) clone https://github.com/NemesisRE/dinner.git ${DINNER_INSTALL_PATH}
 else
 	echo "Could not find git executable, please install git and try again."
 fi
 
 # Source .dinner in .bashrc
-grep -xq 'source ${HOME}/.dinner/helper/dinner_completion.sh' ${HOME}/.bashrc || printf '\nsource ${HOME}/.dinner/helper/dinner_completion.sh"' >> ${HOME}/.bashrc
-grep -xq 'export PATH=$PATH:${HOME}/.dinner/bin' ${HOME}/.bashrc || printf '\nexport PATH=$PATH:${HOME}/.dinner/bin' >> ${HOME}/.bashrc
+grep -xq 'source ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh' ${HOME}/.bashrc || printf '\nsource ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh"' >> ${HOME}/.bashrc
+grep -xq 'export PATH=$PATH:${DINNER_INSTALL_PATH}/bin' ${HOME}/.bashrc || printf '\nexport PATH=$PATH:${DINNER_INSTALL_PATH}/bin' >> ${HOME}/.bashrc
 
 echo "Please relog or run \"source ${HOME}/.bashrc\" then you can start dinner by typing \"dinner\""
