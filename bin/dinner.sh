@@ -54,8 +54,8 @@ test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found 
 if [ -x "$(which repo)" ]; then
 	REPO_BIN="$(which repo)"
 elif [ -x "${DINNER_DIR}/bin/repo" ]; then
-	REPO_BIN=${DINNER_DIR}/bin/repo
-	PATH=${PATH}:${REPO_BIN}
+	REPO_BIN="${DINNER_DIR}/bin/repo"
+	PATH=${PATH}:${DINNER_DIR}/bin
 	export PATH
 else
 	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
@@ -63,7 +63,7 @@ else
 		chmod a+x c
 		if [ -x "${DINNER_DIR}/bin/repo" ]; then
 			REPO_BIN="${DINNER_DIR}/bin/repo"
-			PATH=${PATH}:${REPO_BIN}
+			PATH=${PATH}:${DINNER_DIR}/bin
 			export PATH
 		else
 			_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
