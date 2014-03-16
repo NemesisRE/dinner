@@ -339,7 +339,8 @@ function _repo_pick () {
 		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
 			export ANDROID_BUILD_TOP=${REPO_DIR}
 			for CHANGE in ${CURRENT_REPOPICK[@]}; do
-				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}"
+				_e_pending "Picking Gerrit ID ${CHANGE}..."
+				_exec_command "${REPO_DIR}/build/tools/repopick.py ${CHANGE}" "_e_pending_error \"Something went wrong while picking change ${CHANGE}\"" "_e_pending_success \"Successfully picked change ${CHANGE}\""
 			done
 		else
 			_e_warn "Could not find repopick.py, cannot make a repopick."
