@@ -73,4 +73,4 @@ fi
 grep -xq "source ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" ${HOME}/.bashrc || printf "\nsource ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" >> ${HOME}/.bashrc
 grep -xq "export PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" ${HOME}/.bashrc || printf "\nexport PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" >> ${HOME}/.bashrc
 
-printf "${BLDGRN}%b\n${TXTDEF}" "Please relog or run \"source ${HOME}/.bashrc\"\nThen you can start using dinner by typing \"dinner\""
+printf "${BLDGRN}\n\n%b\n${TXTDEF}" "Please relog or run \"source ${HOME}/.bashrc\"\nThen you can start using Dinner by typing \"dinner\""
