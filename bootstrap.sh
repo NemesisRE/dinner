@@ -42,26 +42,31 @@ if [[ ${EUID} -eq 0 ]]; then
 	exit 1
 fi
 
+printf "${BLDWHT}%b\n${TXTDEF}" "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
 until [[ "${UVY}" =~ [yY] ]]; do
 	unset UVY USERVALUE
-	printf "${BLDWHT}%b\n${TXTDEF}" "Where do want Dinner to be installed? (Default: ${HOME}/.dinner )"
 	printf "${BLDWHT}%b${TXTDEF}" "PATH: "
 	read DINNER_INSTALL_PATH
 	[[ -z ${DINNER_INSTALL_PATH} ]] && DINNER_INSTALL_PATH="${HOME}/.dinner"
-	printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
-	read -n1 UVY
-	echo " "
+	if [ -e ${DINNER_INSTALL_PATH} ]; then
+		printf "${BLDYLW}%b\n${TXTDEF}" "Already exists, choose an other."
+	else
+		printf "${BLDBLU}%b${TXTDEF}" "Is this \"${DINNER_INSTALL_PATH}\" correct? (y/N): "
+		read -n1 UVY
+		echo " "
+	fi
 done
 
 ### Install dinner ###
 if [ $(which git) ]; then
 	$(which git) clone https://github.com/NemesisRE/dinner.git ${DINNER_INSTALL_PATH}
 else
-	echo "Could not find git executable, please install git and try again."
+	printf "${BLDRED}%b\n${TXTDEF}" "Could not find git executable, please install git and try again."
+	exit 1
 fi
 
 # Source .dinner in .bashrc
 grep -xq 'source ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh' ${HOME}/.bashrc || printf '\nsource ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh"' >> ${HOME}/.bashrc
 grep -xq 'export PATH=$PATH:${DINNER_INSTALL_PATH}/bin' ${HOME}/.bashrc || printf '\nexport PATH=$PATH:${DINNER_INSTALL_PATH}/bin' >> ${HOME}/.bashrc
 
-echo "Please relog or run \"source ${HOME}/.bashrc\" then you can start dinner by typing \"dinner\""
+printf "${BLDGRN}%b\n${TXTDEF}" "Please relog or run \"source ${HOME}/.bashrc\" then you can start dinner by typing \"dinner\""
