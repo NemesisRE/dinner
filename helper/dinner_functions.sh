@@ -620,16 +620,26 @@ function _cleanup () {
 
 function _paste_log () {
 	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="${1}"
-	[[ ${2} ]] && [[ ${2} =~ ^[0-9]+$ ]] && PASTE_LINES=${2}
-	if [ ${PASTE_LOG} ]; then
+	[[ ${2} ]] && PASTE_LINES="${2}"
+
+	if [ ${PASTE_LOG}] && [[ ${PASTE_LINES} =~ ^[0-9]+$ ]]; then
 		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
-		printf "\n\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
-		printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
-		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
-		CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
-		_e_pending_notice "Your error Log is here available: ${CURRENT_PASTE_URL}"
+	elif [ ${PASTE_LOG}] && [[ "${PASTE_LINES}" = "full" ]]; then
+		cat "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	else
 		_e_pending_warn "No log available."
+	fi
+
+	if [ -f ${DINNER_TEMP_DIR}/paste.log ]; then
+		printf "\n\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		if [[ ${PASTE_LOG} =~ _error ]]; then
+			printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		else
+			printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		fi
+		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
+		CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
+		_e_pending_notice "Your Log is here available: ${CURRENT_PASTE_URL}"
 	fi
 }
 
