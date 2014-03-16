@@ -194,7 +194,7 @@ case $cmd in
 		;;
 	update)    _dinner_update ;;
 	help)      help $help_cmd ${params[@]} ;;
-	pastelog)  _find_last_errlog ${params[@]} ;;
+	pastelog)  _paste_log ${params[@]} ;;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in

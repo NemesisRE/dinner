@@ -65,14 +65,14 @@ _dinner_basename()
 
 _dinner_configs() {
 	local DINNER_CONF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)/config.d"
-	for CONFIG in $(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name *example.dist | sort -z); do
+	for CONFIG in $(find "${DINNER_CONF_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name DINNER_DEFAULTS ! -name example.dist | sort -z); do
 		_dinner_basename ${CONFIG}
 	done
 }
 
 _dinner_logfiles() {
 	local DINNER_LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)/logs"
-	for LOGFILE in $(find "${DINNER_LOG_DIR}" -mindepth 1 -maxdepth 1 -type f | sort -z); do
+	for LOGFILE in $(find "${DINNER_LOG_DIR}" -mindepth 1 -maxdepth 1 -type f ! -name ".empty" | sort -z); do
 		_dinner_basename ${LOGFILE}
 	done
 }
