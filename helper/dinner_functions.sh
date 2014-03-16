@@ -293,7 +293,8 @@ function _set_current_variables () {
 	CURRENT_BUILD_STATUS=false
 	CURRENT_CONFIG_EXIT_CODE=0
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=0
-	CURRENT_MOVE_BUILD_EXIT_CODE=0
+	CURRENT_COPY_BUILD_EXIT_CODE=0
+	CURRENT_COPY_OTA_BUILD_EXIT_CODE=0
 	CURRENT_PRE_BUILD_COMMAND_EXIT_CODE=0
 	CURRENT_POST_BUILD_COMMAND_EXIT_CODE=0
 	CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=0
@@ -309,6 +310,7 @@ function _set_current_variables () {
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
 	eval CURRENT_TARGET_DIR="${TARGET_DIR}"
+	eval CURRENT_OTA_TARGET_DIR="${TARGET_DIR}"
 	eval CURRENT_CLEANUP_OLDER_THAN="${CLEANUP_OLDER_THAN}"
 	eval CURRENT_USER_MAIL="${USER_MAIL}"
 	eval CURRENT_ADMIN_MAIL="${ADMIN_MAIL}"
@@ -361,7 +363,7 @@ function _brunch_device () {
 		if ${CURRENT_BUILD_STATUS}; then
 			CURRENT_STATUS="finished successfully"
 			_post_build_command
-			_move_build
+			_copy_build
 			_clean_old_builds
 		fi
 	else
@@ -379,15 +381,27 @@ function _brunch_device () {
 	fi
 }
 
-function _move_build () {
+function _copy_build () {
 	if [ "${CURRENT_TARGET_DIR}" ]; then
 		_e_pending "Moving files to target directory..."
 		if [ -d "${CURRENT_TARGET_DIR}/" ]; then
-			_exec_command "mv ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_pending_error \"Something went wrong while moving the build\"" "_e_pending_success \"Successfully moved build to ${CURRENT_TARGET_DIR}/\""
-			CURRENT_MOVE_BUILD_EXIT_CODE=$?
+			_exec_command "cp -f ${CURRENT_OUTPUT_FILEPATH}* ${CURRENT_TARGET_DIR}/" "_e_pending_error \"Something went wrong while moving the build\"" "_e_pending_success \"Successfully copied build to ${CURRENT_TARGET_DIR}/\""
+			CURRENT_COPY_BUILD_EXIT_CODE=$?
 		else
-			CURRENT_MOVE_BUILD_EXIT_CODE=1
+			CURRENT_COPY_BUILD_EXIT_CODE=1
 			_e_pending_warn "${CURRENT_TARGET_DIR}/ is not a Directory."
+		fi
+	fi
+	if [ "${CURRENT_OTA_TARGET_DIR}" ]; then
+		_e_pending "Moving OTA file to target directory..."
+		if [ -d "${CURRENT_OTA_TARGET_DIR}/" ]; then
+			CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
+			CURRENT_OTA_FILE=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 1 -type f \( -name "*${CURRENT_DEVICE}*" -a -name "*ota*" \) -a \( -name "*.zip" -o -name "*.zip.md5sum" \) | tr "\n" " ")
+			_exec_command "cp -f ${CURRENT_OTA_FILE} ${CURRENT_OTA_TARGET_DIR}/" "_e_pending_error \"Something went wrong while moving the OTA file\"" "_e_pending_success \"Successfully copied OTA file to ${CURRENT_TARGET_DIR}/\""
+			CURRENT_COPY_OTA_BUILD_EXIT_CODE=$?
+		else
+			CURRENT_COPY_OTA_BUILD_EXIT_CODE=1
+			_e_pending_warn "${CURRENT_OTA_TARGET_DIR}/ is not a Directory."
 		fi
 	fi
 }
@@ -412,10 +426,11 @@ function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}" ]; then
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR} -maxdepth 0 \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
-		else
+			CURRENT_CLEANED_FILES=$(find ${CURRENT_TARGET_DIR} -maxdepth 1 \( -name "*${CURRENT_DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${CURRENT_DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
+		fi
+		if
 			CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
-			CURRENT_CLEANED_FILES=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 0 \( -name "*${DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
+			CURRENT_CLEANED_FILES=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 1 \( -name "*${CURRENT_DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${CURRENT_DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
 		fi
 		if [ "${CURRENT_CLEANED_FILES}" ]; then
 			for OLDFILE in ${CURRENT_CLEANED_FILES}; do
@@ -517,7 +532,8 @@ function _check_current_config () {
 		${SYNC_REPO_EXIT_CODE} \
 		+${CURRENT_REPOPICK_EXIT_CODE}\
 		+${CURRENT_BRUNCH_DEVICE_EXIT_CODE} \
-		+${CURRENT_MOVE_BUILD_EXIT_CODE} \
+		+${CURRENT_COPY_BUILD_EXIT_CODE} \
+		+${CURRENT_COPY_OTA_BUILD_EXIT_CODE} \
 		+${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} \
 		+${CURRENT_SEND_MAIL_EXIT_CODE} \
 	))

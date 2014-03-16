@@ -48,6 +48,7 @@
 ##USER_MAIL='john+i9300@gmail.com'						#%set this if you want an email when new build is ready
 ##ADMIN_MAIL='doe+i9300@gmail.com'						#%set this if you want an email for succefull and failed builds (failed reports are with build logs)
 ##TARGET_DIR="/var/www/${DEVICE}/omni"					#%move your builds output file to the given directory
+##OTA_TARGET_DIR=""										#%move your builds OTA file to the given directory
 ##CLEANUP_OLDER_THAN='7'								#%set the number of days after output files should be removed leave empty for no cleanup
 ##DOWNLOAD_LINK='http://example.com/download/i9300'		#%set this if you want a download link in the email
 ##PRE_BUILD_COMMAND=''									#%define a command before brunch is started
