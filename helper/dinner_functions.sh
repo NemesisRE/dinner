@@ -66,9 +66,9 @@ function _generate_local_manifest () {
 		if [ ! -e ${CURRENT_LOCAL_MANIFEST} ] || [ "$(${MD5_BIN} ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml | awk '{ print $1 }')" != "$($MD5_BIN ${CURRENT_LOCAL_MANIFEST} | awk '{ print $1 }')" ]; then
 			mv ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.xml ${CURRENT_LOCAL_MANIFEST}
 			FORCE_SYNC=true
-			_e_pending_success "Successfully generated Local Manifest."
+			_e_pending_success "Successfully generated local manifest."
 		else
-			_e_pending_success "Manifest is current, no changes needed."
+			_e_pending_success "Local manifest is current, no changes needed."
 		fi
 	fi
 }
@@ -425,7 +425,7 @@ function _clean_old_builds () {
 			CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
 		done
 		if [ ! "${CURRENT_CLEANED_FILES}" ]; then
-			_e_pending_skipped "Cleanup skipped, nothing to clean up for ${CURRENT_CONFIG}."
+			_e_pending_skipped "Cleanup skipped, nothing to do for ${CURRENT_CONFIG}."
 		elif [ "${CURRENT_CLEANED_FILES}" ]; then
 			_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
 		elif [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" != 0 ]; then
@@ -473,13 +473,13 @@ function _send_mail () {
 
 		if [ ${CURRENT_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
-		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully send User E-Mail\""
+		_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully sent User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ ${CURRENT_ADMIN_MAIL} ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully send Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully sent Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	fi
