@@ -628,7 +628,6 @@ function _find_last_errlog () {
 		local CONFIG="dinner_*_error.log"
 	fi
 	_paste_log $(find ${DINNER_LOG_DIR}/ -mindepth 1 -maxdepth 1 -type f -name "${CONFIG}" ! -name "dinner_error.log" ! -name "dinner.log" -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" ") ${2}
-	continue
 }
 
 function _paste_log () {
