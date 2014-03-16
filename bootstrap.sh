@@ -42,7 +42,7 @@ BLDWHT="\e[1;37m" # White - notice
 HALIGN="13"
 
 if [[ ${EUID} -eq 0 ]]; then
-	echo "For your own safety, do not run as root user!"
+	printf "${BLDRED}%b\n${TXTDEF}" "For your own safety, do not run as root user!"
 	exit 1
 fi
 
