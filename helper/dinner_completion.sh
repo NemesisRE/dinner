@@ -236,6 +236,12 @@ _dinner_complete()
 # COMPREPLY=('') to semi-deny completion. That is, pressing Tab will just add
 # space characters to the command line, rather than generating filenames.
 #
+if [[ $SHELL =~ zsh ]]; then
+	autoload bashcompinit
+	bashcompinit
+fi
+
+
 if type compopt >/dev/null 2>&1; then
 	_DINNER_HAS_COMPOPT=1
 fi
