@@ -1,8 +1,8 @@
-/*
 /bin/*
+!/bin/dinner
 /config.d/*
-/doc/*
-/helper/*
+!/config.d/DINNER_DEFAULTS
+!/config.d/example.dist
 /logs/*
 /memory/*
 /tmp/*
