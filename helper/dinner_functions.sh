@@ -46,11 +46,11 @@ function _dinner_update () {
 }
 
 function _generate_user_message () {
-	printf "%s\n" ${1} >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
+	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
 }
 
 function _generate_admin_message () {
-	printf "%s\n" ${1} >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
+	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
 function _generate_local_manifest () {
