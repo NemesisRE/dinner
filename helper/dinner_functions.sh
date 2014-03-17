@@ -234,12 +234,12 @@ function _check_prerequisites () {
 	if [ ${?} != 0 ]; then
 		_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}"
 		if [ ${?} != 0 ]; then
-			_e_pending_fatal "Something went wrong while running breakfast"
+			_e_pending_fatal "Something went wrong while running breakfast for ${CURRENT_DEVICE}"
 		else
-			_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast\"" "_e_pending_success \"Successfully breakfast ${CURRENT_DEVICE}\""
+			_exec_command "breakfast ${CURRENT_DEVICE}" "_e_pending_fatal \"Something went wrong while running breakfast for ${CURRENT_DEVICE}\"" "_e_pending_success \"Successfully run breakfast ${CURRENT_DEVICE}\""
 		fi
 	else
-		_e_pending_success "Successfully breakfast ${CURRENT_DEVICE}"
+		_e_pending_success "Successfully run breakfast ${CURRENT_DEVICE}"
 	fi
 }
 
