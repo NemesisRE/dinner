@@ -329,7 +329,7 @@ function _sync_repo () {
 			_exec_command "${REPO_BIN} sync ${SYNC_PARAMS}" "_e_pending_error \"Something went wrong while doing repo sync\"" "_e_pending_success \"Successfully synced repo\""
 			CURRENT_SYNC_REPO_EXIT_CODE=$?
 			if [ "${CURRENT_SYNC_REPO_EXIT_CODE}" == 0 ]; then
-				echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
+				[[ ${CURRENT_DEVICE} ]] && echo $(date +%s) > "${CURRENT_LASTSYNC_MEM}"
 			fi
 		else
 			_e_pending_skipped "Skipping repo sync..."
@@ -700,7 +700,7 @@ function _run_config () {
 			CURRENT_DINNER_MAKE=${2}
 			CURRENT_CONFIG=${3}
 			;;
-		"cook")
+		"build")
 			CURRENT_CONFIG=${2}
 			;;
 		*)

@@ -103,7 +103,7 @@ done
 [[ $# -gt 0 ]] || cmd="help"
 
 # Get the subcommand
-valid_commands=(config make pastelog clearlogs changelog cook update help)
+valid_commands=(config make pastelog clearlogs changelog build update help)
 if [[ ! $cmd ]]; then
 	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
 		cmd=$1
@@ -137,7 +137,7 @@ while [[ $# -gt 0 ]]; do
 	fi
 
 	case $cmd in
-		changelog | cook | pastelog)
+		changelog | build | pastelog)
 			params+=("$1")
 			shift; continue ;;
 		make)
@@ -160,7 +160,7 @@ done
 # If no additional arguments are given, run the subcommand for every config
 if [[ ! $params ]]; then
 	case $cmd in
-		changelog | cook | clearlogs)
+		changelog | build | clearlogs)
 			while IFS= read -d $'\n' -r name ; do
 				params+=("$name")
 			done < <(_print_configs) ;;
@@ -204,14 +204,14 @@ case $cmd in
 			case $cmd in
 				make)         _run_config $cmd "${DINNER_MAKE}" "$params" ;;
 				changelog)    _run_config $cmd "$params"                  ;;
-				cook)         _run_config $cmd "$params"                  ;;
+				build)         _run_config $cmd "$params"                  ;;
 				clearlogs)    _clear_logs "$older_than" "$params"         ;;
 			esac
 			echo " "
 		done
 
 		case $cmd in
-			cook)
+			build)
 				echo " "
 				if [ ${DINNER_EXIT_CODE} == 0 ] && [ -z "${FAILED_CONFIGS}" ] && [ -z "${WARNING_CONFIGS}" ]; then
 					_e_success "=== YEAH all configs finished sucessfull! ==="
