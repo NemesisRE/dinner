@@ -46,11 +46,11 @@ function _dinner_update () {
 }
 
 function _generate_user_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
+	printf "%s\n" ${1} >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
 }
 
 function _generate_admin_message () {
-	echo -e "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
+	printf "%s\n" ${1} >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
 function _generate_local_manifest () {
@@ -456,17 +456,15 @@ function _clean_old_builds () {
 function _send_mail () {
 	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
-			_generate_user_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}<br>"
-			_generate_admin_message "Build for ${CURRENT_DEVICE} was successfully finished after ${CURRENT_BRUNCH_RUN_TIME}<br>"
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}<br><br>"
-				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}<br><br>"
+				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
+				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ]; then
-				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG} | sed 's/\n/<br>/g')"
-				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG} | sed 's/\n/<br>/g')"
+				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
+				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
@@ -474,35 +472,33 @@ function _send_mail () {
 				_generate_admin_message "${CURRENT_CLEANED_FILES}"
 			fi
 		else
-			_generate_user_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.<br><br>"
-			_generate_admin_message "Build has failed after ${CURRENT_BRUNCH_RUN_TIME}.<br><br>"
 			if [ -f ${CURRENT_LOG} ]; then
-				_generate_admin_message "Logfile attached<br>"
+				_generate_admin_message "Logfile attached"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz dinner_${CURRENT_CONFIG}.log"
 				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
 			else
-				_generate_admin_message "ERROR: Logfile not found<br>"
+				_generate_admin_message "ERROR: Logfile not found"
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
-				_generate_admin_message "Error Logfile attached<br>"
+				_generate_admin_message "Error Logfile attached"
 				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz dinner_${CURRENT_CONFIG}_error.log"
 				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
 			else
-				_generate_admin_message "ERROR: Error Logfile not found<br>"
+				_generate_admin_message "ERROR: Error Logfile not found"
 			fi
 		fi
 
-		if [ ${CURRENT_USER_MAIL} ]; then
+		if ${CURRENT_BUILD_STATUS} && [ ${CURRENT_USER_MAIL} ]; then
 			_e_pending "Sending User E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_USER_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully sent User E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_user_message.txt\" | sed 's/$/<br>/' | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_USER_MAIL}\"" "_e_pending_error \"Something went wrong while sending User E-Mail\"" "_e_pending_success \"Successfully sent User E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$?
 		fi
 
 		if [ ${CURRENT_ADMIN_MAIL} ]; then
 			_e_pending "Sending Admin E-Mail..."
-			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_CONFIG} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully sent Admin E-Mail\""
+			_exec_command "$(which cat) \"${DINNER_TEMP_DIR}/mail_admin_message.txt\" | sed 's/$/<br>/' | ${MAIL_BIN} -e \"set content_type=text/html\" -s \"[Dinner] Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})\" \"${CURRENT_ADMIN_MAIL}\" ${LOGFILE} ${ERRLOGFILE}" "_e_pending_error \"Something went wrong while sending Admin E-Mail\""  "_e_pending_success \"Successfully sent Admin E-Mail\""
 			CURRENT_SEND_MAIL_EXIT_CODE=$(($CURRENT_SEND_MAIL_EXIT_CODE + $?))
 		fi
 	fi
