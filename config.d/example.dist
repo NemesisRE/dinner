@@ -39,18 +39,19 @@
 ##DINNER_USE_CCACHE=''									#%Use ccache or not 1(YES)/0(NO) %(Default: "1")
 ##DINNER_CCACHE_DIR=''									#%Change ccache directory %(Default: ${CCACHE_DIR:-"$HOME/.ccache"})
 ##DINNER_CCACHE_SIZE=''									#%Change ccache max cache size in gigabytes recomended are min. 25G %(Default: ccache default=1G )
-##STIKKED_PASTE_URL=""									#%Hostname for Haste (https://github.com/seejohnrun/haste-server) %(Default: "https://paste.nrecom.net" )
+##STIKKED_PASTE_URL=""									#%Hostname for Stikked (https://github.com/claudehohl/Stikked) %(Default: "https://paste.nrecom.net/api/create" )
 
 
 #############################################
 ### Variables that are not necessary.
 ###
+##NMA_APIKEY=""											#%Set a Notify my Android Api if you wish admin notifications
 ##USER_MAIL='john+i9300@gmail.com'						#%set this if you want an email when new build is ready
 ##ADMIN_MAIL='doe+i9300@gmail.com'						#%set this if you want an email for succefull and failed builds (failed reports are with build logs)
 ##TARGET_DIR="/var/www/${DEVICE}/omni"					#%move your builds output file to the given directory
 ##OTA_TARGET_DIR=""										#%move your builds OTA file to the given directory
 ##CLEANUP_OLDER_THAN='7'								#%set the number of days after output files should be removed leave empty for no cleanup
-##DOWNLOAD_LINK='http://example.com/download/i9300'		#%set this if you want a download link in the email
+##DOWNLOAD_LINK='http://example.com/download/i9300'		#%set this if you want a download link in the email and Notify my Android
 ##PRE_BUILD_COMMAND=''									#%define a command before brunch is started
 ##POST_BUILD_COMMAND=''									#%define a command after a build was successful and before it is moved
 

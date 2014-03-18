@@ -542,16 +542,21 @@ function _check_current_config () {
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=0
 		echo $(date +%m/%d/%Y) > ${CURRENT_LASTBUILD_MEM}
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -gt 0 ]; then
 		WARNING_CONFIGS="${WARNING_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=1
 	elif ! ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		_e_warn "Buildcheck for config \"${CURRENT_CONFIG}\" has failed but overall exit code is fine" "${CURRENT_CONFIG_EXIT_CODE}"
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=2
 	elif ! ${CURRENT_BUILD_STATUS}; then
 		FAILED_CONFIGS="${FAILED_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=2
 	else
 		_e_warn "Could not determine status for config \"${CURRENT_CONFIG}\"" "${CURRENT_CONFIG_EXIT_CODE}"
+		NMA_PRIORITY=2
 	fi
 	DINNER_EXIT_CODE=$((${DINNER_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
@@ -657,6 +662,41 @@ function _paste_log () {
 		fi
 		CURRENT_PASTE_URL=$(${CURL_BIN} -d title="Dinner Log Paste" -d name=Dinner --data-urlencode text@${DINNER_TEMP_DIR}/paste.log ${STIKKED_PASTE_URL} 2>/dev/null)
 		_e_pending_notice "Your Log is here available: ${CURRENT_PASTE_URL}"
+	fi
+}
+
+function _nma () {
+	# check if API keys are set, if not print usage
+	if [[ ${NMA_APIKEY} ]]; then
+		# send notifcation
+		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-urlencode description@${DINNER_TEMP_DIR}/mail_admin_message.txt --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/)
+
+		# handle return code
+		case $NOTIFY in
+			200)
+			_e_pending_success "Notification submitted to API key ${APIKEY}."
+			;;
+			400)
+			_e_pending_error "The data supplied is in the wrong format, invalid length or null."
+			exit 400
+			;;
+			401)
+			_e_pending_error "API key not valid."
+			exit 401
+			;;
+			402)
+			_e_pending_error "Maximum number of API calls per hour exceeded."
+			exit 402
+			;;
+			500)
+			_e_pending_error "Internal server error. Please contact NMA support if the problem persists."
+			exit 500
+			;;
+			*)
+			_e_pending_error "An unexpected error occured."
+			exit 9001
+			;;
+		esac
 	fi
 }
 
