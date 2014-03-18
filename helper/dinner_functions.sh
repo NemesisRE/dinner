@@ -462,8 +462,10 @@ if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]
 				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
 			fi
 
-			if [ -f ${CURRENT_CHANGELOG} ]; then
+			if [-f ${CURRENT_CHANGELOG} ] && [ $(cat ${CURRENT_CHANGELOG}) ]; then
+				_generate_user_message "\nChanges since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n"
 				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
+				_generate_admin_message "\nChanges since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n"
 				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
 
@@ -560,8 +562,6 @@ function _get_changelog () {
 	if [ -f "${CURRENT_LASTBUILD_MEM}" ] && [ $($(which cat) ${CURRENT_LASTBUILD_MEM}) ]; then
 		LASTBUILD=$($(which cat) ${CURRENT_LASTBUILD_MEM})
 
-		echo -e "\nChanges since last build ${LASTBUILD}"  > ${CURRENT_CHANGELOG}
-		echo -e "=====================================================\n"  >> ${CURRENT_CHANGELOG}
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
 			cd $line
