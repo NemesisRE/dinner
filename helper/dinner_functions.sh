@@ -604,7 +604,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog: \" && $(which cat) ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog: " && $(which cat) ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 		fi
 	fi
