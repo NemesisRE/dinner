@@ -454,7 +454,7 @@ function _clean_old_builds () {
 }
 
 function _send_mail () {
-	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" || ${NMA_APIKEY} ]); then
+if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ] || [ "${NMA_APIKEY}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
@@ -663,7 +663,7 @@ function _nma () {
 	# From https://github.com/moepi/nomyan
 
 	# check if API keys are set, if not print usage
-	if [[ ${NMA_APIKEY} ]]; then
+	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
 		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-urlencode description@${DINNER_TEMP_DIR}/mail_admin_message.txt --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
