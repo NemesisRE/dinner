@@ -588,7 +588,7 @@ function _get_changelog () {
 				echo "" >> ${CURRENT_CHANGELOG}
 			fi
 		done
-		if [ -f ${CURRENT_CHANGELOG} ] && [ $($(which cat) ${CURRENT_CHANGELOG}) ]; then
+		if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
 			sed -i "1i Changes since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n" ${CURRENT_CHANGELOG}
 		fi
 		if ${CURRENT_CHANGELOG_ONLY}; then
