@@ -655,7 +655,7 @@ function _paste_log () {
 		else
 			printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		fi
-		CURRENT_PASTE_URL=$(${CURL_BIN} -d name=Dinner --data-urlencode text@${DINNER_TEMP_DIR}/paste.log ${STIKKED_PASTE_URL})
+		CURRENT_PASTE_URL=$(${CURL_BIN} -d name=Dinner --data-urlencode text@${DINNER_TEMP_DIR}/paste.log ${STIKKED_PASTE_URL} 2>/dev/null)
 		_e_pending_notice "Your Log is here available: ${CURRENT_PASTE_URL}"
 	fi
 }
