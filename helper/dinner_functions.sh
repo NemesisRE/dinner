@@ -665,32 +665,28 @@ function _nma () {
 	# check if API keys are set, if not print usage
 	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
-		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-urlencode description@${DINNER_TEMP_DIR}/mail_admin_message.txt --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
+		NMA_DESCRIPTION=$(cat ${DINNER_TEMP_DIR}/mail_admin_message.txt)
+		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
 		case ${NOTIFY} in
 			200)
-			_e_pending_success "Notification submitted to API key ${APIKEY}."
+			_e_pending_success "Notification submitted to API key ${NMA_APIKEY}."
 			;;
 			400)
 			_e_pending_error "The data supplied is in the wrong format, invalid length or null."
-			exit 400
 			;;
 			401)
 			_e_pending_error "API key not valid."
-			exit 401
 			;;
 			402)
 			_e_pending_error "Maximum number of API calls per hour exceeded."
-			exit 402
 			;;
 			500)
 			_e_pending_error "Internal server error. Please contact NMA support if the problem persists."
-			exit 500
 			;;
 			*)
 			_e_pending_error "An unexpected error occured."
-			exit 9001
 			;;
 		esac
 	fi
