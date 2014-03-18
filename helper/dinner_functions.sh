@@ -660,6 +660,8 @@ function _paste_log () {
 }
 
 function _nma () {
+	# From https://github.com/moepi/nomyan
+
 	# check if API keys are set, if not print usage
 	if [[ ${NMA_APIKEY} ]]; then
 		# send notifcation
