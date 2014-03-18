@@ -17,7 +17,7 @@ SKIP_SYNC_TIME="30"
 SYNC_PARAMS='-q -j100'
 REPOPICK_PARAMS='-q'
 PASTE_LINES="300"
-HASTE_PASTE_URL="https://paste.nrecom.net"
+STIKKED_PASTE_URL="https://paste.nrecom.net/api/create"
 #For compatibility set Language to en_US.UTF8 and timezone to UTC
 BACKUP_ENV[0]="LANGUAGE=\"${LANGUAGE}\"" && export LANGUAGE="en_US.UTF-8"
 BACKUP_ENV[1]="LC_ALL=\"${LC_ALL}\"" && export LC_ALL="en_US.UTF-8"

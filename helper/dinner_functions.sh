@@ -370,7 +370,7 @@ function _brunch_device () {
 		unset ANSWER
 		_e_pending_error "Brunch of config ${CURRENT_CONFIG} failed after ${CURRENT_BRUNCH_RUN_TIME}"
 		if ! ${DINNER_CRON}; then
-			_e_pending "Do you want to paste the error log to ${HASTE_PASTE_URL}? (y/N): " "ACTION" "${BLYLW}" "0"
+			_e_pending "Do you want to paste the error log to ${STIKKED_PASTE_URL}? (y/N): " "ACTION" "${BLYLW}" "0"
 			read -t 120 -n1 ANSWER
 			if [[ "${ANSWER}" =~ [yY] ]]; then
 				_paste_log ${CURRENT_LOG}
@@ -655,8 +655,7 @@ function _paste_log () {
 		else
 			printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		fi
-		PASTE_TEXT=$(cat "${DINNER_TEMP_DIR}/paste.log")
-		CURRENT_PASTE_URL=$(${CURL_BIN} -X POST -s -d "${PASTE_TEXT}" ${HASTE_PASTE_URL}/documents | awk -F'"' -v HASTE_PASTE_URL=${HASTE_PASTE_URL} '{print HASTE_PASTE_URL"/"$4}')
+		CURRENT_PASTE_URL=$(${CURL_BIN} -d name=Dinner --data-urlencode text@${DINNER_TEMP_DIR}/paste.log ${STIKKED_PASTE_URL})
 		_e_pending_notice "Your Log is here available: ${CURRENT_PASTE_URL}"
 	fi
 }
