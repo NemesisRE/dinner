@@ -33,7 +33,6 @@ function _dinner_update () {
 	if [ "${?}" == "0" ]; then
 		if [ "$($(which cat) ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
 			_e_pending_success "Successfully updated"
-			#_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		else
 			_e_pending_success "Already up-to-date."
 		fi
@@ -43,14 +42,6 @@ function _dinner_update () {
 			printf "${BLDRED}%11b\t%b${TXTDEF}" " " "${LINE}\n"
 		done < ${DINNER_TEMP_DIR}/dinner_update.err
 	fi
-}
-
-function _generate_user_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
-}
-
-function _generate_admin_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
 function _generate_local_manifest () {
@@ -451,6 +442,14 @@ function _clean_old_builds () {
 			_e_pending_skipped "Cleanup skipped, nothing to do for ${CURRENT_CONFIG}."
 		fi
 	fi
+}
+
+function _generate_user_message () {
+	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_user_message.txt"
+}
+
+function _generate_admin_message () {
+	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/mail_admin_message.txt"
 }
 
 function _send_mail () {

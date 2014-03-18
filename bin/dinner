@@ -58,7 +58,7 @@ elif [ -x "${DINNER_DIR}/bin/repo" ]; then
 	PATH=${PATH}:${DINNER_DIR}/bin
 	export PATH
 else
-	_exec_command "curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
+	_exec_command "$(which curl) http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
 	if [ -e "${DINNER_DIR}/bin/repo" ]; then
 		chmod a+x c
 		if [ -x "${DINNER_DIR}/bin/repo" ]; then
