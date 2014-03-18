@@ -341,8 +341,8 @@ function _repo_pick () {
 	if [ "${#CURRENT_REPOPICK[@]}" ]; then
 		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
 			export ANDROID_BUILD_TOP=${REPO_DIR}
-			_e_pending "Picking Gerrit ID(s) $(echo ${CURRENT_REPOPICK[@]})..."
-			_exec_command "${REPO_DIR}/build/tools/repopick.py ${REPOPICK_PARAMS} $(echo ${CURRENT_REPOPICK[@]})" "_e_pending_error \"Something went wrong while picking change ${CHANGE}\"" "_e_pending_success \"Successfully picked change ${CHANGE}\""
+			_e_pending "Picking Gerrit ID(s) you selected..."
+			_exec_command "${REPO_DIR}/build/tools/repopick.py ${REPOPICK_PARAMS} $(echo ${CURRENT_REPOPICK[@]})" "_e_pending_error \"Something went wrong while picking change(s):\" ${CURRENT_REPOPICK[@]}" "_e_pending_success \"Successfully picked change(s): \" ${CURRENT_REPOPICK[@]}"
 			CURRENT_REPOPICK_EXIT_CODE=${?}
 		else
 			_e_warn "Could not find repopick.py, cannot make a repopick."
@@ -373,7 +373,7 @@ function _brunch_device () {
 			_e_pending "Do you want to paste the error log to ${STIKKED_PASTE_URL}? (y/N): " "ACTION" "${BLYLW}" "0"
 			read -t 120 -n1 ANSWER
 			if [[ "${ANSWER}" =~ [yY] ]]; then
-				_paste_log ${CURRENT_LOG}
+				_paste_log ${CURRENT_ERRLOG}
 			else
 				_e_pending_error "See logfiles for more information" "Combined Log: ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}" "Error log: ${CURRENT_ERRLOG:-${DINNER_LOG_DIR}/dinner_error.log}"
 			fi
@@ -454,7 +454,7 @@ function _clean_old_builds () {
 }
 
 function _send_mail () {
-if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ] || [ "${NMA_APIKEY}" ]); then
+	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ] || [ "${NMA_APIKEY}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
@@ -462,7 +462,7 @@ if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]
 				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
 			fi
 
-			if [-f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
+			if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
 				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
 				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
@@ -559,6 +559,7 @@ function _get_changelog () {
 	_e_pending "Gathering Changes since last successfull build..."
 	if [ -f "${CURRENT_LASTBUILD_MEM}" ] && [ $($(which cat) ${CURRENT_LASTBUILD_MEM}) ]; then
 		LASTBUILD=$($(which cat) ${CURRENT_LASTBUILD_MEM})
+		[[ -f ${CURRENT_CHANGELOG} ]] && rm ${CURRENT_CHANGELOG}
 
 		find ${REPO_DIR} -name .git | sed 's/\/.git//g' | sed 'N;$!P;$!D;$d' | while read line
 		do
@@ -637,13 +638,13 @@ function _cleanup () {
 }
 
 function _paste_log () {
-	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="${1}"
+	[[ ${1} ]] && [[ ${1} =~ ^[0-9]+$ ]] || local PASTE_LOG="$(basename ${1})"
 	[[ ${2} ]] && PASTE_LINES="${2}"
 
 	if [ ${PASTE_LOG} ] && [[ ${PASTE_LINES} =~ ^[0-9]+$ ]]; then
-		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
+		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	elif [ ${PASTE_LOG} ] && [[ "${PASTE_LINES}" = "full" ]]; then
-		$(which cat) "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
+		$(which cat) "${DINNER_LOG_DIR}/${PASTE_LOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	else
 		_e_pending_warn "No log available."
 	fi
@@ -666,14 +667,17 @@ function _nma () {
 	# check if API keys are set, if not print usage
 	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
-		_e_pending "Sending NMA notifcation..."
+		_e_pending "Sending NMA notification..."
+		if ! ${CURRENT_BUILD_STATUS}; then
+			_paste_log "${CURRENT_ERRLOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_TEMP_DIR}/mail_admin_message.txt
+		fi
 		NMA_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
 		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
 		case ${NOTIFY} in
 			200)
-			_e_pending_success "Notification submitted to API key ${NMA_APIKEY}."
+			_e_pending_success "Successfully sent notification to API key ${NMA_APIKEY}."
 			;;
 			400)
 			_e_pending_error "The data supplied is in the wrong format, invalid length or null."
