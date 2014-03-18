@@ -454,7 +454,7 @@ function _clean_old_builds () {
 }
 
 function _send_mail () {
-	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]); then
+	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" || ${NMA_APIKEY} ]); then
 		if ${CURRENT_BUILD_STATUS}; then
 			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
@@ -473,20 +473,14 @@ function _send_mail () {
 			fi
 		else
 			if [ -f ${CURRENT_LOG} ]; then
-				_generate_admin_message "Logfile attached"
 				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz dinner_${CURRENT_CONFIG}.log"
 				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
-			else
-				_generate_admin_message "ERROR: Logfile not found"
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
-				_generate_admin_message "Error Logfile attached"
 				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz dinner_${CURRENT_CONFIG}_error.log"
 				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
-			else
-				_generate_admin_message "ERROR: Error Logfile not found"
 			fi
 		fi
 
@@ -669,10 +663,10 @@ function _nma () {
 	# check if API keys are set, if not print usage
 	if [[ ${NMA_APIKEY} ]]; then
 		# send notifcation
-		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-urlencode description@${DINNER_TEMP_DIR}/mail_admin_message.txt --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/)
+		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-urlencode description@${DINNER_TEMP_DIR}/mail_admin_message.txt --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
-		case $NOTIFY in
+		case ${NOTIFY} in
 			200)
 			_e_pending_success "Notification submitted to API key ${APIKEY}."
 			;;
@@ -762,4 +756,6 @@ function _run_config () {
 	_check_current_config
 
 	_send_mail
+
+	_nma
 }
