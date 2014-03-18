@@ -69,8 +69,14 @@ else
 	exit 1
 fi
 
-# Source .dinner in .bashrc
-grep -xq "source ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" ${HOME}/.bashrc || printf "\nsource ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" >> ${HOME}/.bashrc
-grep -xq "export PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" ${HOME}/.bashrc || printf "\nexport PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" >> ${HOME}/.bashrc
+if [[ $SHELL =~ zsh ]]; then
+	RCFILE=zshrc
+else
+	RCFILE=bashrc
+fi
 
-printf "${BLDGRN}\n\n%b\n${TXTDEF}" "Please relog or run \"source ${HOME}/.bashrc\"\nThen you can start using Dinner by typing \"dinner\""
+# Source .dinner in .bashrc/.zshrc
+grep -xq "source ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" ${HOME}/.${RCFILE} || printf "\nsource ${DINNER_INSTALL_PATH}/helper/dinner_completion.sh" >> ${HOME}/.${RCFILE}
+grep -xq "export PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" ${HOME}/.${RCFILE} || printf "\nexport PATH=\$PATH:${DINNER_INSTALL_PATH}/bin" >> ${HOME}/.${RCFILE}
+
+printf "${BLDGRN}\n\n%b\n${TXTDEF}" "Please relog or run \"source ${HOME}/.${RCFILE}\"\nThen you can start using Dinner by typing \"dinner\""
