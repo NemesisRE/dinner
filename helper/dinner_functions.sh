@@ -665,6 +665,7 @@ function _nma () {
 	# check if API keys are set, if not print usage
 	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
+		_e_pending "Sending NMA notifcation..."
 		NMA_DESCRIPTION=$(cat ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
 		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} ${DOWNLOAD_LINK} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
