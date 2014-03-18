@@ -31,7 +31,7 @@ function _dinner_update () {
 	eval "cd ${DINNER_DIR}"
 	eval "$(which git) pull --no-stat --no-progress 2>${DINNER_TEMP_DIR}/dinner_update.err >${DINNER_TEMP_DIR}/dinner_update.log"
 	if [ "${?}" == "0" ]; then
-		if [ "$(cat ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
+		if [ "$($(which cat) ${DINNER_TEMP_DIR}/dinner_update.log)" != "Already up-to-date." ]; then
 			_e_pending_success "Successfully updated"
 			#_e_notice "Restart your Shell or run: \"source ${DINNER_DIR}/dinner.sh\""
 		else
@@ -122,7 +122,7 @@ function _add_device_config () {
 		old_IFS=$IFS
 		IFS=$'\n'
 		printf "${BLDWHT}%$((HALIGN+1))s\t%s${TXTDEF}\n" " " "Lets define the basic variables."
-		for LINE in $(cat ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
+		for LINE in $($(which cat) ${DINNER_CONF_DIR}/example.dist | sed 's/^#//g' | sed '/^#/ d' ); do
 			unset UVY
 			VARIABLE="$(echo ${LINE} | awk -F= '{ print $1 }')"
 			VARIABLE_DESC="$(echo ${LINE} | awk -F% '{ print $2 }')"
@@ -137,7 +137,7 @@ function _add_device_config () {
 			[[ ${USERVALUE} ]] && printf "%s\t\t\t\t\t%s\n" "${VARIABLE}=\"${USERVALUE}\"" "#% ${VARIABLE_DESC:-No Description available}" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		done
 		IFS=$old_IFS
-		cat ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
+		$(which cat) ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Succesfully created config \"${DEVICE_CONFIG_NAME}\""
 	fi
 }
@@ -163,7 +163,7 @@ function _show_device_config () {
 	[[ ${1} ]] && local DEVICE_CONFIG_NAME=${1}
 	if [ -f ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME} ]; then
 		head -2 "${DINNER_CONF_DIR}/${params}"
-		cat "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//'
+		$(which cat) "${DINNER_CONF_DIR}/${params}" | sed -e '/^#/ d' | awk -F# '{ print $1 }'| sed '/^\s*$/d' | sed 's/[ \t]*$//'
 	else
 		_e_error "Can not show config ${DEVICE_CONFIG_NAME}, config does not exist!"
 	fi
@@ -322,7 +322,7 @@ function _set_current_variables () {
 
 function _sync_repo () {
 	_e_pending "repo sync..."
-	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $(cat "${CURRENT_LASTSYNC_MEM}") ] && [[ $(($(date +%s) - $(cat "${CURRENT_LASTSYNC_MEM}"))) -lt $((SKIP_SYNC_TIME*60)) ]]; then
+	if ! ${FORCE_SYNC} && ! ${SKIP_SYNC} && [ -f "${CURRENT_LASTSYNC_MEM}" ] && [ $($(which cat) "${CURRENT_LASTSYNC_MEM}") ] && [[ $(($(date +%s) - $($(which cat) "${CURRENT_LASTSYNC_MEM}"))) -lt $((SKIP_SYNC_TIME*60)) ]]; then
 		_e_pending_skipped "Skipping repo sync, it was alread synced in the last ${SKIP_SYNC_TIME} minutes."
 	else
 		if ${FORCE_SYNC} || ! ${SKIP_SYNC}; then
@@ -462,10 +462,8 @@ if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]
 				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
 			fi
 
-			if [-f ${CURRENT_CHANGELOG} ] && [ $(cat ${CURRENT_CHANGELOG}) ]; then
-				_generate_user_message "\nChanges since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n"
+			if [-f ${CURRENT_CHANGELOG} ] && [ $($(which cat) ${CURRENT_CHANGELOG}) ]; then
 				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
-				_generate_admin_message "\nChanges since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n"
 				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
 
@@ -475,12 +473,12 @@ if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]
 			fi
 		else
 			if [ -f ${CURRENT_LOG} ]; then
-				cat ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
+				$(which cat) ${CURRENT_LOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz dinner_${CURRENT_CONFIG}.log"
 				LOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}.log.tgz\""
 			fi
 			if [ -f ${CURRENT_ERRLOG} ]; then
-				cat ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
+				$(which cat) ${CURRENT_ERRLOG} | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log
 				_exec_command "tar -C ${DINNER_TEMP_DIR} -zchf ${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz dinner_${CURRENT_CONFIG}_error.log"
 				ERRLOGFILE="-a \"${DINNER_TEMP_DIR}/dinner_${CURRENT_CONFIG}_error.log.tgz\""
 			fi
@@ -590,9 +588,12 @@ function _get_changelog () {
 				echo "" >> ${CURRENT_CHANGELOG}
 			fi
 		done
+		if [ -f ${CURRENT_CHANGELOG} ] && [ $($(which cat) ${CURRENT_CHANGELOG}) ]; then
+			sed -i "1i Changes since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n" ${CURRENT_CHANGELOG}
+		fi
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
-			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing changelog: \n" && $(which cat) ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 		else
 			_e_pending_success "Successfully gathered changes."
@@ -603,7 +604,7 @@ function _get_changelog () {
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
 			sleep 3
-			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog:" && cat ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
+			[[ -f ${CURRENT_CHANGELOG} ]] && _e_pending_success "Showing last changelog: \" && $(which cat) ${CURRENT_CHANGELOG} || _e_pending_warn "No Changelog found"
 			_check_current_config
 		fi
 	fi
@@ -642,7 +643,7 @@ function _paste_log () {
 	if [ ${PASTE_LOG} ] && [[ ${PASTE_LINES} =~ ^[0-9]+$ ]]; then
 		tail -${PASTE_LINES} "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	elif [ ${PASTE_LOG} ] && [[ "${PASTE_LINES}" = "full" ]]; then
-		cat "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
+		$(which cat) "${DINNER_LOG_DIR}/${PASTE_LOG}" > "${DINNER_TEMP_DIR}/paste.log" 2>/dev/null
 	else
 		_e_pending_warn "No log available."
 	fi
@@ -666,7 +667,7 @@ function _nma () {
 	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
 		_e_pending "Sending NMA notifcation..."
-		NMA_DESCRIPTION=$(cat ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
+		NMA_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
 		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
