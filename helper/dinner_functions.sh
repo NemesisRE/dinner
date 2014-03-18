@@ -462,7 +462,7 @@ if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ]
 				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
 			fi
 
-			if [-f ${CURRENT_CHANGELOG} ] && [ $($(which cat) ${CURRENT_CHANGELOG}) ]; then
+			if [-f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
 				_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
 				_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
 			fi
