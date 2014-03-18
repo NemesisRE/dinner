@@ -86,14 +86,14 @@ while [[ $# -gt 0 ]]; do
 			unset param
 		fi
 		case $1 in
-			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
-			-d | --discard) SYNC_PARAMS+=" -d" ; shift; continue ;;
-			-f | --force-sync) FORCE_SYNC=true ; shift; continue ;;
-			-h | --help)            cmd="help" ; shift; continue ;;
-			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
-			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
-			-s | --skip-sync)   SKIP_SYNC=true ; shift; continue ;;
-			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
+			-c | --clean)  CURRENT_DINNER_MAKE="clean" ; shift; continue ;;
+			-d | --discard)         SYNC_PARAMS+=" -d" ; shift; continue ;;
+			-f | --force-sync)         FORCE_SYNC=true ; shift; continue ;;
+			-h | --help)                    cmd="help" ; shift; continue ;;
+			-q | --quiet)             DINNER_CRON=true ; shift; continue ;;
+			-v | --verbose)          SHOW_VERBOSE=true ; shift; continue ;;
+			-s | --skip-sync)           SKIP_SYNC=true ; shift; continue ;;
+			*)                   _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
 	else
 		break
@@ -125,14 +125,14 @@ while [[ $# -gt 0 ]]; do
 			unset param
 		fi
 		case $1 in
-			-c | --clean)  DINNER_MAKE="clean" ; shift; continue ;;
-			-d | --discard) SYNC_PARAMS+=" -d" ; shift; continue ;;
-			-f | --force-sync) FORCE_SYNC=true ; shift; continue ;;
-			-h | --help)            cmd="help" ; shift; continue ;;
-			-q | --quiet)     DINNER_CRON=true ; shift; continue ;;
-			-v | --verbose)  SHOW_VERBOSE=true ; shift; continue ;;
-			-s | --skip-sync)   SKIP_SYNC=true ; shift; continue ;;
-			*)           _e_fatal "Unknown option '$1'" $EX_USAGE;;
+			-c | --clean)  CURRENT_DINNER_MAKE="clean" ; shift; continue ;;
+			-d | --discard)         SYNC_PARAMS+=" -d" ; shift; continue ;;
+			-f | --force-sync)         FORCE_SYNC=true ; shift; continue ;;
+			-h | --help)                    cmd="help" ; shift; continue ;;
+			-q | --quiet)             DINNER_CRON=true ; shift; continue ;;
+			-v | --verbose)          SHOW_VERBOSE=true ; shift; continue ;;
+			-s | --skip-sync)           SKIP_SYNC=true ; shift; continue ;;
+			*)                   _e_fatal "Unknown option '$1'" $EX_USAGE;;
 		esac
 	fi
 
