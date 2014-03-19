@@ -161,6 +161,7 @@ function _show_device_config () {
 }
 
 function _check_prerequisites () {
+	unset REPOPICK LOCAL_MANIFEST CHERRYPICK
 	eval CURRENT_LOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}.log"
 	eval CURRENT_ERRLOG="${DINNER_LOG_DIR}/dinner_${CURRENT_CONFIG}_${CURRENT_LOG_TIME}_error.log"
 	printf "${DINNER_LOG_COMMENT}\nThis Combined Log contains messages from STDOUT and STDERR\n\n" &> ${CURRENT_LOG:-${DINNER_LOG_DIR}/dinner.log}
@@ -296,7 +297,6 @@ function _set_current_variables () {
 	eval CURRENT_LASTSYNC_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_lastsync.mem"
 	eval CURRENT_CHANGELOG="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_changelog.mem"
 	eval CURRENT_LASTBUILD_MEM="${DINNER_MEM_DIR}/${CURRENT_CONFIG}_lastbuild.mem"
-	eval CURRENT_REPOPICK="\"${REPOPICK}\""
 	eval CURRENT_DEVICE="${BRUNCH_DEVICE}"
 	eval CURRENT_PRE_BUILD_COMMAND="${PRE_BUILD_COMMAND}"
 	eval CURRENT_POST_BUILD_COMMAND="${POST_BUILD_COMMAND}"
@@ -329,11 +329,11 @@ function _sync_repo () {
 }
 
 function _repo_pick () {
-	if [ "${#CURRENT_REPOPICK[@]}" != "0" ]; then
+	if [ "${#REPOPICK[@]}" != "0" ]; then
 		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
 			export ANDROID_BUILD_TOP=${REPO_DIR}
 			_e_pending "Picking Gerrit ID(s) you selected..."
-			_exec_command "${REPO_DIR}/build/tools/repopick.py ${REPOPICK_PARAMS} $(echo ${CURRENT_REPOPICK[@]})" "_e_pending_error \"Something went wrong while picking change(s):\" ${CURRENT_REPOPICK[@]}" "_e_pending_success \"Successfully picked change(s): \" ${CURRENT_REPOPICK[@]}"
+			_exec_command "${REPO_DIR}/build/tools/repopick.py ${REPOPICK_PARAMS} $(echo ${REPOPICK[@]})" "_e_pending_error \"Something went wrong while picking change(s):\" ${REPOPICK[@]}" "_e_pending_success \"Successfully picked change(s): \" ${REPOPICK[@]}"
 			CURRENT_REPOPICK_EXIT_CODE=${?}
 		else
 			_e_warn "Could not find repopick.py, cannot make a repopick."
