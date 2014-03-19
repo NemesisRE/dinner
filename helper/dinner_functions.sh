@@ -329,7 +329,7 @@ function _sync_repo () {
 }
 
 function _repo_pick () {
-	if [ "${#CURRENT_REPOPICK[@]}" ]; then
+	if [ "${#CURRENT_REPOPICK[@]}" != "0" ]; then
 		if [ -x ${REPO_DIR}/build/tools/repopick.py ]; then
 			export ANDROID_BUILD_TOP=${REPO_DIR}
 			_e_pending "Picking Gerrit ID(s) you selected..."
