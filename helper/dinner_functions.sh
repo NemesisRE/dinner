@@ -554,6 +554,8 @@ function _check_current_config () {
 	DINNER_EXIT_CODE=$((${DINNER_EXIT_CODE}+${CURRENT_CONFIG_EXIT_CODE}))
 }
 
+# get changelog needs to be reviewed there is much that can be made better
+# it must be easier to maintain the credits...
 function _get_changelog () {
 	_e_pending "Gathering Changes since last successfull build..."
 	if [ -f "${CURRENT_LASTBUILD_MEM}" ] && [ $($(which cat) ${CURRENT_LASTBUILD_MEM}) ]; then
@@ -568,15 +570,14 @@ function _get_changelog () {
 			if [ ! -z "$log" ]; then
 				origin=`grep "$project" ${REPO_DIR}/.repo/manifest.xml | awk {'print $4'} | cut -f2 -d '"'`
 
-				if [ "$origin" = "bam" ]; then
-						proj_credit=JELLYBAM
-				elif [ "$origin" = "aosp" ]; then
-						proj_credit=AOSP
-				elif [ "$origin" = "cm" ]; then
-						proj_credit=CyanogenMod
-				else
-						proj_credit="OmniROM"
-				fi
+				case $origin in
+					bam)		proj_credit=JELLYBAM;;
+					aosp)		proj_credit=AOSP;;
+					cm)			proj_credit=CyanogenMod;;
+					omnirom)	proj_credit=OmniRom;;
+#verify					pac)		proj_credit=PAC-man;;
+					*)			proj_credit=NotListed
+				esac
 
 				echo "$proj_credit Project name: $project" >> ${CURRENT_CHANGELOG}
 
