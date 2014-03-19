@@ -45,7 +45,9 @@
 #############################################
 ### Variables that are not necessary.
 ###
-##NMA_APIKEY=""											#%Set a Notify my Android Api if you wish admin notifications
+##NMA_APIKEY=""											#%Set a Notify my Android APIKEY if you wish admin notifications
+##PB_APIKEY=""											#%Set a Pushbullet APIKEY if you wish admin notifications
+##PB_DEVICE=""											#%Set a Pushbullet Device name or it will sent to all your devices
 ##USER_MAIL='john+i9300@gmail.com'						#%set this if you want an email when new build is ready
 ##ADMIN_MAIL='doe+i9300@gmail.com'						#%set this if you want an email for succefull and failed builds (failed reports are with build logs)
 ##TARGET_DIR="/var/www/${DEVICE}/omni"					#%move your builds output file to the given directory

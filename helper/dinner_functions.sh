@@ -663,8 +663,8 @@ function _paste_log () {
 	fi
 }
 
-function _nma () {
-	# From https://github.com/moepi/nomyan
+function _notify_nma () {
+	# Inspired from https://github.com/moepi/nomyan
 
 	# check if API keys are set, if not print usage
 	if [ ${NMA_APIKEY} ]; then
@@ -674,12 +674,12 @@ function _nma () {
 			_paste_log "${CURRENT_ERRLOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_TEMP_DIR}/mail_admin_message.txt
 		fi
 		NMA_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
-		NOTIFY=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} --data-ascii content-type="text/html" ${NOTIFYURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
+		NMA_RESPONSE=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} --data-ascii content-type="text/html" ${NMA_APIURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
-		case ${NOTIFY} in
+		case ${NMA_RESPONSE} in
 			200)
-			_e_pending_success "Successfully sent notification to API key ${NMA_APIKEY}."
+			_e_pending_success "Successfully sent NMA notification to API key ${NMA_APIKEY}."
 			;;
 			400)
 			_e_pending_error "The data supplied is in the wrong format, invalid length or null."
@@ -697,6 +697,30 @@ function _nma () {
 			_e_pending_error "An unexpected error occured."
 			;;
 		esac
+	fi
+}
+
+function _notify_pb () {
+	if [ ${PB_APIKEY} ]; then
+		_e_pending "Sending Pushbullet notification..."
+		if ! ${CURRENT_BUILD_STATUS}; then
+			_paste_log "${CURRENT_ERRLOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_TEMP_DIR}/mail_admin_message.txt
+		fi
+
+		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
+		PB_API_DEVICES=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep model | cut -d'"' -f4)
+		PB_API_IDENS=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep iden | cut -d'"' -f4)
+
+		if [ ${PB_DEVICE} ]; then
+			PB_CURRENT_IDEN=$(echo "${PB_API_IDENS}" | sed -n $(echo "${PB_API_DEVICES}" | grep -i -n ${PB_DEVICE} | cut -d: -f1)'p')
+			PB_RESPONSE=$(${CURL_BIN} -s "${PB_APIURL}/pushes" -u ${PB_APIKEY}: -d device_iden=${CURRENT_PB_IDEN} -d type=note -d title="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" -d body="${PB_DESCRIPTION}" -X POST | grep -o "created" | tail -n1)
+		else
+			for CURRENT_PB_IDEN in ${PB_API_IDENS}; do
+				PB_RESPONSE=$(${CURL_BIN} -s "${PB_APIURL}/pushes" -u ${PB_APIKEY}: -d device_iden=${CURRENT_PB_IDEN} -d type=note -d title="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" -d body="${PB_DESCRIPTION}" -X POST | grep -o "created" | tail -n1)
+			done
+		fi
+
+		[[ "${PB_RESPONSE}" = "created" ]] && _e_pending_success "Successfully sent PB notification to API key ${PB_APIKEY}." || _e_pending_error "An unexpected error occured, while sending PB notification."
 	fi
 }
 
@@ -762,6 +786,6 @@ function _run_config () {
 	_check_current_config
 
 	_send_mail
-
-	_nma
+	_notify_nma
+	_notify_pb
 }
