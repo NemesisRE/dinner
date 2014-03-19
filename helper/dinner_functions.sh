@@ -59,7 +59,7 @@ function _generate_local_manifest () {
 			FORCE_SYNC=true
 			_e_pending_success "Successfully generated local manifest."
 		else
-			_e_pending_success "Local manifest is current, no changes needed."
+			_e_pending_skipped "Local manifest is current, no changes needed."
 		fi
 	fi
 }
