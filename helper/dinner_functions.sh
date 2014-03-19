@@ -413,6 +413,8 @@ function _post_build_command () {
 	fi
 }
 
+
+# change it that it always keeps the latest (the actual build will never deleted even if we set CLEANUP_OLDER_THAN=0 because 0=24h)
 function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
 		_e_pending "Running cleanup of old builds..."
