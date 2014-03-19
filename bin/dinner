@@ -23,7 +23,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License at (http://www.gnu.org/licenses/) for
 # more details.
-
+#
+#
+# Since Version 2.0 the some parts of the scripts are inspired by
+# https://github.com/andsens/homeshick
 
 #set -x
 

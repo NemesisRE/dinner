@@ -663,10 +663,8 @@ function _paste_log () {
 	fi
 }
 
+# Inspired by https://github.com/moepi/nomyan
 function _notify_nma () {
-	# Inspired from https://github.com/moepi/nomyan
-
-	# check if API keys are set, if not print usage
 	if [ ${NMA_APIKEY} ]; then
 		# send notifcation
 		_e_pending "Sending NMA notification..."
@@ -700,6 +698,7 @@ function _notify_nma () {
 	fi
 }
 
+# Inspired by https://github.com/Red5d/pushbullet-bash
 function _notify_pb () {
 	if [ ${PB_APIKEY} ]; then
 		_e_pending "Sending Pushbullet notification..."
