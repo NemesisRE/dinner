@@ -457,10 +457,10 @@ function _generate_admin_message () {
 function _send_mail () {
 	if [ ${MAIL_BIN} ] && ([ "${CURRENT_USER_MAIL}" ] || [ "${CURRENT_ADMIN_MAIL}" ] || [ "${NMA_APIKEY}" ]); then
 		if ${CURRENT_BUILD_STATUS}; then
-			_generate_admin_message "Used config \"${CURRENT_CONFIG}\"<br>"
+			_generate_admin_message "Used config \"${CURRENT_CONFIG}\""
 			if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-				_generate_user_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
-				_generate_admin_message "You can download your Build at ${CURRENT_DOWNLOAD_LINK}"
+				_generate_user_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
+				_generate_admin_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
@@ -581,18 +581,18 @@ function _get_changelog () {
 					*)			proj_credit=NotListed
 				esac
 
-				echo "$proj_credit Project name: $project" >> ${CURRENT_CHANGELOG}
+				printf '%s' "Project (by $proj_credit): $project" >> ${CURRENT_CHANGELOG}
 
 				echo "$log" | while read line
 				do
-					echo "  .$line" >> ${CURRENT_CHANGELOG}
+					printf '\t%s' "$line" >> ${CURRENT_CHANGELOG}
 				done
 
 				echo "" >> ${CURRENT_CHANGELOG}
 			fi
 		done
 		if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
-			sed -i "1i Changes since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=====================================================\n" ${CURRENT_CHANGELOG}
+			sed -i "1i Changes since last build $($(which cat) ${CURRENT_LASTBUILD_MEM})\n=============================" ${CURRENT_CHANGELOG}
 		fi
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
