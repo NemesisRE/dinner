@@ -39,7 +39,7 @@ curl -sL https://raw.github.com/NemesisRE/dinner/master/bootstrap.sh | /bin/bash
 or clone the repository and add the folloing lines to ${HOME}/.bashrc (or for zsh: ${HOME}/.zshrc):
 ```bash
 source [DINNER_INSTALL_PATH]/helper/dinner_completion.sh
-export PATH=\$PATH:[DINNER_INSTALL_PATH]/bin
+export PATH=$PATH:[DINNER_INSTALL_PATH]/bin
 ```
 
 ##How to use it?
