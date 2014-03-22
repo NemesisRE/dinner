@@ -51,7 +51,7 @@ dinner help
 and you will get pretty much all information you need.
 
 ###Dinner example config
-There is also an (example config)[https://github.com/NemesisRE/dinner/blob/master/config.d/example.dist] with description for every variable.
+There is also an [example config](https://github.com/NemesisRE/dinner/blob/master/config.d/example.dist) with description for every variable.
 
 ###How to start
 First thing, create a config! Just run:
