@@ -54,6 +54,6 @@
 ##OTA_TARGET_DIR=""										#%move your builds OTA file to the given directory
 ##CLEANUP_OLDER_THAN='7'								#%set the number of days after output files should be removed leave empty for no cleanup
 ##DOWNLOAD_LINK='http://example.com/download/i9300'		#%set this if you want a download link in the email and Notify my Android
-##PRE_BUILD_COMMAND=''									#%define a command before brunch is started
-##POST_BUILD_COMMAND=''									#%define a command after a build was successful and before it is moved
+##PRE_BUILD_COMMAND=""									#%define a command before brunch is started (e.g. /path/to/cherrypick.sh ${REPO_DIR} )
+##POST_BUILD_COMMAND=""									#%define a command after a build was successful and before it is moved
 

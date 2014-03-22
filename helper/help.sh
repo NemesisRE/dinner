@@ -54,7 +54,7 @@ dinner help [TASK]                                 # Show usage of a task
 Runtime options:
 -c, [--clean]      # Run make clean before starting brunch
 -d, [--discard]    # Will add "-d" to SYNC_PARAMS of repo sync
--f, [--force-sync] # Force repo sync
+-f, [--force-sync] # Force repo sync (changing the local manifest will lead to a force sync)
 -q, [--quiet]      # Quiet no output except errors (for cron)
 -s, [--skip-sync]  # Skip sync
 -v, [--verbose]    # Show full output
