@@ -130,6 +130,7 @@ function _add_device_config () {
 		IFS=$old_IFS
 		$(which cat) ${DINNER_CONF_DIR}/example.dist | sed -e "1,/${VARIABLE}/d" >> ${DINNER_CONF_DIR}/${DEVICE_CONFIG_NAME}
 		_e_success "Succesfully created config \"${DEVICE_CONFIG_NAME}\""
+		_e_notice "If you want to add additional configuration values, such as defining a local manifest use:" "\"dinner config edit ${DEVICE_CONFIG_NAME}\""
 	fi
 }
 
