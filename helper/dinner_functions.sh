@@ -600,7 +600,19 @@ function _paste_log () {
 	fi
 
 	if [ -f ${DINNER_TEMP_DIR}/paste.log ]; then
-		printf "\n\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\n\nSome debug information: " >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\nroomservice.xml=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		$(which cat) ${REPO_DIR}/.repo/local_manifests/roomservice.xml >> "${DINNER_TEMP_DIR}/paste.log"
+		if [ ${CURRENT_LOCAL_MANIFEST} ]; then
+			printf "\n$(basename ${CURRENT_LOCAL_MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+			$(which cat) ${CURRENT_LOCAL_MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
+		else
+			for MANIFEST in $(find ${REPO_DIR}/.repo/local_manifests/ -name *.xml -type f ! -name roomservice.xml); do
+				printf "\n$(basename ${MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+				$(which cat) ${MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
+			done
+		fi
 		if [[ ${PASTE_LOG} =~ _error ]]; then
 			printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		else
