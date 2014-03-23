@@ -483,6 +483,7 @@ function _check_current_config () {
 	))
 	if ${CURRENT_BUILD_SKIPPED}; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=-2
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 		NMA_PRIORITY=0
@@ -722,7 +723,7 @@ function _notify_nma () {
 function _notify_pb () {
 	if [ ${PB_APIKEY} ]; then
 		_e_pending "Sending Pushbullet notification..."
-		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt | sed 's/$/<br>/' )
+		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt)
 		PB_API_DEVICES=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep model | cut -d'"' -f4)
 		PB_API_IDENS=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep iden | cut -d'"' -f4)
 
