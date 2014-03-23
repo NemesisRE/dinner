@@ -685,7 +685,7 @@ function _notify_nma () {
 		# handle return code
 		case ${NMA_RESPONSE} in
 			200)
-			_e_pending_success "Successfully sent NMA notification to API key ${NMA_APIKEY}."
+			_e_pending_success "Successfully sent NMA notification to given API key."
 			;;
 			400)
 			_e_pending_error "The data supplied is in the wrong format, invalid length or null."
@@ -723,7 +723,7 @@ function _notify_pb () {
 			done
 		fi
 
-		[[ "${PB_RESPONSE}" = "created" ]] && _e_pending_success "Successfully sent PB notification to API key ${PB_APIKEY}." || _e_pending_error "An unexpected error occured, while sending PB notification."
+		[[ "${PB_RESPONSE}" = "created" ]] && _e_pending_success "Successfully sent PB notification to given API key." || _e_pending_error "An unexpected error occured, while sending PB notification."
 	fi
 }
 
