@@ -681,7 +681,7 @@ function _notify_nma () {
 		if ! ${CURRENT_BUILD_STATUS}; then
 		_paste_log "${CURRENT_ERRLOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_TEMP_DIR}/admin_notification.txt
 		fi
-		NMA_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
+		NMA_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt | sed 's/$/<br>/' )
 		NMA_RESPONSE=$(${CURL_BIN} -s --data-ascii apikey=${NMA_APIKEY} --data-ascii application="Dinner" --data-ascii event="Build for ${CURRENT_DEVICE} ${CURRENT_STATUS} (${CURRENT_BRUNCH_RUN_TIME})" --data-ascii description="${NMA_DESCRIPTION}" --data-ascii priority=${NMA_PRIORITY} --data-ascii content-type="text/html" ${NMA_APIURL} -o- | sed 's/.*success code="\([0-9]*\)".*/\1/')
 
 		# handle return code
@@ -716,7 +716,7 @@ function _notify_pb () {
 			_paste_log "${CURRENT_ERRLOG}" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" >> ${DINNER_TEMP_DIR}/admin_notification.txt
 		fi
 
-		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/mail_admin_message.txt | sed 's/$/<br>/' )
+		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt | sed 's/$/<br>/' )
 		PB_API_DEVICES=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep model | cut -d'"' -f4)
 		PB_API_IDENS=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep iden | cut -d'"' -f4)
 
