@@ -424,11 +424,11 @@ function _clean_old_builds () {
 		fi
 		CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
 		CURRENT_CLEAN_OUT=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 1 \( -name "*${CURRENT_DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${CURRENT_DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
-		if [ ${CURRENT_CLEAN_TARGET} ] && [ ${CURRENT_CLEAN_OUT} ]; then
+		if [ "${CURRENT_CLEAN_TARGET}" ] && [ "${CURRENT_CLEAN_OUT}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_TARGET} ${CURRENT_CLEAN_OUT}"
-		elif [ ${CURRENT_CLEAN_TARGET} ]; then
+		elif [ "${CURRENT_CLEAN_TARGET}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_TARGET}"
-		elif [ ${CURRENT_CLEAN_OUT} ]; then
+		elif [ "${CURRENT_CLEAN_OUT}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_OUT}"
 		fi
 		if [ "${CURRENT_CLEANED_FILES}" ] && ! [[ "${CURRENT_CLEANED_FILES}" =~ ^[[:space:]]+$ ]]; then
