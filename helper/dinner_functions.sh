@@ -424,11 +424,11 @@ function _clean_old_builds () {
 		fi
 		CURRENT_OUTPUT_PATH=$(dirname ${CURRENT_OUTPUT_FILEPATH})
 		CURRENT_CLEAN_OUT=$(find ${CURRENT_OUTPUT_PATH} -maxdepth 1 \( -name "*${CURRENT_DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${CURRENT_DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
-		if [ ${CURRENT_CLEAN_TARGET} ] && [ ${CURRENT_CLEAN_OUT} ]; then
+		if [ "${CURRENT_CLEAN_TARGET}" ] && [ "${CURRENT_CLEAN_OUT}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_TARGET} ${CURRENT_CLEAN_OUT}"
-		elif [ ${CURRENT_CLEAN_TARGET} ]; then
+		elif [ "${CURRENT_CLEAN_TARGET}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_TARGET}"
-		elif [ ${CURRENT_CLEAN_OUT} ]; then
+		elif [ "${CURRENT_CLEAN_OUT}" ]; then
 			CURRENT_CLEANED_FILES="${CURRENT_CLEAN_OUT}"
 		fi
 		if [ "${CURRENT_CLEANED_FILES}" ] && ! [[ "${CURRENT_CLEANED_FILES}" =~ ^[[:space:]]+$ ]]; then
@@ -437,7 +437,7 @@ function _clean_old_builds () {
 				CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
 			done
 			if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" = 0 ]; then
-				_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
+				_e_pending_success "Cleanup finished, removed the following files:" ${CURRENT_CLEANED_FILES}
 			else
 				_e_pending_warn "Something went wrong while cleaning builds for ${CURRENT_CONFIG}."
 			fi
@@ -530,11 +530,11 @@ function _get_changelog () {
 					*)			proj_credit=NotListed
 				esac
 
-				printf '%s' "Project (by $proj_credit): $project" >> ${CURRENT_CHANGELOG}
+				printf '%s\n' "Project $project (by $proj_credit)" >> ${CURRENT_CHANGELOG}
 
 				echo "$log" | while read line
 				do
-					printf '\t%s' "$line" >> ${CURRENT_CHANGELOG}
+					printf '\t%s\n' "$line" >> ${CURRENT_CHANGELOG}
 				done
 
 				echo "" >> ${CURRENT_CHANGELOG}
@@ -632,24 +632,24 @@ function _send_notification () {
 }
 
 function _generate_user_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/user_notification.txt"
+	printf "%b\n" "${1}" >> "${DINNER_TEMP_DIR}/user_notification.txt"
 }
 
 function _generate_admin_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/admin_notification.txt"
+	printf "%b\n" "${1}" >> "${DINNER_TEMP_DIR}/admin_notification.txt"
 }
 
 function _generate_notification () {
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_admin_message "Used config \"${CURRENT_CONFIG}\""
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-			_generate_user_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
-			_generate_admin_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
+			_generate_user_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}\n"
+			_generate_admin_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}\n"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
-			_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
-			_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
+			_generate_user_message "\n$($(which cat) ${CURRENT_CHANGELOG})\n"
+			_generate_admin_message "\n$($(which cat) ${CURRENT_CHANGELOG})\n"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
