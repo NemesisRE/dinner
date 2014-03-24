@@ -530,11 +530,11 @@ function _get_changelog () {
 					*)			proj_credit=NotListed
 				esac
 
-				printf '%s' "Project (by $proj_credit): $project" >> ${CURRENT_CHANGELOG}
+				printf '%s\n' "Project $project (by $proj_credit)" >> ${CURRENT_CHANGELOG}
 
 				echo "$log" | while read line
 				do
-					printf '\t%s' "$line" >> ${CURRENT_CHANGELOG}
+					printf '\t%s\n' "$line" >> ${CURRENT_CHANGELOG}
 				done
 
 				echo "" >> ${CURRENT_CHANGELOG}
@@ -632,11 +632,11 @@ function _send_notification () {
 }
 
 function _generate_user_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/user_notification.txt"
+	printf "%b\n" "${1}" >> "${DINNER_TEMP_DIR}/user_notification.txt"
 }
 
 function _generate_admin_message () {
-	printf "%s\n" "${1}" >> "${DINNER_TEMP_DIR}/admin_notification.txt"
+	printf "%b\n" "${1}" >> "${DINNER_TEMP_DIR}/admin_notification.txt"
 }
 
 function _generate_notification () {
