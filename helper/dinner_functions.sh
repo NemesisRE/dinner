@@ -483,6 +483,7 @@ function _check_current_config () {
 	))
 	if ${CURRENT_BUILD_SKIPPED}; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
+		NMA_PRIORITY=-2
 	elif ${CURRENT_BUILD_STATUS} && [ "${CURRENT_CONFIG_EXIT_CODE}" -eq 0 ]; then
 		SUCCESS_CONFIGS="${SUCCESS_CONFIGS}\"${CURRENT_CONFIG}\" "
 		NMA_PRIORITY=0
@@ -600,7 +601,19 @@ function _paste_log () {
 	fi
 
 	if [ -f ${DINNER_TEMP_DIR}/paste.log ]; then
-		printf "\n\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\n\nSome debug information: " >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		printf "\nroomservice.xml=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+		$(which cat) ${REPO_DIR}/.repo/local_manifests/roomservice.xml >> "${DINNER_TEMP_DIR}/paste.log"
+		if [ ${CURRENT_LOCAL_MANIFEST} ]; then
+			printf "\n$(basename ${CURRENT_LOCAL_MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+			$(which cat) ${CURRENT_LOCAL_MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
+		else
+			for MANIFEST in $(find ${REPO_DIR}/.repo/local_manifests/ -name *.xml -type f ! -name roomservice.xml); do
+				printf "\n$(basename ${MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
+				$(which cat) ${MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
+			done
+		fi
 		if [[ ${PASTE_LOG} =~ _error ]]; then
 			printf "\n${DINNER_LOG_COMMENT}\nThis Error Log contains only messages from STDERR\n\n" >> "${DINNER_TEMP_DIR}/paste.log"
 		else
@@ -710,7 +723,7 @@ function _notify_nma () {
 function _notify_pb () {
 	if [ ${PB_APIKEY} ]; then
 		_e_pending "Sending Pushbullet notification..."
-		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt | sed 's/$/<br>/' )
+		PB_DESCRIPTION=$($(which cat) ${DINNER_TEMP_DIR}/admin_notification.txt)
 		PB_API_DEVICES=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep model | cut -d'"' -f4)
 		PB_API_IDENS=$(curl -s "${PB_APIURL}/devices" -u ${PB_APIKEY}: | tr '{' '\n' | tr ',' '\n' | grep iden | cut -d'"' -f4)
 
