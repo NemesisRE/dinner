@@ -437,7 +437,7 @@ function _clean_old_builds () {
 				CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE=$((${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE} + ${?}))
 			done
 			if [ "${CURRENT_CLEAN_OLD_BUILDS_EXIT_CODE}" = 0 ]; then
-				_e_pending_success "Cleanup finished, removed the following files:" "${CURRENT_CLEANED_FILES}"
+				_e_pending_success "Cleanup finished, removed the following files:" ${CURRENT_CLEANED_FILES}
 			else
 				_e_pending_warn "Something went wrong while cleaning builds for ${CURRENT_CONFIG}."
 			fi
