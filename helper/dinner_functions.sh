@@ -643,13 +643,13 @@ function _generate_notification () {
 	if ${CURRENT_BUILD_STATUS}; then
 		_generate_admin_message "Used config \"${CURRENT_CONFIG}\""
 		if [ "${CURRENT_DOWNLOAD_LINK}" ]; then
-			_generate_user_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
-			_generate_admin_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}"
+			_generate_user_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}\n"
+			_generate_admin_message "You can download your Build at:\n${CURRENT_DOWNLOAD_LINK}\n"
 			fi
 
 			if [ -f ${CURRENT_CHANGELOG} ] && [ "$($(which cat) ${CURRENT_CHANGELOG})" ]; then
-			_generate_user_message "$($(which cat) ${CURRENT_CHANGELOG})"
-			_generate_admin_message "$($(which cat) ${CURRENT_CHANGELOG})"
+			_generate_user_message "\n$($(which cat) ${CURRENT_CHANGELOG})\n"
+			_generate_admin_message "\n$($(which cat) ${CURRENT_CHANGELOG})\n"
 			fi
 
 			if [ "${CURRENT_CLEANED_FILES}" ]; then
