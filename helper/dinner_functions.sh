@@ -222,6 +222,8 @@ function _check_prerequisites () {
 
 	_exec_command "cd \"${REPO_DIR}\""
 
+	_generate_local_manifest
+
 	_e_pending "Breakfast ${CURRENT_DEVICE}"
 	_exec_command "breakfast ${CURRENT_DEVICE}"
 	if [ ${?} != 0 ]; then
@@ -551,7 +553,7 @@ function _get_changelog () {
 			_e_pending_success "Successfully gathered changes."
 		fi
 	else
-		_e_pending_warn "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
+		_e_pending_skipped "Skipping gathering changes, no successfull build for config \"${CURRENT_CONFIG}\" found."
 		if ${CURRENT_CHANGELOG_ONLY}; then
 			CURRENT_BUILD_SKIPPED=true
 			_e_pending "Searching last changelog..."
@@ -786,8 +788,6 @@ function _run_config () {
 	_check_prerequisites
 
 	_dinner_make
-
-	_generate_local_manifest
 
 	_sync_repo
 
