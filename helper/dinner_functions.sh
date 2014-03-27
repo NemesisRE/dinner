@@ -805,4 +805,6 @@ function _run_config () {
 	_check_current_config
 
 	_send_notification
+	
+	_cleanup
 }
