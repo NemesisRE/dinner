@@ -420,6 +420,7 @@ function _post_build_command () {
 # change it that it always keeps the latest (the actual build will never deleted even if we set CLEANUP_OLDER_THAN=0 because 0=24h)
 function _clean_old_builds () {
 	if [ "${CURRENT_CLEANUP_OLDER_THAN}" ]; then
+		unset CURRENT_OUTPUT_PATH CURRENT_CLEAN_OUT CURRENT_CLEAN_TARGET CURRENT_CLEANED_FILES
 		_e_pending "Running cleanup of old builds..."
 		if [ "${CURRENT_TARGET_DIR}" ] && [ -d "${CURRENT_TARGET_DIR}" ]; then
 			CURRENT_CLEAN_TARGET=$(find ${CURRENT_TARGET_DIR} -maxdepth 1 \( -name "*${CURRENT_DEVICE}*" -a \( -regextype posix-extended -regex '.*\-[0-9]{8}\-.*' -o -name "*ota*" \) -a -name "*${CURRENT_DEVICE}*" -a \( -name "*.zip" -o -name "*.zip.md5sum" \) \) -type f -mtime +${CURRENT_CLEANUP_OLDER_THAN} )
@@ -610,7 +611,7 @@ function _paste_log () {
 		if [ ${CURRENT_LOCAL_MANIFEST} ]; then
 			printf "\n$(basename ${CURRENT_LOCAL_MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
 			$(which cat) ${CURRENT_LOCAL_MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
-		else
+		elif [ ${REPO_DIR} ]; then
 			for MANIFEST in $(find ${REPO_DIR}/.repo/local_manifests/ -name *.xml -type f ! -name roomservice.xml); do
 				printf "\n$(basename ${MANIFEST})=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
 				$(which cat) ${MANIFEST} >> "${DINNER_TEMP_DIR}/paste.log"
