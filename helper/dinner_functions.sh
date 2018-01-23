@@ -258,9 +258,13 @@ function _check_variables () {
 		SKIP_SYNC_TIME="30"
 	fi
 
-	[[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]] && export USE_CCACHE=${DINNER_USE_CCACHE}
+	if [[ ${DINNER_USE_CCACHE} ]] && [[ ${DINNER_USE_CCACHE} =~ ^{0,1}$ ]]; then
+		export USE_CCACHE=${DINNER_USE_CCACHE}
+		[[ ${DINNER_CCACHE_COMPRESS} ]] && export CCACHE_COMPRESS=${DINNER_CCACHE_COMPRESS}
+		[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_DIR}
+	fi
 
-	[[ ${DINNER_CCACHE_DIR} ]] && export CCACHE_DIR=${DINNER_CCACHE_DIR}
+	[[ ${DINNER_JACK_VM_ARGS} ]] && export ANDROID_JACK_VM_ARGS=${DINNER_JACK_VM_ARGS}
 
 	if [ ${CLEANUP_OLDER_THAN} ] && [ -z "${CLEANUP_OLDER_THAN##*[!0-9]*}" ]; then
 		_e_warn "CLEANUP_OLDER_THAN has no valid number set, won't use it!"
@@ -347,6 +351,7 @@ function _repo_pick () {
 
 function _brunch_device () {
 	_e_pending "Brunch for config \"${CURRENT_CONFIG}\" (Device: ${CURRENT_DEVICE})..."
+	_exec_command "croot"
 	_exec_command "brunch ${CURRENT_DEVICE}"
 	CURRENT_BRUNCH_DEVICE_EXIT_CODE=${?}
 	CURRENT_OUTPUT_FILEPATH=$(tail ${CURRENT_LOG} | grep -i "Package complete:" | awk '{print $3}' | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" 2> /dev/null)

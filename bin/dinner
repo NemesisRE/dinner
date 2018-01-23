@@ -30,50 +30,42 @@
 
 #set -x
 
-DINNER_DIR="$( cd $( dirname ${0} )/.. && pwd )"
+DINNER_DIR="$( cd "$( dirname "${0}" )"/.. && pwd )"
 DINNER_CONF_DIR="${DINNER_DIR}/config.d"
 DINNER_LOG_DIR="${DINNER_DIR}/logs"
 DINNER_MEM_DIR="${DINNER_DIR}/memory"
 DINNER_TEMP_DIR="${DINNER_DIR}/tmp"
 
-source ${DINNER_CONF_DIR}/DINNER_DEFAULTS
-source ${DINNER_DIR}/helper/dinner_functions.sh
-source ${DINNER_DIR}/helper/log.sh
-source ${DINNER_DIR}/helper/help.sh
-source ${DINNER_DIR}/helper/exit_status.sh
+source "${DINNER_CONF_DIR}/DINNER_DEFAULTS"
+source "${DINNER_DIR}/helper/dinner_functions.sh"
+source "${DINNER_DIR}/helper/log.sh"
+source "${DINNER_DIR}/helper/help.sh"
+source "${DINNER_DIR}/helper/exit_status.sh"
 
 if [[ $EUID -eq 0 ]]; then
 	_e_fatal "For your own safety, do not run as root user!"
 	exit 1
 fi
 
-rm -f ${DINNER_TEMP_DIR}/*
+rm -f "${DINNER_TEMP_DIR}/*"
 
 trap "echo \" \"; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}; _cleanup" INT SIGINT SIGTERM
 
 exit_status=$EX_SUCCESS
 
-test -x $(which curl) && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_NOTFOUND
-if [ -x "$(which repo)" ]; then
-	REPO_BIN="$(which repo)"
-elif [ -x "${DINNER_DIR}/bin/repo" ]; then
-	REPO_BIN="${DINNER_DIR}/bin/repo"
-	PATH=${PATH}:${DINNER_DIR}/bin
-	export PATH
-else
-	_exec_command "$(which curl) http://commondatastorage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
-	if [ -e "${DINNER_DIR}/bin/repo" ]; then
-		chmod a+x c
-		if [ -x "${DINNER_DIR}/bin/repo" ]; then
-			REPO_BIN="${DINNER_DIR}/bin/repo"
-			PATH=${PATH}:${DINNER_DIR}/bin
-			export PATH
-		else
-			_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
-		fi
+test -x "$(which curl)" && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_NOTFOUND
+_exec_command "$(which curl) https://storage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
+if [ -e "${DINNER_DIR}/bin/repo" ]; then
+	chmod a+x c
+	if [ -x "${DINNER_DIR}/bin/repo" ]; then
+		REPO_BIN="${DINNER_DIR}/bin/repo"
+		PATH=${PATH}:${DINNER_DIR}/bin
+		export PATH
 	else
-		_e_fatal "\"repo\" not found in PATH" $EX_NOTFOUND
+		_e_fatal "\"${DINNER_DIR}/bin/repo\" not not executable" $EX_NOEXEC
 	fi
+else
+	_e_fatal "\"repo\" not found in PATH" $EX_NOTFOUND
 fi
 test -x $(which md5sum) && MD5_BIN=$(which md5sum) || _e_fatal "\"md5sum\" not found in PATH" $EX_NOTFOUND
 test -x $(which mutt) && MAIL_BIN=$(which mutt) || _e_warning "\"mutt\" not found in PATH, will not send E-Mails..."
@@ -85,7 +77,7 @@ while [[ $# -gt 0 ]]; do
 		if [[ $1 =~ ^-[a-z]{2,} ]]; then
 			param=$1
 			shift
-			set -- ${param:0:2} -${param:2} $@
+			set -- "${param:0:2}" -"${param:2}" "${@}"
 			unset param
 		fi
 		case $1 in
@@ -99,7 +91,7 @@ while [[ $# -gt 0 ]]; do
 			-q | --quiet)             DINNER_CRON=true ; shift; continue ;;
 			-v | --verbose)          SHOW_VERBOSE=true ; shift; continue ;;
 			-s | --skip-sync)           SKIP_SYNC=true ; shift; continue ;;
-			*)                   _e_fatal "Unknown option '$1'" $EX_USAGE;;
+			*)               _e_fatal "Unknown option '$1'" "${EX_USAGE}";;
 		esac
 	else
 		break
@@ -111,12 +103,12 @@ done
 # Get the subcommand
 valid_commands=(config make pastelog clearlogs changelog build update help)
 if [[ ! $cmd ]]; then
-	if [[ " ${valid_commands[*]} " =~ " $1 " ]]; then
+	if [[ "${valid_commands[*]}" =~ ${1} ]]; then
 		cmd=$1
 		shift
 	fi
 	if [[ ! $cmd ]]; then
-		_e_fatal "Unknown command '$1'" $EX_USAGE
+		_e_fatal "Unknown command '$1'" "${EX_USAGE}"
 	fi
 fi
 
@@ -127,7 +119,7 @@ while [[ $# -gt 0 ]]; do
 		if [[ $1 =~ ^-[a-z]{2,} ]]; then
 			param=$1
 			shift
-			set -- ${param:0:2} -${param:2} $@
+			set -- "${param:0:2}" -"${param:2}" "${@}"
 			unset param
 		fi
 		case $1 in
@@ -206,8 +198,8 @@ case $cmd in
 		esac
 		;;
 	update)    _dinner_update ;;
-	help)      help $help_cmd ${params[@]} ;;
-	pastelog)  _paste_log ${params[@]} ;;
+	help)      help $help_cmd "${params[@]}";;
+	pastelog)  _paste_log "${params[@]}";;
 	*)
 		for params in "${params[@]}"; do
 			case $cmd in
