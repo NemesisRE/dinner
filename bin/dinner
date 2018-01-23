@@ -53,10 +53,10 @@ trap "echo \" \"; _e_fatal \"Received SIGINT or SIGTERM\" ${EX_SIGTERM}; _cleanu
 
 exit_status=$EX_SUCCESS
 
-test -x "$(which curl)" && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" $EX_NOTFOUND
-_exec_command "$(which curl) https://storage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
+test -x "$(which curl)" && CURL_BIN=$(which curl) || _e_fatal "\"curl\" not found in PATH" "$EX_NOTFOUND"
+_exec_command "${CURL_BIN} https://storage.googleapis.com/git-repo-downloads/repo > ${DINNER_DIR}/bin/repo"
 if [ -e "${DINNER_DIR}/bin/repo" ]; then
-	chmod a+x c
+	chmod a+x "${DINNER_DIR}/bin/repo"
 	if [ -x "${DINNER_DIR}/bin/repo" ]; then
 		REPO_BIN="${DINNER_DIR}/bin/repo"
 		PATH=${PATH}:${DINNER_DIR}/bin

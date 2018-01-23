@@ -43,11 +43,10 @@ Usage: dinner [options] TASK
 Tasks:
 dinner config [SUBTASK] [EXISTING FILE]            # Add an existing config from filesystem or create a new one
 dinner make [SUBTASK] [CONFIG ..]                  # Clean a menu
-dinner build [CONFIG ..]                            # Clone URI as a menu for dinner
+dinner build [CONFIG ..]                           # Clone URI as a menu for dinner
 dinner changelog [CONFIG ..]                       # Get changlog for config since last successfull build
 dinner clearlogs [OLDER THAN x DAYS] [CONFIG ..]   # Clear logs
 dinner pastelog [CONFIG] [LAST x LINES]            # Pastes latest error log for given config (last 300 lines by default, override by parameter)
-dinner list                                        # List all menus
 dinner update                                      # Updates dinner
 dinner help [TASK]                                 # Show usage of a task
 
