@@ -220,8 +220,6 @@ function _check_prerequisites () {
 
 	_set_current_variables
 
-	_exec_command "cd \"${REPO_DIR}\""
-
 	_generate_local_manifest
 
 	_e_pending "Breakfast ${CURRENT_DEVICE}"
@@ -275,6 +273,8 @@ function _check_variables () {
 }
 
 function _source_envsetup () {
+	_exec_command "cd \"${REPO_DIR}\""
+
 	if [ ! -d "${REPO_DIR}/.repo" ]; then
 		_e_fatal "${REPO_DIR} is not a Repo!"
 	elif [ -f "${REPO_DIR}/build/envsetup.sh" ]; then
@@ -611,7 +611,7 @@ function _paste_log () {
 	if [ -f ${DINNER_TEMP_DIR}/paste.log ]; then
 		printf "\n\nSome debug information: " >> "${DINNER_TEMP_DIR}/paste.log"
 		printf "\nJAVAC_VERSION=$($(which javac) -version 2>&1 | awk '{print $2}')\n" >> "${DINNER_TEMP_DIR}/paste.log"
-		if [ ${REPO_DIR} ]; then	
+		if [ ${REPO_DIR} ]; then
 			printf "\nroomservice.xml=>\n" >> "${DINNER_TEMP_DIR}/paste.log"
 			$(which cat) ${REPO_DIR}/.repo/local_manifests/roomservice.xml >> "${DINNER_TEMP_DIR}/paste.log"
 			if [ ${CURRENT_LOCAL_MANIFEST} ]; then
@@ -810,6 +810,6 @@ function _run_config () {
 	_check_current_config
 
 	_send_notification
-	
+
 	_cleanup
 }
